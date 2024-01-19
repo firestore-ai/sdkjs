@@ -484,6 +484,11 @@ CDocumentControllerBase.prototype.SetParagraphKeepNext = function(Value){};
  */
 CDocumentControllerBase.prototype.SetParagraphWidowControl = function(Value){};
 /**
+ * SnapToGrid
+ * @param {*} Value 
+ */
+CDocumentControllerBase.prototype.SetParagraphSnapToGrid = function(Value){};
+/**
  * Устанавливаем границы параграфа
  * @param Borders
  */

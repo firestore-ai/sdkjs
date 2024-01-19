@@ -2717,6 +2717,10 @@
 					this.applyTextFunction(CDocumentContent.prototype.SetParagraphWidowControl, CTable.prototype.SetParagraphWidowControl, [Value]);
 				},
 
+				setParagraphSnapToGrid: function (Value) {
+					this.applyTextFunction(CDocumentContent.prototype.SetParagraphSnapToGrid, CTable.prototype.SetParagraphSnapToGrid, [Value]);
+				},
+
 				setParagraphBorders: function (Value) {
 					this.applyTextFunction(CDocumentContent.prototype.SetParagraphBorders, CTable.prototype.SetParagraphBorders, [Value]);
 				},

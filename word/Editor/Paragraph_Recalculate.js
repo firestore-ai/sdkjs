@@ -1313,7 +1313,7 @@ Paragraph.prototype.private_RecalculateLineMetrics     = function(CurLine, CurPa
 Paragraph.prototype.private_RecalculateLinePosition    = function(CurLine, CurPage, PRS, ParaPr)
 {
 	// Важно: Значение Border.Space учитывается всегда, даже когда Border.Value = none, а
-	//        вот Border.Size зависит уже от Border.Value
+	//        вот Border.Size зависит уже от Border.Value    
 
     var BaseLineOffset = 0;
     if (CurLine === this.Pages[CurPage].FirstLine)
@@ -1523,6 +1523,35 @@ Paragraph.prototype.private_RecalculateLinePosition    = function(CurLine, CurPa
 			Bottom = this.YLimit;
 	}
 
+    if (this.Get_SectPr() != null)
+    {
+        // --------------------
+        // 是否进行网格对齐
+        var oSectPr = this.Get_SectPr();
+        var docGridType = oSectPr.GetDocGridType();
+        
+        if (docGridType === Asc.c_oAscDocGridType.Lines || docGridType === Asc.c_oAscDocGridType.LinesAndChars) 
+        {
+            if (ParaPr.SnapToGrid === true)
+            {
+                // 获取当前行距
+                var linePitch = AscCommon.TwipsToMM(oSectPr.GetDocGridLinePitch());
+                if (linePitch < (Bottom - Top)) 
+                {
+                    var n = Math.round((Bottom - Top) / linePitch  + 0.5)
+                    linePitch = AscCommon.TwipsToMM(n * 312);
+                }
+                var snapOffset = (linePitch - (Bottom - Top)) / 2;
+
+                console.log("baseline", PRS.BaseLineOffset, "+", snapOffset);
+                PRS.BaseLineOffset += snapOffset;
+                Top     += snapOffset;
+                Bottom  += 2*snapOffset;        
+            }
+        }
+    }
+    // ------------------------
+
 	this.Lines[CurLine].Top    = Top    - this.Pages[CurPage].Y;
 	this.Lines[CurLine].Bottom = Bottom - this.Pages[CurPage].Y;
 
@@ -1542,7 +1571,7 @@ Paragraph.prototype.private_RecalculateLinePosition    = function(CurLine, CurPa
     if (CurLine === this.Pages[CurPage].FirstLine && !(this.Lines[CurLine].Info & paralineinfo_RangeY))
         this.Pages[CurPage].Bounds.Top = Top;
 
-    this.Pages[CurPage].Bounds.Bottom = Bottom;
+    this.Pages[CurPage].Bounds.Bottom = Bottom;   
 
     PRS.LineTop        = AscCommon.CorrectMMToTwips(Top);
     PRS.LineBottom     = AscCommon.CorrectMMToTwips(Bottom);

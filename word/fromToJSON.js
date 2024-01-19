@@ -16519,6 +16519,8 @@
 				oResult["pageBreakBefore"] = this.PageBreakBefore;
 			if (this.SuppressLineNumbers != null)
 				oResult["suppressLineNumbers"] = this.SuppressLineNumbers;
+			if (this.SnapToGrid != null)
+				oResult["snapToGrid"] = this.SnapToGrid;
 
 			if (!this.IsEmptyBorders())
 			{
@@ -16718,6 +16720,8 @@
 				this.PageBreakBefore = oParsedJson["pageBreakBefore"];
 			if (oParsedJson["suppressLineNumbers"] != null)
 				this.SuppressLineNumbers = oParsedJson["suppressLineNumbers"];
+			if (oParsedJson["snapToGrid"] != null)
+				this.SnapToGrid = oParsedJson["snapToGrid"];
 			if (oParsedJson["shd"] != null)
 				this.Shd = ReaderFromJSON.prototype.ShadeFromJSON(oParsedJson["shd"]);
 			if (oParsedJson["tabs"] != null)

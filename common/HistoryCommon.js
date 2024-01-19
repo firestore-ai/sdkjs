@@ -256,6 +256,9 @@
 			case AscDFH.historydescription_Document_SetParagraphWidowControl           :
 				sString = "Document_SetParagraphWidowControl";
 				break;
+			case AscDFH.historydescription_Document_SetParagraphSnapToGrid             :
+					sString = "Document_SetParagraphSnapToGrid";
+					break;
 			case AscDFH.historydescription_Document_SetParagraphKeepLines              :
 				sString = "Document_SetParagraphKeepLines";
 				break;
@@ -1811,6 +1814,7 @@
 	window['AscDFH'].historyitem_Paragraph_SuppressLineNumbers       = window['AscDFH'].historyitem_type_Paragraph | 39;
 	window['AscDFH'].historyitem_Paragraph_Shd_Fill                  = window['AscDFH'].historyitem_type_Paragraph | 40;
 	window['AscDFH'].historyitem_Paragraph_Shd_ThemeFill             = window['AscDFH'].historyitem_type_Paragraph | 41;
+	window['AscDFH'].historyitem_Paragraph_SnapToGrid                = window['AscDFH'].historyitem_type_Paragraph | 46;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaTextPr
 	//------------------------------------------------------------------------------------------------------------------
@@ -4486,6 +4490,7 @@
 	window['AscDFH'].historydescription_Document_RemoveMathShortcut                 = 0x01a9;
 	window['AscDFH'].historydescription_Document_SetAllFormsData                    = 0x01aa;
 	window['AscDFH'].historydescription_Document_ComplexField_MergeFormat           = 0x01ab;
+	window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01ac;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4493,7 +4498,7 @@
 	// Фабрика изменений (заполняется там же, где и определяются классы изменений)
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	window['AscDFH'].changesFactory = {};
 	window['AscDFH'].changesFactory[window['AscDFH'].historyitem_Unknown_Unknown] = CChangesBase;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

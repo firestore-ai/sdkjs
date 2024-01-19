@@ -827,6 +827,13 @@ window.AscCommon.g_cIsBeta = "false";
 		majorMinor : 3
 	};
 
+	const c_oAscDocGridType = {
+		Default		 	: 0,
+		Lines			: 1,
+		LinesAndChars	: 2,
+		SnapToChars		: 3
+	};
+
 	var c_oAscChartTypeSettings = {
 		barNormal              : 0,
 		barStacked             : 1,
@@ -3113,8 +3120,6 @@ window.AscCommon.g_cIsBeta = "false";
 		Top     : 0x04
 	};
 
-
-
 	var c_oAscWatermarkType = {
 		None       : 0,
 		Text       : 1,
@@ -4638,6 +4643,12 @@ window.AscCommon.g_cIsBeta = "false";
 	prot['major']                            = prot.major;
 	prot['minor']                            = prot.minor;
 	prot['majorMinor']                       = prot.majorMinor;
+	window['Asc']['c_oAscDocGridType']		 = window['Asc'].c_oAscDocGridType = c_oAscDocGridType;
+	prot = c_oAscDocGridType;
+	prot['Default']							 = prot.Default;
+	prot['Lines']							 = prot.Lines;
+	prot['LinesAndChars']					 = prot.LinesAndChars;
+	prot['SnapToChars']						 = prot.SnapToChars;
 	window['Asc']['c_oAscChartTypeSettings'] = window['Asc'].c_oAscChartTypeSettings = c_oAscChartTypeSettings;
 	prot                               = c_oAscChartTypeSettings;
 	prot['barNormal']                  = prot.barNormal;

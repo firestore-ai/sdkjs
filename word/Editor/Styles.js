@@ -16745,8 +16745,10 @@ function CParaPr()
 	this.LnSpcReduction    = undefined;
 	this.PrChange          = undefined;
 	this.ReviewInfo        = undefined;
+    this.SnapToGrid        = undefined;
 
 	this.SuppressLineNumbers = undefined;
+    
 }
 
 CParaPr.prototype.Copy = function(bCopyPrChange, oPr)
@@ -16847,6 +16849,9 @@ CParaPr.prototype.Copy = function(bCopyPrChange, oPr)
 
 	if (undefined !== this.SuppressLineNumbers)
 		ParaPr.SuppressLineNumbers = this.SuppressLineNumbers;
+
+    if (undefined !== this.SnapToGrid)
+        ParaPr.SnapToGrid = this.SnapToGrid;
 
 	return ParaPr;
 };
@@ -17016,6 +17021,9 @@ CParaPr.prototype.Merge = function(ParaPr)
 
 	if (undefined !== ParaPr.SuppressLineNumbers)
 		this.SuppressLineNumbers = ParaPr.SuppressLineNumbers;
+
+    if (undefined !== ParaPr.SnapToGrid)    
+        this.SnapToGrid = ParaPr.SnapToGrid;
 };
 CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 {
@@ -17050,6 +17058,7 @@ CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 	this.FramePr                   = undefined;
 	this.OutlineLvl                = undefined;
 	this.SuppressLineNumbers       = false;
+    this.SnapToGrid                = true;
 
 	this.DefaultRunPr   = undefined;
 	this.Bullet         = undefined;
@@ -17182,6 +17191,9 @@ CParaPr.prototype.Set_FromObject = function(ParaPr)
 
 	if (undefined !== ParaPr.SuppressLineNumbers)
 		this.SuppressLineNumbers = ParaPr.SuppressLineNumbers;
+
+    if (undefined !== ParaPr.SnapToGrid)
+        this.SnapToGrid = ParaPr.SnapToGrid;
 };
 CParaPr.prototype.SetFromObject = function(oPr)
 {
@@ -17313,6 +17325,9 @@ CParaPr.prototype.Compare = function(ParaPr)
 
 	if (this.SuppressLineNumbers === ParaPr.SuppressLineNumbers)
 		Result_ParaPr.SuppressLineNumbers = this.SuppressLineNumbers;
+
+    if (this.SnapToGrid === ParaPr.SnapToGrid)
+        Result_ParaPr.SnapToGrid = this.SnapToGrid;
 
 	return Result_ParaPr;
 };
@@ -17473,6 +17488,12 @@ CParaPr.prototype.Write_ToBinary = function(Writer)
 		Flags |= 16777216;
 	}
 
+    if (undefined !== this.SnapToGrid)
+    {
+        Writer.WriteBool(this.SnapToGrid);
+        Flags |= 33554432;        
+    }
+
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
@@ -17604,6 +17625,9 @@ CParaPr.prototype.Read_FromBinary = function(Reader)
 
 	if (Flags & 16777216)
 		this.SuppressLineNumbers = Reader.GetBool();
+
+    if (Flags & 33554432)
+        this.SnapToGrid = Reader.GetBool();
 };
 CParaPr.prototype.isEqual = function(ParaPrUOld,ParaPrNew)
 {
@@ -17645,6 +17669,7 @@ CParaPr.prototype.Is_Equal = function(ParaPr)
 		|| true !== IsEqualStyleObjects(this.Brd.Right, ParaPr.Brd.Right)
 		|| true !== IsEqualStyleObjects(this.Brd.Top, ParaPr.Brd.Top)
 		|| this.WidowControl !== ParaPr.WidowControl
+        || this.SnapToGrid !== ParaPr.SnapToGrid
 		|| true !== IsEqualStyleObjects(this.Tabs, ParaPr.Tabs)
 		|| true !== IsEqualStyleObjects(this.NumPr, ParaPr.NumPr)
 		|| this.PStyle !== ParaPr.PStyle
@@ -17706,6 +17731,9 @@ CParaPr.prototype.GetDiff = function(oParaPr)
 
 	if (this.WidowControl !== oParaPr.WidowControl)
 		oResultParaPr.WidowControl = this.WidowControl;
+
+    if (this.SnapToGrid !== oParaPr.SnapToGrid)
+        oResultParaPr.SnapToGrid = this.SnapToGrid;
 
 	if (this.Tabs && !this.Tabs.IsEqual(oParaPr.Tabs))
 		oResultParaPr.Tabs = this.Tabs.Copy();
@@ -17858,7 +17886,8 @@ CParaPr.prototype.Is_Empty = function(oPr)
 		|| undefined !== this.NumPr
 		|| undefined !== this.PStyle
 		|| undefined !== this.OutlineLvl
-		|| undefined !== this.SuppressLineNumbers);
+		|| undefined !== this.SuppressLineNumbers
+        || undefined !== this.SnapToGrid);
 };
 CParaPr.prototype.IsEmpty = function()
 {
@@ -17908,6 +17937,9 @@ CParaPr.prototype.GetDiffPrChange = function()
 
 	if (this.WidowControl !== PrChange.WidowControl)
 		ParaPr.WidowControl = this.WidowControl;
+
+    if (this.SnapToGrid !== PrChange.SnapToGrid)
+        ParaPr.SnapToGrid = this.SnapToGrid;
 
 	if (this.Tabs !== PrChange.Tabs)
 		ParaPr.Tabs = this.Tabs;
@@ -18104,6 +18136,14 @@ CParaPr.prototype.SetSuppressLineNumbers = function(isSuppress)
 {
 	this.SuppressLineNumbers = isSuppress;
 };
+CParaPr.prototype.GetSnapToGrid = function()
+{
+    return this.SnapToGrid;
+};
+CParaPr.prototype.SetSnapToGrid = function(snapToGrid)
+{
+    this.SnapToGrid = snapToGrid;
+};
 CParaPr.prototype.WriteToBinary = function(oWriter)
 {
 	return this.Write_ToBinary(oWriter);
@@ -18173,7 +18213,10 @@ CParaPr.prototype['put_PStyle']                   = CParaPr.prototype.put_PStyle
 CParaPr.prototype['get_OutlineLvl']               = CParaPr.prototype.get_OutlineLvl               = CParaPr.prototype['Get_OutlineLvl']               = CParaPr.prototype.GetOutlineLvl;
 CParaPr.prototype['put_OutlineLvl']               = CParaPr.prototype.put_OutlineLvl               = CParaPr.prototype.SetOutlineLvl;
 CParaPr.prototype['get_SuppressLineNumbers']      = CParaPr.prototype.get_SuppressLineNumbers      = CParaPr.prototype['Get_SuppressLineNumbers']      = CParaPr.prototype.GetSuppressLineNumbers;
-CParaPr.prototype['pet_SuppressLineNumbers']      = CParaPr.prototype.put_SuppressLineNumbers      = CParaPr.prototype.SetSuppressLineNumbers;
+CParaPr.prototype['put_SuppressLineNumbers']      = CParaPr.prototype.put_SuppressLineNumbers      = CParaPr.prototype.SetSuppressLineNumbers;
+CParaPr.prototype['get_SnapToGrid']               = CParaPr.prototype.get_SnapToGrid               = CParaPr.prototype['Get_SnapToGrid']               = CParaPr.prototype.GetSnapToGrid;
+CParaPr.prototype['put_SnapToGrid']               = CParaPr.prototype.put_SnapToGrid               = CParaPr.prototype.SnapToGrid;
+
 //----------------------------------------------------------------------------------------------------------------------
 
 function Copy_Bounds(Bounds)

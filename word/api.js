@@ -3809,13 +3809,16 @@ background-repeat: no-repeat;\
 
 			if (undefined != Props.WidowControl && null != Props.WidowControl)
 				this.WordControl.m_oLogicDocument.SetParagraphWidowControl(Props.WidowControl);
+			
+			if (undefined != Props.SnapToGrid && null != Props.SnapToGrid)
+				this.WordControl.m_oLogicDocument.SetParagraphSnapToGrid(Props.SnapToGrid);
 
 			if ("undefined" != typeof(Props.PageBreakBefore) && null != Props.PageBreakBefore)
 				this.WordControl.m_oLogicDocument.SetParagraphPageBreakBefore(Props.PageBreakBefore);
 
 			if ("undefined" != typeof(Props.Spacing) && null != Props.Spacing)
 				this.WordControl.m_oLogicDocument.SetParagraphSpacing(Props.Spacing);
-
+			
 			if (undefined !== Props.OutlineLvl)
 				this.WordControl.m_oLogicDocument.SetParagraphOutlineLvl(Props.OutlineLvl);
 
@@ -4432,6 +4435,18 @@ background-repeat: no-repeat;\
 		}
 	};
 
+	asc_docs_api.prototype.put_SnapToGrid = function(bValue)
+	{
+		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
+		{
+			// TODO coauthoring
+			//this.WordControl.m_oLogicDocument.StartAction(AscDFH.historydescription_Document_SetParagraphSnapToGrid);
+			this.WordControl.m_oLogicDocument.SetParagraphSnapToGrid(bValue);
+			this.sync_SnapToGridCallback(bValue);
+			//this.WordControl.m_oLogicDocument.FinalizeAction();
+		}
+	};
+
 	asc_docs_api.prototype.put_KeepLines = function(isKeepLines)
 	{
 		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
@@ -4779,6 +4794,11 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype.sync_WidowControlCallback = function(bValue)
 	{
 		this.sendEvent("asc_onWidowControl", bValue);
+	};
+
+	asc_docs_api.prototype.sync_SnapToGridCallback = function(bValue)
+	{
+		this.sendEvent("asc_onSnapToGrid", bValue);
 	};
 
 	asc_docs_api.prototype.sync_KeepNextCallback = function(bValue)
@@ -8187,6 +8207,28 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype.asc_GetViewRulers       = function()
 	{
 		return this.WordControl.m_bIsRuler;
+	};
+	asc_docs_api.prototype.asc_SetViewDocGrid = function(bDocGrid)
+	{
+		if (this.WordControl.m_bIsDocGrid != bDocGrid)
+		{
+			this.WordControl.m_bIsDocGrid = bDocGrid;
+			
+			this.WordControl.m_oDrawingDocument.ClearCachePages();
+			this.WordControl.m_oDrawingDocument.FirePaint();		
+		}
+	}
+	asc_docs_api.prototype.asc_SetViewDocGridChange = function()
+	{
+		this.WordControl.m_bIsDocGrid = !this.WordControl.m_bIsDocGrid;
+		this.WordControl.m_oDrawingDocument.ClearCachePages();
+		this.WordControl.m_oDrawingDocument.FirePaint();		
+		return this.WordControl.m_bIsDocGrid;
+
+	}
+	asc_docs_api.prototype.asc_GetViewDocGrid       = function()
+	{
+		return this.WordControl.m_bIsDocGrid;
 	};
 
 	asc_docs_api.prototype.asc_SetDocumentUnits = function(_units)
@@ -13903,6 +13945,7 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['sync_ParaSpacingLine']                      = asc_docs_api.prototype.sync_ParaSpacingLine;
 	asc_docs_api.prototype['sync_PageBreakCallback']                    = asc_docs_api.prototype.sync_PageBreakCallback;
 	asc_docs_api.prototype['sync_WidowControlCallback']                 = asc_docs_api.prototype.sync_WidowControlCallback;
+	asc_docs_api.prototype['sync_SnapToGridCallback']                   = asc_docs_api.prototype.sync_SnapToGridCallback;
 	asc_docs_api.prototype['sync_KeepNextCallback']                     = asc_docs_api.prototype.sync_KeepNextCallback;
 	asc_docs_api.prototype['sync_KeepLinesCallback']                    = asc_docs_api.prototype.sync_KeepLinesCallback;
 	asc_docs_api.prototype['sync_ShowParaMarksCallback']                = asc_docs_api.prototype.sync_ShowParaMarksCallback;
@@ -14082,6 +14125,9 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['asc_SetViewRulers']                         = asc_docs_api.prototype.asc_SetViewRulers;
 	asc_docs_api.prototype['asc_SetViewRulersChange']                   = asc_docs_api.prototype.asc_SetViewRulersChange;
 	asc_docs_api.prototype['asc_GetViewRulers']                         = asc_docs_api.prototype.asc_GetViewRulers;
+	asc_docs_api.prototype['asc_SetViewDocGrid']                        = asc_docs_api.prototype.asc_SetViewDocGrid;
+	asc_docs_api.prototype['asc_SetViewDocGridChange']                  = asc_docs_api.prototype.asc_SetViewDocGridChange;
+	asc_docs_api.prototype['asc_GetViewDocGrid']                        = asc_docs_api.prototype.asc_GetViewDocGrid;
 	asc_docs_api.prototype['asc_SetDocumentUnits']                      = asc_docs_api.prototype.asc_SetDocumentUnits;
 	asc_docs_api.prototype['GoToHeader']                                = asc_docs_api.prototype.GoToHeader;
 	asc_docs_api.prototype['GoToFooter']                                = asc_docs_api.prototype.GoToFooter;

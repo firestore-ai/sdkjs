@@ -594,6 +594,9 @@ CDocumentContentElementBase.prototype.SetParagraphKeepNext = function(Value)
 CDocumentContentElementBase.prototype.SetParagraphWidowControl = function(Value)
 {
 };
+CDocumentContentElementBase.prototype.SetParagraphSnapToGrid = function(Value)
+{
+};
 CDocumentContentElementBase.prototype.SetParagraphBorders = function(Borders)
 {
 };

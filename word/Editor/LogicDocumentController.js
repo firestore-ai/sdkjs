@@ -191,6 +191,10 @@ CLogicDocumentController.prototype.SetParagraphWidowControl = function(Value)
 {
 	this.LogicDocument.controller_SetParagraphWidowControl(Value);
 };
+CLogicDocumentController.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	this.LogicDocument.controller_SetParagraphSnapToGrid(Value);
+};
 CLogicDocumentController.prototype.SetParagraphBorders = function(Borders)
 {
 	this.LogicDocument.controller_SetParagraphBorders(Borders);

@@ -54,6 +54,7 @@ AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_Color]                 = 
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_Unifill]               = CChangesParagraphShdUnifill;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd]                       = CChangesParagraphShd;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_WidowControl]              = CChangesParagraphWidowControl;
+AscDFH.changesFactory[AscDFH.historyitem_Paragraph_SnapToGrid]                = CChangesParagraphSnapToGrid;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Tabs]                      = CChangesParagraphTabs;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_PStyle]                    = CChangesParagraphPStyle;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Borders_Between]           = CChangesParagraphBordersBetween;
@@ -189,6 +190,10 @@ AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_Shd]                     
 ];
 AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_WidowControl]              = [
 	AscDFH.historyitem_Paragraph_WidowControl,
+	AscDFH.historyitem_Paragraph_Pr
+];
+AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_SnapToGrid]              = [
+	AscDFH.historyitem_Paragraph_SnapToGrid,
 	AscDFH.historyitem_Paragraph_Pr
 ];
 AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_Tabs]                      = [
@@ -1119,6 +1124,27 @@ CChangesParagraphWidowControl.prototype.Merge = private_ParagraphChangesOnMergeP
 CChangesParagraphWidowControl.prototype.Load = private_ParagraphChangesOnLoadPr;
 /**
  * @constructor
+ * @extends {AscDFH.CChangesBaseBoolProperty}
+ */
+function CChangesParagraphSnapToGrid(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseBoolProperty.call(this, Class, Old, New, Color);
+}
+CChangesParagraphSnapToGrid.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
+CChangesParagraphSnapToGrid.prototype.constructor = CChangesParagraphSnapToGrid;
+CChangesParagraphSnapToGrid.prototype.Type = AscDFH.historyitem_Paragraph_SnapToGrid;
+CChangesParagraphSnapToGrid.prototype.private_SetValue = function(Value)
+{
+	var oParagraph = this.Class;
+	oParagraph.Pr.SnapToGrid = Value;
+
+	oParagraph.CompiledPr.NeedRecalc = true;
+	oParagraph.private_UpdateTrackRevisionOnChangeParaPr(false);
+};
+CChangesParagraphSnapToGrid.prototype.Merge = private_ParagraphChangesOnMergePr;
+CChangesParagraphSnapToGrid.prototype.Load = private_ParagraphChangesOnLoadPr;
+/**
+ * @constructor
  * @extends {AscDFH.CChangesBaseObjectProperty}
  */
 function CChangesParagraphTabs(Class, Old, New, Color)
@@ -1480,6 +1506,11 @@ CChangesParagraphPr.prototype.Merge = function(oChange)
 		case AscDFH.historyitem_Paragraph_WidowControl:
 		{
 			this.New.WidowControl = oChange.New;
+			break;
+		}
+		case AscDFH.historyitem_Paragraph_SnapToGrid:
+		{
+			this.New.SnapToGrid = oChange.New;
 			break;
 		}
 		case AscDFH.historyitem_Paragraph_Tabs:

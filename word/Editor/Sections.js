@@ -88,6 +88,8 @@ function CSectionPr(LogicDocument)
 
 	this.LnNumType     = undefined;
 
+	this.DocGrid	    = new CSectionDocGrid();
+
     // Добавляем данный класс в таблицу Id (обязательно в конце конструктора)
     AscCommon.g_oTableId.Add( this, this.Id );
 }
@@ -1420,8 +1422,42 @@ CSectionPr.prototype.RemoveHeader = function(oHeader)
 	else if (this.FooterFirst === oHeader)
 		this.Set_Footer_First(null);
 };
-
-
+CSectionPr.prototype.GetDocGridType = function()
+{
+	return (this.DocGrid && undefined !== this.DocGrid.Type ? this.DocGrid.Type : Asc.c_oAscDocGridType.Default);
+};
+CSectionPr.prototype.GetDocGridLinePitch = function()
+{
+	return (this.DocGrid && undefined !== this.DocGrid.LinePitch ? this.DocGrid.LinePitch : 0);
+};
+CSectionPr.prototype.GetDocGridCharSpace = function()
+{
+	return (this.DocGrid && undefined != this.DocGrid.CharSpace ? this.DocGrid.CharSpace : 0);
+};
+CSectionPr.prototype.SetDocGridType = function(Type)
+{
+	var _Type = this.GetDocGridType();
+	if (Type != _Type) 
+	{
+		this.DocGrid.Type = Type;
+	}
+};
+CSectionPr.prototype.SetDocGridLinePitch = function(LinePitch)
+{
+	var _LinePitch = this.GetDocGridLinePitch();
+	if (_LinePitch != LinePitch) 
+	{
+		this.DocGrid.LinePitch = LinePitch;
+	}
+};
+CSectionPr.prototype.SetDocGridCharSpace = function(CharSpace)
+{
+	var _CharSpace = this.GetDocGridCharSpace();
+	if (_CharSpace != CharSpace) 
+	{
+		this.DocGrid.CharSpace = _CharSpace;
+	}
+};
 function CSectionPageSize()
 {
     this.W      = 210;
@@ -1451,6 +1487,38 @@ CSectionPageSize.prototype =
         this.W      = Reader.GetDouble();
         this.H      = Reader.GetDouble();
         this.Orient = Reader.GetByte();
+    }
+};
+
+function CSectionDocGrid()
+{
+	this.Type = Asc.c_oAscDocGridType.Default;
+	this.LinePitch = 285;
+	this.CharSpace = 0;
+}
+
+CSectionDocGrid.prototype = 
+{
+	Write_ToBinary : function(Writer)
+    {
+		// Byte : Type
+        // LONG	: LinePitch
+        // LONG : CharSpace
+        
+		Writer.WriteByte( this.Type );
+        Writer.WriteLong( this.LinePitch );
+        Writer.WriteLong( this.CharSpace );
+    },
+
+    Read_FromBinary : function(Reader)
+    {
+		// Byte : Type
+        // LONG	: LinePitch
+        // LONG : CharSpace
+                
+        this.Type      = Reader.GetByte();
+        this.LinePitch = Reader.GetLong();
+        this.CharSpace = Reader.GetLong();
     }
 };
 

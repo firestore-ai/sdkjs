@@ -4453,6 +4453,8 @@ CGraphicObjects.prototype =
 
 
     setParagraphWidowControl: DrawingObjectsController.prototype.setParagraphWidowControl,
+    
+    setParagraphSnapToGrid: DrawingObjectsController.prototype.setParagraphSnapToGrid,
 
     setParagraphBorders: DrawingObjectsController.prototype.setParagraphBorders,
 

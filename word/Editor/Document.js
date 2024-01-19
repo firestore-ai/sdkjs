@@ -5571,6 +5571,10 @@ CDocument.prototype.Draw                                     = function(nPageInd
 	// Рисуем границы вокруг страницы (если границы надо рисовать под текстом)
 	if (section_borders_ZOrderBack === SectPr.Get_Borders_ZOrder())
 		this.DrawPageBorders(pGraphics, SectPr, nPageIndex);
+	
+	// draw grids	
+	if (this.DrawingDocument.m_oWordControl.m_bIsDocGrid === true)
+		this.DrawDocGrid(pGraphics, SectPr, nPageIndex);
 
 	this.HdrFtr.Draw(nPageIndex, pGraphics);
 
@@ -5731,6 +5735,58 @@ CDocument.prototype.Draw                                     = function(nPageInd
         pGraphics.DrawFooterEdit(nFooterY, this.HdrFtr.Lock.Get_Type(), SectIndex, RepF, FooterInfo);
     }
 };
+
+CDocument.prototype.DrawDocGrid = function(Graphics, oSectPr, nPageIndex) 
+{
+	var LBorder = oSectPr.Get_Borders_Left();
+	var TBorder = oSectPr.Get_Borders_Top();
+	var RBorder = oSectPr.Get_Borders_Right();
+	var BBorder = oSectPr.Get_Borders_Bottom();
+
+	var W = oSectPr.GetPageWidth();
+	var H = oSectPr.GetPageHeight();
+
+	var linePitch = oSectPr.GetDocGridLinePitch();
+	
+
+	if (section_borders_OffsetFromPage === oSectPr.GetBordersOffsetFrom())
+	{
+		// 没有网格 type N
+		// 行网格 44行		
+		var from = TBorder.Space + TBorder.Size;
+		var end = H - (BBorder.Space + BBorder.Size);
+		var maxLine = Math.round(AscCommon.MMToTwips(end - from) / linePitch);
+		var step  = AscCommon.TwipsToMM(linePitch);
+		var X = LBorder.Space + LBorder.Size;
+		var R = W - (RBorder.Space + RBorder.Size);
+
+
+		for (var i = 0; i < maxLine + 1; i++) {
+			Graphics.p_color(192, 192, 192, 255);
+			Graphics.drawHorLine(c_oAscLineDrawingRule.Center, from + step * i, X, R, 0.1);
+		}
+	} else {
+		var oFrame = oSectPr.GetContentFrame(nPageIndex);
+
+		var _X0 = oFrame.Left;
+		var _X1 = oFrame.Right;
+		var _Y0 = oFrame.Top;
+		var _Y1 = oFrame.Bottom;
+
+		var from = _Y0;
+		var end = _Y1;
+		var maxLine = Math.round(AscCommon.MMToTwips(end - from) / linePitch);
+		var step  = AscCommon.TwipsToMM(linePitch);
+
+		console.log("line", maxLine, "line pitch", step);
+
+		for (var i = 0; i < maxLine + 1; i++) {			
+			Graphics.p_color(192, 192, 192, 255);
+			Graphics.drawHorLine(c_oAscLineDrawingRule.Center, from + step * i, _X0, _X1, 0.1);
+		}
+	}
+}
+
 CDocument.prototype.DrawPageBorders = function(Graphics, oSectPr, nPageIndex)
 {
 	var LBorder = oSectPr.Get_Borders_Left();
@@ -6939,6 +6995,13 @@ CDocument.prototype.SetParagraphKeepNext = function(Value)
 CDocument.prototype.SetParagraphWidowControl = function(Value)
 {
 	this.Controller.SetParagraphWidowControl(Value);
+	this.Recalculate();
+	this.Document_UpdateSelectionState();
+	this.Document_UpdateInterfaceState();
+};
+CDocument.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	this.Controller.SetParagraphSnapToGrid(Value);
 	this.Recalculate();
 	this.Document_UpdateSelectionState();
 	this.Document_UpdateInterfaceState();
@@ -20216,6 +20279,34 @@ CDocument.prototype.controller_SetParagraphWidowControl = function(Value)
 	{
 		var Item = this.Content[this.CurPos.ContentPos];
 		Item.SetParagraphWidowControl(Value);
+	}
+};
+CDocument.prototype.controller_SetParagraphSnapToGrid = function(Value)
+{
+	if (this.CurPos.ContentPos < 0)
+		return false;
+
+	if (true === this.Selection.Use)
+	{
+		var StartPos = this.Selection.StartPos;
+		var EndPos   = this.Selection.EndPos;
+		if (EndPos < StartPos)
+		{
+			var Temp = StartPos;
+			StartPos = EndPos;
+			EndPos   = Temp;
+		}
+
+		for (var Index = StartPos; Index <= EndPos; Index++)
+		{
+			var Item = this.Content[Index];
+			Item.SetParagraphSnapToGrid(Value);
+		}
+	}
+	else
+	{
+		var Item = this.Content[this.CurPos.ContentPos];
+		Item.SetParagraphSnapToGrid(Value);
 	}
 };
 CDocument.prototype.controller_SetParagraphBorders = function(Borders)
