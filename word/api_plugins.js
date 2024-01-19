@@ -283,6 +283,8 @@
 			"InternalId" : prop.InternalId,
 			"Appearance" : prop.Appearance,
 		};
+
+		
 		
 		if (prop.Color)
 		{

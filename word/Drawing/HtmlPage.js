@@ -119,6 +119,10 @@ function CEditorPage(api)
 	this.m_bIsUpdateHorRuler = false;
 	this.m_bIsUpdateVerRuler = false;
 
+	// docgrid
+	// todo
+	this.m_bDocGrid = false;
+
 	// document position
 	this.m_oBoundsController = new AscFormat.CBoundsController();
 

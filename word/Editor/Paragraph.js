@@ -11590,6 +11590,18 @@ Paragraph.prototype.Set_WidowControl = function(Value)
 		this.private_UpdateTrackRevisionOnChangeParaPr(true);
 	}
 };
+Paragraph.prototype.Set_SnapToGrid = function(Value)
+{
+	if (Value != this.Pr.SnaptoGrid)
+	{
+		this.private_AddPrChange();
+		History.Add(new CChangesParagraphSnapToGrid(this, this.Pr.SnapToGrid, Value));
+		this.Pr.SnapToGrid = Value;
+
+		this.CompiledPr.NeedRecalc = true;
+		this.private_UpdateTrackRevisionOnChangeParaPr(true);
+	}
+};
 Paragraph.prototype.Set_Borders = function(Borders)
 {
 	if (undefined === Borders)
@@ -16446,6 +16458,10 @@ Paragraph.prototype.SetParagraphKeepNext = function(Value)
 Paragraph.prototype.SetParagraphWidowControl = function(Value)
 {
 	this.Set_WidowControl(Value);
+};
+Paragraph.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	this.Set_SnapToGrid(Value);
 };
 Paragraph.prototype.SetParagraphBorders = function(Borders)
 {

@@ -5382,6 +5382,54 @@ CDocumentContent.prototype.SetParagraphWidowControl = function(Value)
 		}
 	}
 };
+CDocumentContent.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	if (true === this.ApplyToAll)
+	{
+		for (var Index = 0; Index < this.Content.length; Index++)
+		{
+			var Item = this.Content[Index];
+			Item.SetApplyToAll(true);
+			Item.SetParagraphSnapToGrid(Value);
+			Item.SetApplyToAll(false);
+		}
+
+		return;
+	}
+
+	if (docpostype_DrawingObjects === this.CurPos.Type)
+	{
+		return this.LogicDocument.DrawingObjects.setParagraphSnapToGrid(Value);
+	}
+	else //if ( docpostype_Content === this.CurPos.Type )
+	{
+		if (this.CurPos.ContentPos < 0)
+			return false;
+
+		if (true === this.Selection.Use)
+		{
+			var StartPos = this.Selection.StartPos;
+			var EndPos   = this.Selection.EndPos;
+			if (EndPos < StartPos)
+			{
+				var Temp = StartPos;
+				StartPos = EndPos;
+				EndPos   = Temp;
+			}
+
+			for (var Index = StartPos; Index <= EndPos; Index++)
+			{
+				var Item = this.Content[Index];
+				Item.SetParagraphSnapToGrid(Value);
+			}
+		}
+		else
+		{
+			var Item = this.Content[this.CurPos.ContentPos];
+			Item.SetParagraphWidowSnapToGrid(Value);
+		}
+	}
+};
 CDocumentContent.prototype.SetParagraphBorders = function(Borders)
 {
 	if (true === this.ApplyToAll)

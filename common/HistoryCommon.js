@@ -256,6 +256,9 @@
 			case AscDFH.historydescription_Document_SetParagraphWidowControl           :
 				sString = "Document_SetParagraphWidowControl";
 				break;
+			case AscDFH.historydescription_Document_SetParagraphSnapToGrid             :
+					sString = "Document_SetParagraphSnapToGrid";
+					break;
 			case AscDFH.historydescription_Document_SetParagraphKeepLines              :
 				sString = "Document_SetParagraphKeepLines";
 				break;
@@ -1803,6 +1806,7 @@
 	window['AscDFH'].historyitem_Paragraph_SuppressLineNumbers       = window['AscDFH'].historyitem_type_Paragraph | 39;
 	window['AscDFH'].historyitem_Paragraph_Shd_Fill                  = window['AscDFH'].historyitem_type_Paragraph | 40;
 	window['AscDFH'].historyitem_Paragraph_Shd_ThemeFill             = window['AscDFH'].historyitem_type_Paragraph | 41;
+	window['AscDFH'].historyitem_Paragraph_SnapToGrid                = window['AscDFH'].historyitem_type_Paragraph | 46;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaTextPr
 	//------------------------------------------------------------------------------------------------------------------
@@ -4469,6 +4473,7 @@
 	window['AscDFH'].historydescription_Document_SetConsecutiveHyphenLimit          = 0x01a7;
 	window['AscDFH'].historydescription_Document_SetHyphenateCaps                   = 0x01a8;
 	window['AscDFH'].historydescription_Document_RemoveMathShortcut                 = 0x01a9;
+	window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01aa;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

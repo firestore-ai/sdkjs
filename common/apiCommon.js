@@ -3368,6 +3368,7 @@
 			this.KeepLines = (undefined != obj.KeepLines) ? obj.KeepLines : null;
 			this.KeepNext = (undefined != obj.KeepNext) ? obj.KeepNext : undefined;
 			this.WidowControl = (undefined != obj.WidowControl ? obj.WidowControl : undefined );
+			this.SnapToGrid = (undefined != obj.SnapToGrid ? obj.SnapToGrid : undefined );
 			this.PageBreakBefore = (undefined != obj.PageBreakBefore) ? obj.PageBreakBefore : null;
 			this.Spacing = (undefined != obj.Spacing && null != obj.Spacing) ? new asc_CParagraphSpacing(obj.Spacing) : null;
 			this.Brd = (undefined != obj.Brd && null != obj.Brd) ? new asc_CParagraphBorders(obj.Brd) : null;
@@ -3429,6 +3430,7 @@
 			this.KeepLines = undefined;
 			this.KeepNext = undefined;
 			this.WidowControl = undefined;
+			this.SnapToGrid = undefined;
 			this.PageBreakBefore = undefined;
 			this.Spacing = new asc_CParagraphSpacing();
 			this.Brd = undefined;
@@ -3503,6 +3505,12 @@
 		},
 		asc_putWidowControl: function (v) {
 			this.WidowControl = v;
+		},
+		asc_getSnapToGrid: function() {
+			return this.SnapToGrid;
+		},
+		asc_setSnapToGrid: function(v) {
+			this.SnapToGrid = v;
 		},
 		asc_getSpacing: function () {
 			return this.Spacing;
@@ -7608,6 +7616,8 @@
 	prot["get_OutlineLvlStyle"] = prot["asc_getOutlineLvlStyle"] = prot.asc_getOutlineLvlStyle;
 	prot["get_SuppressLineNumbers"] = prot["asc_getSuppressLineNumbers"] = prot.asc_getSuppressLineNumbers;
 	prot["put_SuppressLineNumbers"] = prot["asc_putSuppressLineNumbers"] = prot.asc_putSuppressLineNumbers;
+	prot["get_SnapToGrid"] = prot["asc_getSnapToGrid"]  = prot.asc_getSnapToGrid;
+	prot["put_SnapToGrid"] = prot["asc_putSnapToGrid"]  = prot.asc_putSnapToGrid;
 	prot["put_Bullet"] = prot["asc_putBullet"] = prot.asc_putBullet;
 	prot["get_Bullet"] = prot["asc_getBullet"] = prot.asc_getBullet;
 	prot["put_BulletSize"] = prot["asc_putBulletSize"] = prot.asc_putBulletSize;

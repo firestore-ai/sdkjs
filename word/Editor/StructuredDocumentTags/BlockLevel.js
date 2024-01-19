@@ -667,6 +667,10 @@ CBlockLevelSdt.prototype.SetParagraphWidowControl = function(Value)
 {
 	return this.Content.SetParagraphWidowControl(Value);
 };
+CBlockLevelSdt.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	return this.Content.SetParagraphSnapToGrid(Value);
+};
 CBlockLevelSdt.prototype.SetParagraphBorders = function(Borders)
 {
 	return this.Content.SetParagraphBorders(Borders);

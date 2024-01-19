@@ -279,7 +279,9 @@ var c_oSerProp_pPrType = {
 	Spacing_AfterTwips: 41,
 	Tab_Item_PosTwips: 42,
 	Tab_Item_Val: 43,
-	SuppressLineNumbers: 44
+	SuppressLineNumbers: 44,
+	CnfStyle: 45,
+	SnapToGrid: 46
 };
 var c_oSerProp_rPrType = {
     Bold:0,
@@ -393,7 +395,8 @@ var c_oSerProp_secPrType = {
 	footnotePr: 10,
 	endnotePr: 11,
 	rtlGutter: 12,
-	lnNumType: 13
+	lnNumType: 13,
+	docGrid: 14
 };
 var c_oSerProp_secPrSettingsType = {
     titlePg: 0,
@@ -408,6 +411,11 @@ var c_oSerProp_secPrLineNumType = {
 	Distance: 1,
 	Restart: 2,
 	Start: 3
+};
+var c_oSerProp_secPrDocGridType = {
+	Type: 0,
+	LinePitch: 1,
+	CharSpace: 2	
 };
 var c_oSerProp_Columns = {
 	EqualWidth: 0,
@@ -2456,6 +2464,12 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 			this.memory.WriteByte(c_oSerPropLenType.Byte);
 			this.memory.WriteBool(pPr.SuppressLineNumbers);
 		}
+		if (null != pPr.SnapToGrid)
+		{
+			this.memory.WriteByte(c_oSerProp_pPrType.SnapToGrid);
+			this.memory.WriteByte(c_oSerPropLenType.Byte);
+			this.memory.WriteBool(pPr.SnapToGrid);
+		}
     };
     this.WriteInd = function(Ind)
     {
@@ -2674,8 +2688,11 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
         this.bs.WriteItem(c_oSerProp_secPrType.pgSz, function(){oThis.WritePageSize(sectPr, oDocument);});
         //pgMar
         this.bs.WriteItem(c_oSerProp_secPrType.pgMar, function(){oThis.WritePageMargin(sectPr, oDocument);});
+		// docGrid
+		this.bs.WriteItem(c_oSerProp_secPrType.docGrid, function(){oThis.WriteDocGrid(sectPr, oDocument);});
 		//setting
         this.bs.WriteItem(c_oSerProp_secPrType.setting, function(){oThis.WritePageSetting(sectPr, oDocument);});
+		
 		//header
 		if(null != sectPr.HeaderFirst || null != sectPr.HeaderEven || null != sectPr.HeaderDefault)
 			this.bs.WriteItem(c_oSerProp_secPrType.headers, function(){oThis.WriteHdr(sectPr);});
@@ -2792,6 +2809,23 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 		this.memory.WriteByte(c_oSerPropLenType.Long);
 		this.bs.writeMmToTwips(sectPr.GetGutter());
     };
+	this.WriteDocGrid = function(sectPr, oDocument)
+	{
+		// type
+		this.memory.WriteByte(c_oSerProp_secPrDocGridType.Type);
+        this.memory.WriteByte(c_oSerPropLenType.Byte);
+        this.memory.WriteByte(sectPr.GetDocGridType());
+		// TODO 是否应该统一使用mm作为默认单位呢？ 先doc文件中的值
+		// line pitch 
+		this.memory.WriteByte(c_oSerProp_secPrDocGridType.LinePitch);
+        this.memory.WriteByte(c_oSerPropLenType.Long);
+        this.memory.WriteLong(sectPr.GetLinePitch());
+		// char space
+		this.memory.WriteByte(c_oSerProp_secPrDocGridType.CharSpace);
+        this.memory.WriteByte(c_oSerPropLenType.Long);
+        this.memory.WriteLong(sectPr.GetCharSpace());
+
+	};
 	this.WritePageSetting = function(sectPr, oDocument)
     {
 		var titlePg = sectPr.Get_TitlePage();
@@ -9330,6 +9364,9 @@ function Binary_pPrReader(doc, oReadResult, stream)
 			case c_oSerProp_pPrType.SuppressLineNumbers:
 				pPr.SuppressLineNumbers = this.stream.GetBool();
 				break;
+			case c_oSerProp_pPrType.SnapToGrid:
+				pPr.SnapToGrid = this.stream.GetBool();
+				break;
             default:
                 res = c_oSerConstants.ReadUnknown;
                 break;
@@ -9604,6 +9641,19 @@ function Binary_pPrReader(doc, oReadResult, stream)
             if(null != oSize.Orientation)
                 oSectPr.SetOrientation(oSize.Orientation, false);
         }
+		else if (c_oSerProp_secPrType.docGrid === type )
+		{
+			var oDocGrid = {Type: null, LinePitch: null, CharSpace: null};
+			res = this.bcr.Read2(length, function(t, l) {
+				return oThis.Read_docGrid(t, l, oDocGrid);
+			});
+			if (null != oDocGrid.Type)
+				oSectPr.SetDocGridType(oDocGrid.Type);
+			if (null != oDocGrid.LinePitch)
+				oSectPr.SetDocGridLinePitch(oDocGrid.LinePitch);
+			if (null != oDocGrid.CharSpace)
+				oSectPr.SetDocGridCharSpace(oDocGrid.CharSpace);
+		}
         else if( c_oSerProp_secPrType.pgMar === type )
         {
 			var oMar = {L: null, T: null, R: null, B: null};
@@ -9776,6 +9826,25 @@ function Binary_pPrReader(doc, oReadResult, stream)
             res = c_oSerConstants.ReadUnknown;
         return res;
     }
+	this.Read_docGrid = function(type, length, oDocGrid)
+	{
+		var res = c_oSerConstants.ReadOk;
+		if ( c_oSerProp_secPrDocGridType.Type === type )
+		{
+			oDocGrid.Type = this.stream.GetUChar();
+		}
+		else if ( c_oSerProp_secPrDocGridType.LinePitch === type )
+		{
+			oDocGrid.LinePitch = this.stream.GetLong();
+		}
+		else if ( c_oSerProp_secPrDocGridType.CharSpace === type )
+		{
+			oDocGrid.CharSpace = this.stream.GetLong();
+		}
+		else
+            res = c_oSerConstants.ReadUnknown;
+        return res;
+	}
     this.Read_pgSz = function(type, length, oSize)
     {
         var res = c_oSerConstants.ReadOk;
