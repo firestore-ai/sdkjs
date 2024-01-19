@@ -121,7 +121,7 @@ function CEditorPage(api)
 
 	// docgrid
 	// todo
-	this.m_bDocGrid = false;
+	this.m_bIsDocGrid = false;
 
 	// document position
 	this.m_oBoundsController = new AscFormat.CBoundsController();
