@@ -13867,6 +13867,8 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['put_PageBreak']                             = asc_docs_api.prototype.put_PageBreak;
 	asc_docs_api.prototype['put_WidowControl']                          = asc_docs_api.prototype.put_WidowControl;
 	asc_docs_api.prototype['put_KeepLines']                             = asc_docs_api.prototype.put_KeepLines;
+	asc_docs_api.prototype['put_SnapToGrid']						    = asc_docs_api.prototype.put_SnapToGrid;
+	
 	asc_docs_api.prototype['put_KeepNext']                              = asc_docs_api.prototype.put_KeepNext;
 	asc_docs_api.prototype['put_AddSpaceBetweenPrg']                    = asc_docs_api.prototype.put_AddSpaceBetweenPrg;
 	asc_docs_api.prototype['put_LineHighLight']                         = asc_docs_api.prototype.put_LineHighLight;
