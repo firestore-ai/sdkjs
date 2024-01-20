@@ -3623,6 +3623,12 @@
 		asc_putSuppressLineNumbers: function(isSuppress) {
 			this.SuppressLineNumbers = isSuppress;
 		},
+		asc_putSnapToGrid: function(snapToGrid) {
+			this.SnapToGrid = snapToGrid;
+		},
+		asc_getSnapToGrid: function() {
+			return this.SnapToGrid;
+		},
 		asc_putBullet: function(val) {
 			this.Bullet = val;
 		},

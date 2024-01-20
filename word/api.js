@@ -8205,6 +8205,9 @@ background-repeat: no-repeat;\
 	};
 	asc_docs_api.prototype.asc_SetViewDocGrid = function(bDocGrid)
 	{
+		if (this.WordControl == null)
+			return;
+
 		if (this.WordControl.m_bIsDocGrid != bDocGrid)
 		{
 			this.WordControl.m_bIsDocGrid = bDocGrid;
