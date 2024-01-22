@@ -5739,7 +5739,9 @@ CDocument.prototype.DrawDocGrid = function(Graphics, oSectPr, nPageIndex)
 	var H = oSectPr.GetPageHeight();
 
 	var linePitch = oSectPr.GetDocGridLinePitch();
-	
+	if (linePitch < 285 || linePitch == null || linePitch == undefined) {
+		linePitch = 285;
+	}	
 
 	if (section_borders_OffsetFromPage === oSectPr.GetBordersOffsetFrom())
 	{
