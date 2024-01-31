@@ -943,6 +943,11 @@ CHeaderFooter.prototype =
 		return this.Content.SetParagraphWidowControl(Value);
 	},
 
+    SetParagraphSnapToGrid : function(Value)
+	{
+		return this.Content.SetParagraphSnapToGrid(Value);
+	},
+
 	SetParagraphBorders : function(Value)
 	{
 		return this.Content.SetParagraphBorders(Value);
@@ -2231,6 +2236,12 @@ CHeaderFooterController.prototype =
 	{
 		if (null != this.CurHdrFtr)
 			return this.CurHdrFtr.SetParagraphWidowControl(Value);
+	},
+
+    SetParagraphSnapToGrid : function(Value)
+	{
+		if (null != this.CurHdrFtr)
+			return this.CurHdrFtr.SetParagraphSnapToGrid(Value);
 	},
 
 	SetParagraphBorders : function(Value)

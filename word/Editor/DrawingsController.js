@@ -314,6 +314,10 @@ CDrawingsController.prototype.SetParagraphWidowControl = function(Value)
 {
 	this.DrawingObjects.setParagraphWidowControl(Value);
 };
+CDrawingsController.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	this.DrawingObjects.setParagraphSnapToGrid(Value);
+};
 CDrawingsController.prototype.SetParagraphBorders = function(Borders)
 {
 	this.DrawingObjects.setParagraphBorders(Borders);
