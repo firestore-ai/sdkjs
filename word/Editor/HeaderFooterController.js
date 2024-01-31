@@ -221,6 +221,10 @@ CHdrFtrController.prototype.SetParagraphWidowControl = function(Value)
 {
 	this.HdrFtr.SetParagraphWidowControl(Value);
 };
+CHdrFtrController.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	this.HdrFtr.SetParagraphSnapToGrid(Value);
+};
 CHdrFtrController.prototype.SetParagraphBorders = function(Borders)
 {
 	this.HdrFtr.SetParagraphBorders(Borders);

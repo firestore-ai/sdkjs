@@ -1523,30 +1523,41 @@ Paragraph.prototype.private_RecalculateLinePosition    = function(CurLine, CurPa
 			Bottom = this.YLimit;
 	}
 
-    if (this.Get_SectPr() != null)
-    {
+    if (this.Get_SectPr() != null) {
         // --------------------
         // 是否进行网格对齐
         var oSectPr = this.Get_SectPr();
         var docGridType = oSectPr.GetDocGridType();
-        
+
         if (docGridType === Asc.c_oAscDocGridType.Lines || docGridType === Asc.c_oAscDocGridType.LinesAndChars) 
         {
-            if (ParaPr.SnapToGrid === true)
+            if (ParaPr.SnapToGrid === true) 
             {
                 // 获取当前行距
-                var linePitch = AscCommon.TwipsToMM(oSectPr.GetDocGridLinePitch());
-                if (linePitch < (Bottom - Top)) 
+                var oriLinePitch = AscCommon.TwipsToMM(oSectPr.GetDocGridLinePitch());
+                var linePitch = oriLinePitch;
+                if (ParaPr.Spacing.LineRule == Asc.linerule_Auto) 
                 {
-                    var n = Math.round((Bottom - Top) / linePitch  + 0.5)
-                    linePitch = AscCommon.TwipsToMM(n * 312);
+                    linePitch = oriLinePitch * ParaPr.Spacing.Line;
                 }
-                var snapOffset = (linePitch - (Bottom - Top)) / 2;
 
-                console.log("baseline", PRS.BaseLineOffset, "+", snapOffset);
-                PRS.BaseLineOffset += snapOffset;
-                Top     += snapOffset;
-                Bottom  += 2*snapOffset;        
+                if (linePitch < (Bottom - Top))
+                {
+                    var n = Math.round((Bottom2 - Top2) / oriLinePitch + 0.5)
+                    var newLinePitch = n * oriLinePitch;
+                    if (newLinePitch > linePitch)
+                        linePitch = newLinePitch;
+                }
+                var baseLineOffset = (linePitch - (Bottom2 - Top2)) / 2;
+                //var bottomOffset = linePitch - (Bottom - Top);
+
+                //console.log("line", CurLine, "Top", Top, "Bottom", Bottom, "baseline", PRS.BaseLineOffset, "+", bottomOffset);
+
+                //var oldTop2 = Top2;
+                Top2 = Top + baseLineOffset;
+                PRS.BaseLineOffset += baseLineOffset;
+                Bottom2 += baseLineOffset;
+                Bottom = Top + linePitch;
             }
         }
     }

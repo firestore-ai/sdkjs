@@ -5419,7 +5419,7 @@ CDocumentContent.prototype.SetParagraphSnapToGrid = function(Value)
 		else
 		{
 			var Item = this.Content[this.CurPos.ContentPos];
-			Item.SetParagraphWidowSnapToGrid(Value);
+			Item.SetParagraphSnapToGrid(Value);
 		}
 	}
 };
