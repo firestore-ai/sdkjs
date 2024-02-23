@@ -10146,7 +10146,7 @@ background-repeat: no-repeat;\
 		var oRealCoords = oLogicDocument.GetDrawingDocument().ConvertCoordsToCursorWR(nX, nY, oAnchor.Page);
 		return [oRealCoords.X, oRealCoords.Y];
 	};
-	asc_docs_api.prototype.asc_GetContentControlBoundingRect = function(sId)
+	asc_docs_api.prototype.asc_GetContentControlBoundingRect = function(sId, isPageCoord)
 	{
 		var oLogicDocument = this.private_GetLogicDocument();
 		if (!oLogicDocument)
@@ -10185,6 +10185,17 @@ background-repeat: no-repeat;\
 			nY = oRect.Y;
 			nW = oRect.W;
 			nH = oRect.H;
+		}
+
+		if (isPageCoord === true) {
+			var oRes = {
+				Page: oRect.Page,
+				X0: nX,
+				Y0: nY,
+				X1: nX + nW,
+				Y1: nY + nH
+			};
+			return oRes;
 		}
 
 		var oRealCoords0 = oLogicDocument.GetDrawingDocument().ConvertCoordsToCursorWR(nX, nY, oRect.Page);
