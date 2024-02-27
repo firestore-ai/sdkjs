@@ -967,6 +967,12 @@
 
 		//g_clipboardBase.Init(this);
 
+		// chongxishen
+		this.BiyueConfig = { 
+			showContentControls: false,
+		};
+		// ---
+
 		this._init();
 	}
 
@@ -1047,7 +1053,7 @@
 
 	asc_docs_api.prototype.isLongAction = function()
 	{
-		if (this.WordControl.m_oLogicDocument)
+		if (this.WordControl && this.WordControl.m_oLogicDocument)
 			return (0 !== this.IsLongActionCurrent || this.WordControl.m_oLogicDocument.IsActionStarted());
 
 		return (0 !== this.IsLongActionCurrent);
@@ -5711,6 +5717,16 @@ background-repeat: no-repeat;\
 						oOptionObject.AddImage(oImage);
 					}
 				}
+				// chongxishen: 拦截加载图片
+				else if (oOptionObject && oOptionObject.biyue) {
+					for (let i = 0; i < arrUrls.length; ++i) {
+						const oImage = oApi.ImageLoader.LoadImage(arrUrls[i], 1);
+						if (oImage) {
+							oOptionObject.imgs.push(oImage);
+						}
+					}
+				}
+				// ---
 				else if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Content))
 				{
 					const arrImages = [];
@@ -8862,7 +8878,14 @@ background-repeat: no-repeat;\
 			_e.KeyCode = 27;
 			this.WordControl.m_oLogicDocument.OnKeyDown(_e);
 
-			var data =  window["asc_docs_api"].prototype["asc_nativeGetHtml"].call(this);
+			var data;
+			// chongxishen: 目前blockonly仅仅对html有效果
+			// var data =  window["asc_docs_api"].prototype["asc_nativeGetHtml"].call(this);
+			if (options.blockOnly) {
+				data =  window["asc_docs_api"].prototype["asc_nativeGetHtmlBlockOnly"].call(this);
+			} else {
+				data =  window["asc_docs_api"].prototype["asc_nativeGetHtml"].call(this);
+			}
 			AscCommon.DownloadFileFromBytes(data, oAdditionalData["title"], "text/html", '\ufeff');
 
 			if (actionType)
@@ -9687,6 +9710,13 @@ background-repeat: no-repeat;\
 				oLogicDocument.FinalizeAction();
 			}
 		}
+
+		// chongxishen: fire event
+		if (oResult) {
+			this.sync_OnDocBiyueLevelUpdate();
+			this.sync_OnDocBiyueContentControlUpdate();
+		}
+
 		return oResult;
 	};
 	asc_docs_api.prototype.asc_AddContentControlCheckBox = function(oPr, oInternalPr, oCommonPr)
@@ -9947,6 +9977,11 @@ background-repeat: no-repeat;\
 			oLogicDocument.UpdateInterface();
 			oLogicDocument.UpdateSelection();
 			oLogicDocument.FinalizeAction();
+
+			// chongxishen: fire event
+			this.sync_OnDocBiyueLevelUpdate();
+			this.sync_OnDocBiyueContentControlUpdate();
+
 			return true;
 		}
 		return false;
@@ -10202,6 +10237,254 @@ background-repeat: no-repeat;\
 		var oRealCoords1 = oLogicDocument.GetDrawingDocument().ConvertCoordsToCursorWR(nX + nW, nY + nH, oRect.Page);
 		return [oRealCoords0.X, oRealCoords0.Y, oRealCoords1.X, oRealCoords1.Y];
 	};
+	/**
+	 * chongxishen
+	 * @refer asc_GetContentControlBoundingRect
+	 * @returns 位置信息数组 [{X:number, Y:number, W:number, H:number, Page:number, Transform:object}]
+	 */
+	asc_docs_api.prototype.asc_GetContentControlBoundingRects = function() {
+		var oLogicDocument = this.private_GetLogicDocument();
+		if (!oLogicDocument)
+			return null;
+
+		var rects = oLogicDocument.GetContentControlRects();
+		// FIXME: just simple return
+		return rects;
+	};
+	/**
+	 * chongxishen
+	 * TODO:
+	 * @refer asc_nativeGetHtmlBlockOnly
+	 */
+	asc_docs_api.prototype.asc_GetQuestionAskInfo = function() {
+		var ques_list;
+		var done = false;
+		const oLogicDocument = this.private_GetLogicDocument();
+		if (oLogicDocument) {
+			// FIXME: 跨页有问题: 跨页的情况下，GetQuestionAskInfo返回的pos会比oCopyProcessor.quesParaIdx多
+			ques_list = oLogicDocument.GetQuestionAskInfo();
+
+			var _old = PasteElementsId.copyPasteUseBinary;
+			PasteElementsId.copyPasteUseBinary = false;
+			var oCore = this.asc_getCoreProps();
+			this.WordControl.m_oLogicDocument.SelectAll();
+			var oCopyProcessor = new AscCommon.CopyProcessor(this);
+			oCopyProcessor.StartBlockOnly();
+
+			if (oCore && oCore.asc_getTitle()) {
+				ques_list.title = AscCommon.escapeHtmlCharacters(oCore.asc_getTitle());
+			}
+
+			if (oCopyProcessor.quesParaIdx && oCopyProcessor.quesParaIdx.length > 0 
+					&& ques_list && ques_list.length === oCopyProcessor.quesParaIdx.length) {
+				var start = 0;
+				for (var idx = 0; idx < oCopyProcessor.quesParaIdx.length; idx++) {
+					var end = oCopyProcessor.quesParaIdx[idx];
+					var html = oCopyProcessor.getQuesInnerHtml(start, end);
+
+					var ques = ques_list[idx];
+					ques.html = html;
+					ques.ques_no = idx + 1;
+					start = end;
+				}
+				done = true; // mark
+			}
+
+			this.WordControl.m_oLogicDocument.RemoveSelection();
+			PasteElementsId.copyPasteUseBinary = _old;
+		}
+		
+		return { done: done, ques_list: ques_list };
+	};
+	/**
+	 * chongxishen
+	 * @param info {X:number, Y:number, W:number, H:number, Page:number, Color:{r, g, b}}
+	 * @refer AddShapeOnCurrentPage
+	 * https://api.onlyoffice.com/docbuilder/textdocumentapi/api/createshape
+	 */
+	asc_docs_api.prototype.asc_AddRectShape = function(info) {
+		if (!this.WordControl.m_oLogicDocument) return;
+		this.WordControl.m_oLogicDocument.DrawingObjects.addRectShapeOnPage(info);
+	};
+	/**
+	 * chongxishen
+	 * @return page count of document
+	 */
+	asc_docs_api.prototype.asc_GetPageCount = function() {
+		if (!this.WordControl.m_oLogicDocument) return 0;
+		return this.WordControl.m_oLogicDocument.GetPagesCount();
+	};
+	/**
+	 * chongxishen 
+	 * 批分框
+	 * TODO:
+	 * @param info 
+	 * @refer put_Table/tblApply
+	 */
+	asc_docs_api.prototype.asc_AddScoreTable = function(info) {
+		console.log("asc_AddScoreTable");
+		const doc = this.WordControl.m_oLogicDocument;
+		if (!doc) return;
+
+		if (false === doc.Document_Is_SelectionLocked(AscCommon.changestype_Document_Content_Add)) {
+			var col = 7, row = 1;
+			doc.StartAction(AscDFH.historydescription_Document_AddTable);
+			var oTable = doc.AddInlineTableToDoc(col, row);
+			if (oTable) {
+				// set table border
+				var properties = new Asc.CTableProp();
+				var borders = new Asc.CBordersNone();
+				properties.put_TableBorders(borders);
+
+				// var margin = new Asc.CMargins();
+				// margin.put_Left(0.1);
+				// margin.put_Right(0);
+				// margin.put_Top(0);
+				// margin.put_Bottom(0);
+				// margin.put_Flag(2);
+				// properties.put_CellMargins(margin);
+
+				// 去掉单元格的页边距
+				var padding = new Asc.asc_CPaddings();
+				padding.asc_putLeft(0);
+				padding.asc_putRight(0);
+				padding.asc_putTop(0);
+				padding.asc_putBottom(0);
+				properties.put_DefaultMargins(padding);
+				
+				// 流程表
+				properties.CanBeFlow = true;
+				properties.TableWrappingStyle = AscCommon.c_oAscWrapStyle.Flow;
+				
+				oTable.my_CreateScoreTable(info);
+				oTable.Set_Props(properties);
+
+				// var page = doc.Get_CurPage();
+				var pos = doc.GetCursorRealPosition();
+				oTable.Internal_UpdateFlowPosition(pos.X + oTable.my_px2mm(32), pos.Y - oTable.my_px2mm(16));
+			}
+			doc.FinalizeAction();
+		}
+	};
+	/**
+	 * chongxishen 
+	 * 红花栏
+	 * TODO:
+	 * @param info 
+	 * @refer put_Table/tblApply
+	 */
+	asc_docs_api.prototype.asc_AddEvaluateTable = function(info) {
+		const doc = this.WordControl.m_oLogicDocument;
+		if (!doc) return;
+
+		if (false === doc.Document_Is_SelectionLocked(AscCommon.changestype_Document_Content_Add)) {
+			var col = 17, row = 1;
+			this.GoToFooter(this.getCurrentPage());
+
+			doc.StartAction(AscDFH.historydescription_Document_AddTable);
+
+			var oTable = doc.AddInlineTableToFooter(col, row);
+			if (oTable) {
+				// set table border
+				var properties = new Asc.CTableProp();
+				var borders = new Asc.CBordersNone();
+				properties.put_TableBorders(borders);
+
+				// 去掉单元格的页边距
+				var padding = new Asc.asc_CPaddings();
+				padding.asc_putLeft(0);
+				padding.asc_putRight(0);
+				padding.asc_putTop(0);
+				padding.asc_putBottom(0);
+				properties.put_DefaultMargins(padding);
+
+				oTable.my_CreateEvaluateTable(info);
+				oTable.Set_Props(properties);
+			}
+
+			doc.FinalizeAction();
+
+			this.ExitHeader_Footer(this.getCurrentPage());
+		}
+	}
+	/**
+	 * chongxishen
+	 * @returns 
+	 */
+	asc_docs_api.prototype.asc_showContentControls = function(info) {
+		const doc = this.WordControl.m_oLogicDocument;
+		const drawingDoc = this.WordControl.m_oDrawingDocument;
+		if (!drawingDoc || !doc) return;
+
+		if (drawingDoc.contentControls && info.show) {
+			this.BiyueConfig.showContentControls = true;
+			drawingDoc.contentControls.GetBlockStdTracks(doc);
+			// doc.dumpBlockLevelSdt(doc.Content);
+		} else {
+			this.BiyueConfig.showContentControls = false;
+		}
+		this.WordControl.private_RefreshAll();
+	}
+	/**
+	 * chongxishen
+	 */
+	asc_docs_api.prototype.asc_GetBiyueConfig = function() {
+		return this.BiyueConfig;
+	}
+	/**
+	 * chongxishen
+	 * notify asc_onDocBiyueLevelUpdate in web-apps if register
+	 * 
+	 * @refer sync_OnDocumentOutlineUpdate
+	 * @usage this.LogicDocument.GetApi().sync_OnDocumentOutlineUpdate(this);
+	 */
+	asc_docs_api.prototype.sync_OnDocBiyueLevelUpdate = function() {
+		this.sendEvent("asc_onDocBiyueLevelUpdate");
+	};
+	/**
+	 * chongxishen
+	 * 触发ContentControl刷新
+	 */
+	asc_docs_api.prototype.sync_OnDocBiyueContentControlUpdate = function() {
+		this.sendEvent("asc_onDocBiyueContentControlUpdate");
+	};
+	/**
+	 * chongxishen
+	 * TODO: 完善层级关系
+	 */
+	asc_docs_api.prototype.asc_GetBlockStdTracks = function(type) {
+		var allTracks = [];
+		const doc = this.WordControl.m_oLogicDocument;
+		if (doc) {
+			doc.StartAction(AscDFH.historydescription_Document_BiyueOp);
+			if (type === 1) {
+				doc.my_getBlockStdTracks(allTracks, doc.Content, null);
+			} else {
+				doc.GetBlockStdTracks(allTracks, doc.Content, null);
+			}
+			doc.FinalizeAction();
+		}
+		return allTracks;
+	}
+	/**
+	 * chongxishen
+	 */
+	asc_docs_api.prototype.asc_Goto = function(track) {
+		const doc = this.WordControl.m_oLogicDocument;
+		if (doc) doc.my_Goto(track);
+	}
+	/**
+	 * chongxishen
+	 */
+	asc_docs_api.prototype.asc_AutoLayout = function() {
+		const doc = this.WordControl.m_oLogicDocument;
+		if (doc) {
+			doc.StartAction(AscDFH.historydescription_Document_BiyueOp);
+			doc.dumpParagraphs();
+			doc.FinalizeAction();
+		}
+	}
+
 	asc_docs_api.prototype.asc_SetGlobalContentControlHighlightColor = function(r, g, b)
 	{
 		var oLogicDocument = this.private_GetLogicDocument();
@@ -12705,12 +12988,70 @@ background-repeat: no-repeat;\
 	
 	window["asc_docs_api"].prototype["asc_nativeGetHtml"] = function()
 	{
-		var _old                           = PasteElementsId.copyPasteUseBinary;
+		var _old = PasteElementsId.copyPasteUseBinary;
 		PasteElementsId.copyPasteUseBinary = false;
 		var oCore = this.asc_getCoreProps();
 		this.WordControl.m_oLogicDocument.SelectAll();
 		var oCopyProcessor = new AscCommon.CopyProcessor(this);
 		oCopyProcessor.Start();
+		var _ret = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />";
+		if (oCore)
+		{
+			if (oCore.asc_getTitle())
+			{
+				var title = AscCommon.escapeHtmlCharacters(oCore.asc_getTitle());
+				_ret += ("<title>" + title + "</title>");
+			}
+			if (oCore.asc_getCreator())
+			{
+				var creator = AscCommon.escapeHtmlCharacters(oCore.asc_getCreator());
+				_ret += ("<meta name=\"creator\" content=\"" + creator + "\" />");
+			}
+			if (oCore.asc_getDescription())
+			{
+				var description = AscCommon.escapeHtmlCharacters(oCore.asc_getDescription());
+				_ret += ("<meta name=\"description\" content=\"" + description + "\" />");
+			}
+			if (oCore.asc_getKeywords())
+			{
+				var keywords = AscCommon.escapeHtmlCharacters(oCore.asc_getKeywords());
+				_ret += ("<meta name=\"keywords\" content=\"" + keywords + "\" />");
+			}
+			if (oCore.asc_getSubject())
+			{
+				var subject = AscCommon.escapeHtmlCharacters(oCore.asc_getSubject());
+				_ret += ("<meta name=\"subject\" content=\"" + subject + "\" />");
+			}
+			if (oCore.asc_getIdentifier())
+			{
+				var identifier = AscCommon.escapeHtmlCharacters(oCore.asc_getIdentifier());
+				_ret += ("<meta name=\"identifier\" content=\"" + identifier + "\" />");
+			}
+			if (oCore.asc_getLanguage())
+			{
+				var language = AscCommon.escapeHtmlCharacters(oCore.asc_getLanguage());
+				_ret += ("<meta name=\"language\" content=\"" + language + "\" />");
+			}
+		}
+		_ret += ("</head><body>" + oCopyProcessor.getInnerHtml() + "</body></html>");
+
+		this.WordControl.m_oLogicDocument.RemoveSelection();
+		PasteElementsId.copyPasteUseBinary = _old;
+		return _ret;
+	};
+
+	/**
+	 * chongxishen
+	 * @refer asc_nativeGetHtml
+	 */
+	window["asc_docs_api"].prototype["asc_nativeGetHtmlBlockOnly"] = function()
+	{
+		var _old = PasteElementsId.copyPasteUseBinary;
+		PasteElementsId.copyPasteUseBinary = false;
+		var oCore = this.asc_getCoreProps();
+		this.WordControl.m_oLogicDocument.SelectAll();
+		var oCopyProcessor = new AscCommon.CopyProcessor(this);
+		oCopyProcessor.StartBlockOnly();
 		var _ret = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />";
 		if (oCore)
 		{
@@ -14292,6 +14633,23 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype["asc_ClearContentControl"]                   = asc_docs_api.prototype.asc_ClearContentControl;
 	asc_docs_api.prototype["asc_GetContentControlRightAnchorPosition"]  = asc_docs_api.prototype.asc_GetContentControlRightAnchorPosition;
 	asc_docs_api.prototype["asc_GetContentControlBoundingRect"]         = asc_docs_api.prototype.asc_GetContentControlBoundingRect;
+
+	// chongxishen
+	asc_docs_api.prototype["asc_GetContentControlBoundingRects"]        = asc_docs_api.prototype.asc_GetContentControlBoundingRects;
+	asc_docs_api.prototype["asc_AddRectShape"]        					= asc_docs_api.prototype.asc_AddRectShape;
+	asc_docs_api.prototype["asc_AddScoreTable"]        					= asc_docs_api.prototype.asc_AddScoreTable;
+	asc_docs_api.prototype["asc_AddEvaluateTable"]        				= asc_docs_api.prototype.asc_AddEvaluateTable;
+	asc_docs_api.prototype["asc_showContentControls"]        			= asc_docs_api.prototype.asc_showContentControls;
+	asc_docs_api.prototype["asc_GetBiyueConfig"]        				= asc_docs_api.prototype.asc_GetBiyueConfig;
+	asc_docs_api.prototype["asc_GetQuestionAskInfo"]        			= asc_docs_api.prototype.asc_GetQuestionAskInfo;
+	asc_docs_api.prototype["asc_GetPageCount"]        					= asc_docs_api.prototype.asc_GetPageCount;
+	asc_docs_api.prototype["sync_OnDocBiyueLevelUpdate"]        		= asc_docs_api.prototype.sync_OnDocBiyueLevelUpdate;
+	asc_docs_api.prototype["sync_OnDocBiyueContentControlUpdate"] 		= asc_docs_api.prototype.sync_OnDocBiyueContentControlUpdate;
+	asc_docs_api.prototype["asc_GetBlockStdTracks"]        				= asc_docs_api.prototype.asc_GetBlockStdTracks;
+	asc_docs_api.prototype["asc_Goto"]        							= asc_docs_api.prototype.asc_Goto;
+	asc_docs_api.prototype["asc_AutoLayout"]        					= asc_docs_api.prototype.asc_AutoLayout;
+	// ---
+
 	asc_docs_api.prototype["asc_UncheckContentControlButtons"]          = asc_docs_api.prototype.asc_UncheckContentControlButtons;
 	asc_docs_api.prototype['asc_SetGlobalContentControlHighlightColor'] = asc_docs_api.prototype.asc_SetGlobalContentControlHighlightColor;
 	asc_docs_api.prototype['asc_GetGlobalContentControlHighlightColor'] = asc_docs_api.prototype.asc_GetGlobalContentControlHighlightColor;

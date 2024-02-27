@@ -1008,6 +1008,82 @@ CInlineLevelSdt.prototype.GetBoundingPolygonFirstLineH = function()
 	return 0;
 };
 /**
+ * chongxishen
+ * 该函数返回一个包含该控件所有段的矩形
+ * @return {{X:number, Y:number, W:number, H:number, Page:number, Transform:object}}
+ * @refer GetBoundingRect, 但是GetBoundingRect会找到W为0的bound，所以做了改进
+ */
+CInlineLevelSdt.prototype.GetBoundingRect2 = function()
+{
+	var nR = null;
+	var nT = null;
+	var nB = null;
+	var nL = null;
+
+	var nCurPage = -1;
+
+	for (var Key in this.Bounds)
+	{
+		if (this.Bounds[Key].H > 0.001 && this.Bounds[Key].W > 0.001 && (-1 === nCurPage || nCurPage > this.Bounds[Key].PageInternal))
+			nCurPage = this.Bounds[Key].PageInternal;
+	}
+
+	if (-1 === nCurPage)
+		return {X: 0, Y : 0, W : 0, H : 0, Page : 0, Transform : null};
+
+	var nPageAbs = this.Paragraph.GetAbsolutePage(nCurPage);
+	for (var Key in this.Bounds) {
+		if (nCurPage !== this.Bounds[Key].PageInternal)
+			continue;
+
+		if (this.Bounds[Key].H > 0.001 && this.Bounds[Key].W > 0.001) {
+			if (null === nL || nL > this.Bounds[Key].X)
+				nL = this.Bounds[Key].X;
+
+			if (null === nR || nR < this.Bounds[Key].X + this.Bounds[Key].W)
+				nR = this.Bounds[Key].X + this.Bounds[Key].W;
+
+			if (null === nT || nT > this.Bounds[Key].Y)
+				nT = this.Bounds[Key].Y;
+
+			if (null === nB || nB < this.Bounds[Key].Y + this.Bounds[Key].H)
+				nB = this.Bounds[Key].Y + this.Bounds[Key].H;
+		}
+	}
+
+	if (null === nL || null === nT || null === nR || null === nB)
+		return {X: 0, Y : 0, W : 0, H : 0, Page : 0, Transform : null};
+
+	return {
+		X : nL,
+		Y : nT,
+		W : nR - nL,
+		H : nB - nT,
+		Page : nPageAbs,
+		Transform : this.Get_ParentTextTransform()
+	};
+};
+/**
+ * chongxishen
+ */
+CInlineLevelSdt.prototype.my_GetText = function() {
+	return this.GetInnerText();
+};
+/**
+ * chongxishen
+ * @refer CDocumentOutline.prototype.GoTo
+ */
+CInlineLevelSdt.prototype.my_Goto = function() {
+	var oParagraph = this.Paragraph;
+	oParagraph.MoveCursorToStartPos();
+	oParagraph.SkipPageColumnBreaks();
+	oParagraph.Document_SetThisElementCurrent(true);
+
+	// this.MoveCursorToStartPos();
+	// this.SetThisElementCurrent();
+};
+
+/**
  * Функция возвращает рект, содержащий все отрезки данного контрола
  * @return {{X:number, Y:number, W:number, H:number, Page:number, Transform:object}}
  */

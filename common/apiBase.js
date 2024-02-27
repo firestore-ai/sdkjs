@@ -639,6 +639,10 @@
 		if (type !== c_oAscAsyncActionType.Empty)
 			this.sendEvent('asc_onStartAction', type, id);
 		//console.log("asc_onStartAction: type = " + type + " id = " + id);
+		// chongxishen
+		if (id === Asc.c_oAscAsyncAction.Disconnect) {
+			console.trace("DISCONNCT=====");
+		}
 
 		if (c_oAscAsyncActionType.BlockInteraction === type)
 		{
@@ -2129,8 +2133,11 @@
 			|| Asc.c_oAscFileType.CR2 === options.fileType || Asc.c_oAscFileType.PCX === options.fileType
 			|| Asc.c_oAscFileType.RAS === options.fileType || Asc.c_oAscFileType.PSD === options.fileType
 			|| Asc.c_oAscFileType.ICO === options.fileType) {
+			// chongxishen: 2是默认，11是300dpi
+			var aspect = 2;
+			if (options.highDpi) aspect = 11;
 			oAdditionalData["thumbnail"] = {
-				"aspect": 2,
+				"aspect": aspect,
 				"first": false
 			}
 			switch (options.fileType) {
@@ -2187,7 +2194,13 @@
 						if (url)
 						{
 							error = c_oAscError.ID.No;
-							t.processSavedFile(url, downloadType, input["filetype"]);
+
+							// chongxishen: 拦截下载
+							if (options && options.cbProcessImageFile) {
+								options.cbProcessImageFile(url);
+							} else {
+								t.processSavedFile(url, downloadType, input["filetype"]);
+							}
 						}
 					}
 					else

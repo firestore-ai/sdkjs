@@ -13832,6 +13832,7 @@
 	window['AscCommon'].rad2deg = rad2deg;
 	window["AscCommon"].c_oAscImageUploadProp = c_oAscImageUploadProp;
 	window["AscCommon"].trimMinMaxValue = trimMinMaxValue;
+        window["AscCommon"].asc_ajax = asc_ajax;
 })(window);
 
 window["asc_initAdvancedOptions"] = function(_code, _file_hash, _docInfo)

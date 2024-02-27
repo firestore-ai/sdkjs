@@ -3436,7 +3436,15 @@ function CEditorPage(api)
 				}
 			}
 
-			drDoc.contentControls && drDoc.contentControls.DrawContentControlsTrack(overlay);
+			if (drDoc.contentControls) { // chongxishen: 绘制ContentControls
+				// drDoc.contentControls.DrawContentControlsTrack(overlay);
+				const bibyue = this.m_oApi.BiyueConfig.showContentControls; // checkbox是否显示
+				drDoc.contentControls.DrawContentControlsTrack2(overlay, bibyue);
+
+				// 绘制层级结构
+				overlay.ClearAll = bibyue; // 左边有部分没有clear, @refer overlay.Clear()
+				if (bibyue) drDoc.contentControls.DrawContentControlsTree(overlay);
+			}
 
 			if (drDoc.placeholders.objects.length > 0)
 			{
@@ -3499,6 +3507,18 @@ function CEditorPage(api)
 			}
 
 			drDoc.DrawHorVerAnchor();
+			
+			// chongxishen: 绘制竖线
+			if (false) {
+				// let dZoom = oThis.m_nZoomValue / 100;
+        		// let dKoef_mm_to_pix = AscCommon.g_dKoef_mm_to_pix * dZoom;
+				const oPage = drDoc.m_arrPages[0].drawingPage;
+				var pos = oPage.left + (oPage.right - oPage.left) * 0.75;
+				// overlay.VertLine(pos * dKoef_mm_to_pix, true);
+				overlay.VertLine(pos, true);
+				// overlay.VertLine2(pos);
+			}
+			// ---
 		}
 		else
 		{

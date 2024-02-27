@@ -62,7 +62,8 @@ function checkEmptyPlaceholderContent(content)
     return null;
 }
 
-function StartAddNewShape(drawingObjects, preset)
+// chongxishen: 增加bgColor
+function StartAddNewShape(drawingObjects, preset, bgColor)
 {
     this.drawingObjects = drawingObjects;
     this.preset = preset;
@@ -73,7 +74,7 @@ function StartAddNewShape(drawingObjects, preset)
     this.pageIndex = null;
     this.startX = null;
     this.startY = null;
-
+    this.bgColor = bgColor;
 }
 
 StartAddNewShape.prototype =
@@ -153,6 +154,10 @@ StartAddNewShape.prototype =
                 oLogicDocument.StartAction(AscDFH.historydescription_Document_AddNewShape);
                 var bounds = oTrack.getBounds();
                 var shape = oTrack.getShape(true, this.drawingObjects.drawingDocument);
+                // chongxishen: 设置填充
+                if (this.bgColor) {
+                    shape.spPr.Fill = AscFormat.CreateUniFillByUniColor(AscFormat.CreateUniColorRGB(this.bgColor.r, this.bgColor.g, this.bgColor.b));
+                }
                 var drawing = new ParaDrawing(shape.spPr.xfrm.extX, shape.spPr.xfrm.extY, shape, this.drawingObjects.drawingDocument, oLogicDocument, null);
                 var nearest_pos = this.drawingObjects.document.Get_NearestPos(this.pageIndex, bounds.min_x, bounds.min_y, true, drawing);
                 if(nearest_pos && false === oLogicDocument.Document_Is_SelectionLocked(AscCommon.changestype_None, {Type : AscCommon.changestype_2_Element_and_Type , Element : nearest_pos.Paragraph, CheckType : AscCommon.changestype_Paragraph_Content} ))

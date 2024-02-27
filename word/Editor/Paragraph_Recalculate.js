@@ -2484,9 +2484,11 @@ Paragraph.prototype.private_CheckNeedBeforeSpacing = function(CurPage, Parent, P
 			oPrevElement = oPrevElement.GetPrevDocumentElement();
 		}
 
+        // chongxishen: fix crash
+        // 当插入批分框后再delete删除会崩溃
 		return (!oPrevElement
 			|| oPrevElement.GetAbsolutePage(oPrevElement.GetPagesCount() - 1) >= PageAbs
-			|| oPrevElement.Get_SectionPr());
+			|| (typeof oPrevElement.Get_SectionPr === 'function' && oPrevElement.Get_SectionPr()));
 	}
 
 	if (!this.Check_FirstPage(CurPage))

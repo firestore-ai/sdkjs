@@ -998,6 +998,18 @@
 		this.Flag = v;
 	};
 
+	// chongxishen
+	function CBordersNone() {
+		this.Left = new Asc.asc_CTextBorder(); 			this.Left.put_Value(0);
+		this.Top = new Asc.asc_CTextBorder();			this.Top.put_Value(0);
+		this.Right = new Asc.asc_CTextBorder();			this.Right.put_Value(0);
+		this.Bottom = new Asc.asc_CTextBorder();		this.Bottom.put_Value(0);
+		this.InsideH = new Asc.asc_CTextBorder();		this.InsideH.put_Value(0);
+		this.InsideV = new Asc.asc_CTextBorder();		this.InsideV.put_Value(0);
+	}
+	window['Asc']['CBordersNone'] = window['Asc'].CBordersNone = CBordersNone;
+	// ---
+
 	window['Asc']['CBorders'] = window['Asc'].CBorders = CBorders;
 	CBorders.prototype['get_Left'] = CBorders.prototype.get_Left;
 	CBorders.prototype['put_Left'] = CBorders.prototype.put_Left;

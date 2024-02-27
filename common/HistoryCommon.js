@@ -1287,6 +1287,9 @@
 			case AscDFH.historydescription_Document_RemoveMathShortcut:
 				sString = "Document_RemoveMathShortcut";
 				break;
+			case AscDFH.historydescription_Document_BiyueOp:
+				sString = "Document_BiyueOp";
+				break;
 			case AscDFH.historydescription_Document_SetAllFormsData:
 				sString = "Document_SetAllFormsData";
 				break;
@@ -4491,6 +4494,7 @@
 	window['AscDFH'].historydescription_Document_SetAllFormsData                    = 0x01aa;
 	window['AscDFH'].historydescription_Document_ComplexField_MergeFormat           = 0x01ab;
 	window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01ac;
+	window['AscDFH'].historydescription_Document_BiyueOp                            = 0x1000;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

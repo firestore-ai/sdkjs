@@ -2988,7 +2988,17 @@ CDocumentContent.prototype.AddInlineImage = function(W, H, Img, GraphicObject, b
 		}
 	}
 };
-
+/**
+ * chongxishen
+ */
+CDocumentContent.prototype.AddBiyueImage = function (aImage, width, height) {
+	// var oParagraph = Cell_Content.GetFirstParagraph();
+	Drawing = new ParaDrawing(width, height, null, this.DrawingDocument, this, null);
+	var Image = this.DrawingObjects.createImage(aImage.src, 0, 0, width, height);
+	Image.setParent(Drawing);
+	Drawing.Set_GraphicObject(Image);
+	this.AddToParagraph(Drawing);
+};
 CDocumentContent.prototype.AddImages = function(aImages){
     if (docpostype_DrawingObjects === this.CurPos.Type)
     {
@@ -8383,7 +8393,12 @@ CDocumentContent.prototype.private_GetElementPageIndex = function(ElementPos, Pa
     var StartPage   = Element.Get_StartPage_Relative();
     var StartColumn = Element.Get_StartColumn();
 
-    return ColumnIndex - StartColumn + (PageIndex - StartPage) * ColumnsCount;
+    var page = ColumnIndex - StartColumn + (PageIndex - StartPage) * ColumnsCount;
+	if (page < 0) {
+		console.log("stop = " + page);
+		// page = 0;
+	}
+	return page;
 };
 CDocumentContent.prototype.private_GetElementPageIndexByXY = function(ElementPos, X, Y, PageIndex)
 {

@@ -930,6 +930,120 @@ CBlockLevelSdt.prototype.GetBoundingRect = function()
 		Transform : this.Get_ParentTextTransform()
 	};
 };
+/**
+ * chongxishen
+ * 该函数返回定页面包含该控件所有段的矩形
+ * @return {{X:number, Y:number, W:number, H:number, Page:number, Transform:object}}
+ */
+CBlockLevelSdt.prototype.my_GetBoundingRect = function (nPageIndex) {
+	var nL = null;
+	var nR = null;
+	var nT = null;
+	var nB = null;
+
+	var nCurPage = -1;
+	if (this.IsEmptyPage(nPageIndex))
+		return null;
+
+	if (-1 === nCurPage)
+		nCurPage = nPageIndex;
+	else if (nCurPage !== nPageIndex)
+		return null;
+	var oBounds = this.Content.GetContentBounds(nPageIndex);
+
+	if (null === nL || nL > oBounds.Left)
+		nL = oBounds.Left;
+
+	if (null === nR || nR < oBounds.Right)
+		nR = oBounds.Right;
+
+	if (null === nT || nT > oBounds.Top)
+		nT = oBounds.Top;
+
+	if (null === nB || nB < oBounds.Bottom)
+		nB = oBounds.Bottom;
+
+	if (-1 === nCurPage || null === nL || null === nT || null === nR || null === nB)
+		return null;
+
+	return {
+		X: nL,
+		Y: nT,
+		W: nR - nL,
+		H: nB - nT,
+		Page: this.GetAbsolutePage(nCurPage),
+		Transform: this.Get_ParentTextTransform()
+	};
+};
+/**
+ * chongxishen
+ * @refer SetTag
+ */
+CBlockLevelSdt.prototype.my_SetTag = function(sTag) {
+	if (this.Pr.Tag !== sTag) {
+		this.Pr.Tag = sTag;
+	}
+};
+/**
+ * chongxishen
+ * @refer SetAlias
+ */
+CBlockLevelSdt.prototype.my_SetAlias = function(sAlias)
+{
+	if (sAlias !== this.Pr.Alias) {
+		this.Pr.Alias = sAlias;
+	}
+};
+/**
+ * chongxishen
+ * @refer SetColor
+ */
+CBlockLevelSdt.prototype.my_SetColor = function(oColor)
+{
+	if (null === oColor || undefined === oColor) {
+		if (undefined !== this.Pr.Color) {
+			this.Pr.Color = undefined;
+		}
+	} else {
+		this.Pr.Color = oColor;
+	}
+};
+/**
+ * chongxishen
+ * 该函数返回包含该控件所有段的矩形
+ * @return [{X:number, Y:number, W:number, H:number, Page:number, Transform:object}]
+ */
+CBlockLevelSdt.prototype.GetBoundingRect2 = function () {
+	var rects = []
+	for (var nPageIndex = 0, nPagesCount = this.GetPagesCount(); nPageIndex < nPagesCount; ++nPageIndex) {
+		var r = this.my_GetBoundingRect(nPageIndex);
+		if (r) rects.push(r);
+	}
+	return rects;
+};
+/**
+ * chongxishen
+ * 获取第一个段落的文本
+ */
+CBlockLevelSdt.prototype.my_GetText = function() {
+	var oParagraph = this.Get_FirstParagraph();
+	if (oParagraph) return oParagraph.GetText();
+	return "";
+};
+/**
+ * chongxishen
+ * @refer CDocumentOutline.prototype.GoTo
+ */
+CBlockLevelSdt.prototype.my_Goto = function() {
+	var oParagraph = this.Get_FirstParagraph();
+	if (oParagraph) {
+		oParagraph.MoveCursorToStartPos();
+		oParagraph.SkipPageColumnBreaks();
+		oParagraph.Document_SetThisElementCurrent(true);
+	} else {
+		this.LogicDocument.MoveCursorToStartPos(false);
+	}
+};
 CBlockLevelSdt.prototype.DrawContentControlsTrack = function(nType, X, Y, nCurPage, isCheckHit)
 {
 	if (!this.IsRecalculated() || !this.LogicDocument)

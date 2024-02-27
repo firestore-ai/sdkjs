@@ -513,6 +513,84 @@ ParaRun.prototype.Get_Text = function(Text)
 };
 
 /**
+ * chongxishen
+ * @refer ParaRun.prototype.Get_Text
+ */
+ParaRun.prototype.my_getRangeByTextIndex = function(Text, start, end)
+{
+	let range = { start: -1, end: -1 };
+	var ContentLen = this.Content.length;
+	for (var CurPos = 0; CurPos < ContentLen; CurPos++) {
+		if (start === Text.Text.length) {
+			range.start = CurPos;
+		}
+
+		var Item     = this.Content[CurPos];
+		var ItemType = Item.Type;
+		var bBreak = false;
+
+		switch (ItemType)
+		{
+			case para_Drawing:
+			case para_PageNum:
+			case para_PageCount:
+			{
+				if (true === Text.BreakOnNonText)
+				{
+					Text.Text = null;
+					bBreak    = true;
+				}
+				break;
+			}
+			case para_End:
+			{
+				if (true === Text.BreakOnNonText)
+				{
+					Text.Text = null;
+					bBreak    = true;
+				}
+
+				if (true === Text.ParaEndToSpace)
+					Text.Text += " ";
+
+				break;
+			}
+
+			case para_Text:
+			{
+				Text.Text += String.fromCharCode(Item.Value);
+				break;
+			}
+			case para_NewLine:
+			{
+				Text.Text += undefined != Text.NewLineSeparator ? Text.NewLineSeparator : " ";
+				break;
+			}
+			case para_Tab:
+			{
+				Text.Text += undefined != Text.TabSymbol ? Text.TabSymbol : " ";
+				break;
+			}
+			case para_Space:
+			{
+				Text.Text += " ";
+				break;
+			}
+		}
+
+		if (end === Text.Text.length) {
+			range.end = CurPos;
+			break;
+		}
+		
+		if (true === bBreak)
+			break;
+	}
+
+	return range;
+};
+
+/**
  * Получем текст из данного рана
  * @param oText
  * @returns {string}
@@ -7284,9 +7362,14 @@ ParaRun.prototype.IsSelectionEmpty = function(CheckEnd)
     {
         for ( var CurPos = StartPos; CurPos < EndPos; CurPos++ )
         {
-            var ItemType = this.Content[CurPos].Type;
-            if (para_End !== ItemType)
-                return false;
+			// chongxishen: 当设定的控制块包含EQ域出现崩溃
+			// fix: Uncaught TypeError: Cannot read properties of undefined (reading 'Type')
+            // var ItemType = this.Content[CurPos].Type;
+            // if (para_End !== ItemType)
+            //     return false;
+			var Item = this.Content[CurPos];
+			if (Item && para_End !== Item.Type)
+				return false;
         }
     }
 
@@ -7311,8 +7394,9 @@ ParaRun.prototype.Selection_CheckParaEnd = function()
     for ( var CurPos = StartPos; CurPos < EndPos; CurPos++ )
     {
         var Item = this.Content[CurPos];
-
-        if ( para_End === Item.Type )
+		// chongxishen: 当设定的控制块包含EQ域出现崩溃
+		// fix: Uncaught TypeError: Cannot read properties of undefined (reading 'Type')
+        if (Item && para_End === Item.Type )
             return true;
     }
 

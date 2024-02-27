@@ -1539,6 +1539,52 @@ CGraphicObjects.prototype =
         }
     },
 
+    /**
+     * chongxishen
+     * @refer addShapeOnPage
+     * @returns 
+     */
+    addRectShapeOnPage: function(info) {
+        const sPreset = "rect"; // textRect
+        let nPageIndex = info.Page;
+        if (docpostype_HdrFtr !== this.document.GetDocPosType() || null !== this.document.HdrFtr.CurHdrFtr) {
+            if (docpostype_HdrFtr !== this.document.GetDocPosType()) {
+                this.document.SetDocPosType(docpostype_DrawingObjects);
+                this.document.Selection.Use   = true;
+                this.document.Selection.Start = true;
+            }
+            else {
+                this.document.Selection.Use   = true;
+                this.document.Selection.Start = true;
+
+                var CurHdrFtr = this.document.HdrFtr.CurHdrFtr;
+                var DocContent = CurHdrFtr.Content;
+
+                DocContent.SetDocPosType(docpostype_DrawingObjects);
+                DocContent.Selection.Use   = true;
+                DocContent.Selection.Start = true;
+            }
+
+            // var oSectPr = this.document.Get_PageLimits(nPageIndex);
+            // var oExt = AscFormat.fGetDefaultShapeExtents(sPreset);
+            // var dSize = Math.min(oSectPr.XLimit / 2, oSectPr.YLimit / 2);
+            // var dScale = dSize / Math.max(oExt.x, oExt.y);
+            var dX = Math.max(0, info.X);
+            var dY = Math.max(0, info.Y);
+            var dExtX = info.W;
+            var dExtY = info.H;
+
+            this.changeCurrentState(new AscFormat.StartAddNewShape(this, sPreset, info.Color));
+            this.OnMouseDown({}, dX, dY, nPageIndex);
+            if (AscFormat.isRealNumber(dExtX) && AscFormat.isRealNumber(dExtY)) {
+                this.OnMouseMove({IsLocked: true}, dX + dExtX, dY + dExtY, nPageIndex)
+            }
+            this.OnMouseUp({}, dX, dY, nPageIndex);
+            this.document.Document_UpdateInterfaceState();
+            this.document.Document_UpdateRulersState();
+            this.document.Document_UpdateSelectionState();
+        }
+    },
 
     drawOnOverlay: function(overlay)
     {

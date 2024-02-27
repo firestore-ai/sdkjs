@@ -7697,6 +7697,253 @@ CTable.prototype.SetParagraphAlign = function(Align)
 		return this.CurCell.Content.SetParagraphAlign(Align);
 	}
 };
+
+
+///////////////////////////////////////////////////////////////
+//
+const type_BiyueTable_None = 0; // 普通表格
+const type_BiyueTable_Score = 1;
+const type_BiyueTable_Evaluate = 2;
+const title_BiyueTable_Score = "__biyue_private_score__";
+const title_BiyueTable_Evaluate = "__biyue_private_evaluate__";
+
+/**
+ * chongxishen
+ * 添加批分框
+ * @refer SetParagraphAlign
+ * @returns 
+ */
+CTable.prototype.my_CreateScoreTable = function(info) {
+	const Align = AscCommon.align_Center;
+	const _textPr = this.my_CreateDefaultTextPr();
+
+	const space = { LineRule: 2 /* exact */, Line: 5 /* mm */};
+	this.Set_TableCaption(title_BiyueTable_Score);
+	for (var nCurRow = 0, nRowsCount = this.GetRowsCount(); nCurRow < nRowsCount; ++nCurRow) {
+		var oRow = this.GetRow(nCurRow);
+		oRow.SetHeight(tblwidth_Mm, this.my_px2mm(16));
+		for (var nCurCell = 0, nCellsCount = oRow.GetCellsCount(); nCurCell < nCellsCount; ++nCurCell) {
+			var Cell = oRow.GetCell(nCurCell);
+			var Cell_Content = Cell.Content;
+			Cell_Content.SetParagraphAlign(Align);
+			Cell_Content.SetParagraphSpacing(space);
+
+			if (nCurCell % 2 === 0) {
+				Cell.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(32)));
+				var oParagraph = Cell_Content.GetFirstParagraph();
+				var oRun = new AscCommonWord.ParaRun(oParagraph, false);
+				// oRun.SetFontSize(this.my_px2mm(10));
+				oRun.Set_Pr(_textPr);
+				oRun.AddText("[ " + nCurCell + " ]");
+				// oParagraph.ClearContent();
+				oParagraph.Add_ToContent(0, oRun);
+			}
+			else {
+				Cell.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(7)));
+			}
+		}
+	}
+};
+CTable.prototype.my_CreateDefaultTextPr = function() {
+	const FontName = "黑体";
+	const FontSize = 9;
+
+	var _textPr = new CTextPr();
+	_textPr.FontFamily = { Name : FontName, Index : -1 };
+	_textPr.RFonts.Ascii = { Name : FontName, Index : -1 };
+	_textPr.RFonts.EastAsia = { Name : FontName, Index : -1 };
+	_textPr.RFonts.CS = { Name : FontName, Index : -1 };
+	_textPr.RFonts.HAnsi = { Name : FontName, Index : -1 };
+
+	_textPr.FontSize = FontSize;
+	_textPr.FontSizeCS = FontSize;
+	return _textPr;
+};
+/**
+ * chongxishen
+ * 添加底部的红花栏
+ * @returns 
+ */
+CTable.prototype.my_CreateEvaluateTable = function(info) {
+	const Align = AscCommon.align_Center;
+	const _textPr = this.my_CreateDefaultTextPr();
+
+	this.Set_TableCaption(title_BiyueTable_Evaluate);
+
+	var oRow = this.GetRow(0);
+	oRow.SetHeight(tblwidth_Mm, this.my_px2mm(32));
+
+	// 图片 0
+	var Cell0 = oRow.GetCell(0);
+	var Cell_Content0 = Cell0.Content;
+	Cell_Content0.SetParagraphAlign(Align);
+	Cell0.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+
+	Cell0.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(24)));
+	Cell_Content0.AddBiyueImage(info.imgs[0], this.my_px2mm(24), this.my_px2mm(30));
+
+	// 自我评价 1
+	var Cell1 = oRow.GetCell(1);
+	var Cell_Content1 = Cell1.Content;
+	Cell1.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+	Cell1.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(70)));
+
+	var oParagraph1 = Cell_Content1.GetFirstParagraph();
+	var oRun1 = new AscCommonWord.ParaRun(oParagraph1, false);
+	oRun1.Set_Pr(_textPr);
+	oRun1.AddText("自我评价:");
+	oParagraph1.Add_ToContent(0, oRun1);
+
+	// 红花 2-5
+	for (var idx = 0; idx < 4; idx++) {
+		var Cell = oRow.GetCell(2 + idx);
+		var Cell_Content = Cell.Content;
+		Cell_Content.SetParagraphAlign(Align);
+		Cell.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+
+		Cell.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(32)));
+		Cell_Content.AddBiyueImage(info.imgs[2], this.my_px2mm(24), this.my_px2mm(24));
+	}
+	
+	// 间隔 6  FIXME: 计算
+	var Cell6 = oRow.GetCell(6);
+	Cell6.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(32)));
+
+	// 图片 7
+	var Cell7 = oRow.GetCell(7);
+	var Cell_Content7 = Cell7.Content;
+	Cell_Content7.SetParagraphAlign(Align);
+	Cell7.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+
+	Cell7.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(24)));
+	Cell_Content7.AddBiyueImage(info.imgs[1], this.my_px2mm(24), this.my_px2mm(30));
+
+	// 教师评价 8
+	var Cell8 = oRow.GetCell(8);
+	var Cell_Content8 = Cell8.Content;
+	Cell8.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+	Cell8.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(70)));
+
+	var oParagraph8 = Cell_Content8.GetFirstParagraph();
+	var oRun8 = new AscCommonWord.ParaRun(oParagraph8, false);
+	oRun8.Set_Pr(_textPr);
+	oRun8.AddText("教师评价:");
+	oParagraph8.Add_ToContent(0, oRun8);
+
+	// 红花 9-12
+	for (var idx = 0; idx < 4; idx++) {
+		var Cell = oRow.GetCell(9 + idx);
+		var Cell_Content = Cell.Content;
+		Cell_Content.SetParagraphAlign(Align);
+		Cell.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+
+		Cell.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(32)));
+		Cell_Content.AddBiyueImage(info.imgs[2], this.my_px2mm(24), this.my_px2mm(24));
+	}
+
+	// 间隔 13  FIXME: 计算
+	var Cell13 = oRow.GetCell(13);
+	Cell13.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(32)));
+
+	// 通过 14
+	var Cell14 = oRow.GetCell(14);
+	var Cell_Content14 = Cell14.Content;
+	Cell14.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+	Cell14.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(58)));
+
+	var oParagraph14 = Cell_Content14.GetFirstParagraph();
+	var oRun14 = new AscCommonWord.ParaRun(oParagraph14, false);
+	oRun14.Set_Pr(_textPr);
+	oRun14.AddText("通过");
+	oParagraph14.Add_ToContent(0, oRun14);
+
+	// 间隔 15  FIXME: 计算
+	var Cell15 = oRow.GetCell(15);
+	Cell15.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(32)));
+
+	// 日期/评语 16
+	var Cell16 = oRow.GetCell(16);
+	var Cell_Content16 = Cell16.Content;
+	Cell16.Set_VAlign(Asc.c_oAscVertAlignJc.Center);
+	Cell16.SetW(new CTableMeasurement(tblwidth_Mm, this.my_px2mm(160)));
+
+	var oParagraph16 = Cell_Content16.GetFirstParagraph();
+	var oRun16 = new AscCommonWord.ParaRun(oParagraph16, false);
+	oRun16.Set_Pr(_textPr);
+	oRun16.AddText("日期/评语");
+	oParagraph16.Add_ToContent(0, oRun16);
+};
+CTable.prototype.my_GetScoreRects = function(page)
+{
+	let rects = [];
+	for (var nCurRow = 0, nRowsCount = this.GetRowsCount(); nCurRow < nRowsCount; ++nCurRow) {
+		var oRow = this.GetRow(nCurRow);
+		for (var nCurCell = 0, nCellsCount = oRow.GetCellsCount(); nCurCell < nCellsCount; nCurCell += 2) {
+			var Cell = oRow.GetCell(nCurCell);
+			var bound = Cell.GetPageBounds(0); // CDocumentBounds
+			var rect = { X:bound.Left, Y:bound.Top, W: (bound.Right - bound.Left),
+				H: (bound.Bottom - bound.Top), Page: page};
+			rects.push(rect);
+		}
+	}
+	return rects;
+};
+CTable.prototype.my_px2mm = function(px) {
+	return px * 25.4 / 96.0;
+};
+
+// CTable.prototype.my_GetScoreType_private = function(elementsContent) {
+// 	if (elementsContent) {
+// 		for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+// 			var Item = elementsContent[Index];
+// 			if (para_Bookmark === Item.GetType()) {
+// 				var name = Item.BookmarkName;
+// 				if (name.startsWith(prefix_BiyueTable_Score)) {
+// 					return type_BiyueTable_Score;
+// 				} else if (name.startsWith(prefix_BiyueTable_Evaluate)) {
+// 					return type_BiyueTable_Evaluate;
+// 				}
+// 			} else if (type_Paragraph === Item.GetType()) {
+// 				var type = this.my_GetScoreType_private(Item.Content);
+// 				if (type != type_BiyueTable_None) return type;
+// 			}
+// 		}
+// 	}
+// 	return type_BiyueTable_None;
+// };
+// CTable.prototype.my_GetScoreType = function() {
+// 	const row = this.GetRowsCount();
+// 	if (row > 0) { // 获取首个单元格，检测内置的书签
+// 		var oRow = this.GetRow(0);
+// 		if (oRow && oRow.GetCellsCount() > 0) {
+// 			var oCell = oRow.GetCell(0);
+// 			if (oCell) {
+// 				var type = this.my_GetScoreType_private(oCell.Content.Content);
+// 				return type;
+// 			}
+// 		}
+// 	}
+// 	return type_BiyueTable_None;
+// };
+CTable.prototype.my_GetScoreType = function() {
+	let title = this.Get_TableCaption();
+	switch (title) {
+	case title_BiyueTable_Score:
+		return type_BiyueTable_Score;
+	case title_BiyueTable_Evaluate:
+		return type_BiyueTable_Evaluate;	
+	}
+	return type_BiyueTable_None;
+}
+CTable.prototype.my_IsBiyueScoreTable = function() {
+	const type = this.my_GetScoreType();
+	return type === type_BiyueTable_Score;
+};
+CTable.prototype.my_IsBiyueEvaluateTable = function() {
+	const type = this.my_GetScoreType();
+	return type === type_BiyueTable_Evaluate;
+};
+
 CTable.prototype.SetParagraphDefaultTabSize = function(TabSize)
 {
 	if (this.IsCellSelection())

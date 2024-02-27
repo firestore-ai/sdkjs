@@ -56,6 +56,13 @@
 			this.pdfChanges = null;
 
 			this.textParams = null;
+
+			// chongxishen: 支持只导出BlockLevelSdt的内容 for HTML format
+			this.blockOnly = false;
+			// 支持导出300dpi图片
+			this.highDpi = false;
+			// 拦截图片下载
+			this.cbProcessImageFile = null;
 		}
 
 		asc_CDownloadOptions.prototype.asc_setFileType = function (fileType) {this.fileType = fileType;};
@@ -63,6 +70,9 @@
 		asc_CDownloadOptions.prototype.asc_setAdvancedOptions = function (advancedOptions) {this.advancedOptions = advancedOptions;};
 		asc_CDownloadOptions.prototype.asc_setCompatible = function (compatible) {this.compatible = compatible;};
 		asc_CDownloadOptions.prototype.asc_setTextParams = function (textParams) {this.textParams = textParams;};
+		// chongxishen
+		asc_CDownloadOptions.prototype.asc_setBlockOnly = function (blockOnly) {this.blockOnly = blockOnly;};
+		asc_CDownloadOptions.prototype.asc_setHightDpi = function (highDpi) {this.highDpi = highDpi;};
 
 		/** @constructor */
 		function asc_CAdvancedOptions(opt) {

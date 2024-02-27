@@ -5548,6 +5548,938 @@ CDocument.prototype.CanDrawPage = function(nPageAbs)
 
 	return true;
 };
+/////////////////////////////////////////////////////////////////////
+//
+const REGEX_FILL = /(([\(]|[\（])(\s|\&nbsp\;)*([\）]|[\)]))|(___*|＿+)/;
+const REGEX_FILL_G = /(([\(]|[\（])(\s|\&nbsp\;)*([\）]|[\)]))|(___*|＿+)/g;
+const QUES_TYPES = [
+	{ display: '未定义',    value: 0,           color: 'DCDCDC' },
+	{ display: '单选',      value: 1,           color: '993366' },
+	{ display: '填空',      value: 2,           color: 'C0C0C0' },
+	{ display: '作答',      value: 3,           color: 'FF99CC' },
+	{ display: '判断',      value: 4,           color: 'FFCC99' },
+	{ display: '多选',      value: 5,           color: 'FFFF99' },
+	{ display: '文本',      value: 6,           color: 'CCFFCC' },
+	{ display: '单选组合',  value: 7,           color: 'CCFFFF' },
+	{ display: '作文',      value: 8,           color: 'C9C8FF' },
+	{ display: '结构',      value: 1000,        color: 'CC99FF' },
+	{ display: '作答区',    value: 1001,        color: 'CC00FF' },
+];
+/**
+ *chongxishen：获取BlockLevelSdt的位置信息
+ * @refer CDocument.prototype.Draw
+ */
+CDocument.prototype.GetContentControlRects = function() {
+	var ccRects = []
+	for (var nPageIndex = 0, PageCount = this.Pages.length; nPageIndex < PageCount; nPageIndex++) {
+		var Page = this.Pages[nPageIndex];
+		for (var SectionIndex = 0, SectionsCount = Page.Sections.length; SectionIndex < SectionsCount; ++SectionIndex) {
+			var PageSection = Page.Sections[SectionIndex];
+
+			for (var ColumnIndex = 0, ColumnsCount = PageSection.Columns.length; ColumnIndex < ColumnsCount; ++ColumnIndex) {
+				var Column         = PageSection.Columns[ColumnIndex];
+				var ColumnStartPos = Column.Pos;
+				var ColumnEndPos   = Column.EndPos;
+	
+				for (var ContentPos = ColumnStartPos; ContentPos <= ColumnEndPos; ++ContentPos) {
+					var oElement = this.Content[ContentPos];
+					if (Page.IsFlowTable(oElement) || Page.IsFrame(oElement)) {
+						continue;
+					}
+
+					if (oElement.GetType() === type_BlockLevelSdt) {
+						var rects = oElement.GetBoundingRect2();
+						for (var a = 0, n = rects.length; a < n; a++) {
+							var rect = rects[a];
+							if (rect && rect.Page == nPageIndex) { // fix: 避免重复
+								ccRects.push(rects[a]);
+							}
+						}
+						// this.dumpBlockLevelSdt(oElement.Content.Content);
+					}
+				}
+			}
+		}
+	}
+
+	return ccRects;
+}
+/**
+ * chongxishen
+ * 获取block std的track信息
+ */
+CDocument.prototype.my_Goto = function(track) {
+	if (track && track.obj) {
+		this.RemoveSelection();
+		track.obj.my_Goto();
+	}
+}
+/**
+ * chongxishen
+ * 获取block std的track信息
+ */
+CDocument.prototype.GetBlockStdTracks = function(allTracks, elementsContent, parentItem) {
+	if (elementsContent) {
+		for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+			var Item;
+			if (elementsContent[Index].Element)
+				Item = elementsContent[Index].Element;
+			else
+				Item = elementsContent[Index];
+	
+			if (type_BlockLevelSdt === Item.GetType()) {
+				var rects = Item.GetBoundingRect2();
+				if (rects && rects.length > 0) {
+					var geom = [];
+					for (var i = 0, K = rects.length; i < K; i++) {
+						var rect = rects[i];
+						var aGeom = { X: rect.X, Y: rect.Y, R: rect.X + rect.W, B: rect.Y + rect.H, Page: rect.Page };
+						geom.push(aGeom);
+					}
+					var name = Item.my_GetText();
+					var tag = Item.GetTag();
+					var info = { obj: Item, geom: geom, type: type_BlockLevelSdt, name: name, tag: tag, parent: parentItem };
+					allTracks.push(info);
+				}
+				this.GetBlockStdTracks(allTracks, Item.Content.Content, Item);
+			}
+			// 增加InlineLevel
+			else if (Item.GetType() === type_Paragraph && Item.Content) {
+				for (var i = 0, M = Item.Content.length; i < M; i++) {
+					var para = Item.Content[i];
+					if (para.GetType() == para_InlineLevelSdt) {
+						var rect = para.GetBoundingRect2();
+						if (rect) {
+							var geom = [];
+							var aGeom = { X: rect.X, Y: rect.Y, R: rect.X + rect.W, B: rect.Y + rect.H, Page: rect.Page };
+							geom.push(aGeom);
+							var name = para.my_GetText();
+							var tag = para.GetTag();
+							var info = { obj: para, geom: geom, type: para_InlineLevelSdt, name: name, tag: tag, parent: parentItem };
+							allTracks.push(info);
+						}
+					}
+				}
+			}
+		}
+	}
+};
+/**
+ * TODO: 获取后为树形结构，这样方便后续UI上的操作
+ */
+CDocument.prototype.my_getBlockStdTracks = function(allTracks, elementsContent, parentInfo) {
+	if (elementsContent) {
+		for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+			var Item;
+			if (elementsContent[Index].Element)
+				Item = elementsContent[Index].Element;
+			else
+				Item = elementsContent[Index];
+	
+			if (type_BlockLevelSdt === Item.GetType()) {
+				var rects = Item.GetBoundingRect2();
+				if (rects && rects.length > 0) {
+					var geom = [];
+					for (var i = 0, K = rects.length; i < K; i++) {
+						var rect = rects[i];
+						var aGeom = { X: rect.X, Y: rect.Y, R: rect.X + rect.W, B: rect.Y + rect.H, Page: rect.Page };
+						geom.push(aGeom);
+					}
+					var name = Item.my_GetText();
+					var tag = Item.GetTag();
+					var info = { obj: Item, geom: geom, type: type_BlockLevelSdt, name: name, tag: tag, childs: [] };
+					
+					if (parentInfo) parentInfo.childs.push(info);
+					else allTracks.push(info);
+				}
+				this.my_getBlockStdTracks(allTracks, Item.Content.Content, info);
+			}
+			// 增加InlineLevel
+			else if (Item.GetType() === type_Paragraph && Item.Content) {
+				for (var i = 0, M = Item.Content.length; i < M; i++) {
+					var para = Item.Content[i];
+					if (para.GetType() == para_InlineLevelSdt) {
+						var rect = para.GetBoundingRect2();
+						if (rect) {
+							var geom = [];
+							var aGeom = { X: rect.X, Y: rect.Y, R: rect.X + rect.W, B: rect.Y + rect.H, Page: rect.Page };
+							geom.push(aGeom);
+							var name = para.my_GetText();
+							var tag = para.GetTag();
+							var info = { obj: para, geom: geom, type: para_InlineLevelSdt, name: name, tag: tag };
+
+							if (parentInfo) parentInfo.childs.push(info);
+							else allTracks.push(info);
+						}
+					}
+				}
+			}
+		}
+	}
+};
+// mm -> px
+CDocument.prototype.convCoordination = function(rect) {
+	var pos = {
+		x: parseInt(rect.X * 96.0 / 25.4 + 0.5),
+		y: parseInt(rect.Y * 96.0 / 25.4 + 0.5),
+		w: parseInt(rect.W * 96.0 / 25.4 + 0.5),
+		h: parseInt(rect.H * 96.0 / 25.4 + 0.5),
+		page: rect.Page + 1
+	};
+	return pos;
+}
+
+CDocument.prototype.my_GetQuestionAskInfo = function(ques_list, elementsContent) {
+	if (elementsContent) {
+		for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+			var Item;
+			if (elementsContent[Index].Element)
+				Item = elementsContent[Index].Element;
+			else
+				Item = elementsContent[Index];
+	
+			if (type_BlockLevelSdt === Item.GetType()) {
+				var fields = [];
+				var rects = Item.GetBoundingRect2();
+				if (rects && rects.length > 0) {
+					for (var a = 0, n = rects.length; a < n; a++) {
+						var rect = rects[a];
+						if (rect) {
+							fields.push(this.convCoordination(rect));
+						}
+					}
+				}
+				const element = Item.Content.Content;
+				var _fields = this.getAskRects(element);
+				var scoreFields = this.getScoreRects(element);
+				var ques = { ask_fields: _fields, fields: fields, scores: scoreFields };
+
+				ques_list.push(ques);
+
+				this.my_GetQuestionAskInfo(ques_list, element);
+			}
+		}
+	}
+}
+CDocument.prototype.GetQuestionAskInfo = function() {
+	var ques_list = [];
+	this.my_GetQuestionAskInfo(ques_list, this.Content);
+
+	// 处理页脚
+	if (this.HdrFtr && this.HdrFtr.Pages) {
+		for (var i = 0, N = this.GetPagesCount(); i < N; i++) {
+			var page = this.HdrFtr.Pages[i];
+			if (page.Footer && page.Footer.Content && page.Footer.Content.Content) {
+				for (var j = 0, M = page.Footer.Content.Content.length; j < M; j++) {
+					var Item = page.Footer.Content.Content[j];
+					if (type_Table === Item.GetType() && Item.my_IsBiyueEvaluateTable()) {
+						// TODO: get rect of table
+						console.log("biyue evaluate table page=" + i);
+					}
+				}
+			}
+		}
+	}
+
+	return ques_list;
+}
+CDocument.prototype.getAskRects = function(elementsContent) {
+	let fields = []
+	if (elementsContent) {
+		for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+			var Item;
+			if (elementsContent[Index].Element)
+				Item = elementsContent[Index].Element;
+			else
+				Item = elementsContent[Index];
+
+			if (type_Paragraph === Item.GetType()) {
+				if (Item.Content) {
+					for (var i = 0, M = Item.Content.length; i < M; i++) {
+						var para = Item.Content[i];
+						if (para.GetType() == para_InlineLevelSdt) {
+							let rect = para.GetBoundingRect2();
+							fields.push(this.convCoordination(rect));
+						}
+					}
+				}
+			}
+		}
+	}
+	return fields;
+}
+CDocument.prototype.getScoreRects = function(elementsContent) {
+	let fields = []
+	if (elementsContent) {
+		for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+			var Item;
+			if (elementsContent[Index].Element)
+				Item = elementsContent[Index].Element;
+			else
+				Item = elementsContent[Index];
+
+			if (type_Table === Item.GetType() && Item.my_IsBiyueScoreTable()) {
+				let page = Item.Get_CurrentPage_Absolute();
+				let rects = Item.my_GetScoreRects(page);
+				for (var i = 0, M = rects.length; i < M; i++) {
+					let rect = rects[i];
+					fields.push(this.convCoordination(rect));
+				}
+			}
+		}
+	}
+	return fields;
+};
+/**
+ * 相对AddInlineTable，明确指定添加到的内容
+ * @refer AddInlineTable 
+ */
+CDocument.prototype.AddInlineTableToDoc = function(nCols, nRows, nMode) {
+	if (nCols <= 0 || nRows <= 0) {
+		return null;
+	}
+
+	var oTable = this.LogicDocumentController.AddInlineTable(nCols, nRows, nMode);
+
+	this.Recalculate();
+	this.UpdateSelection();
+	this.UpdateInterface();
+	this.UpdateRulers();
+
+	return oTable;
+};
+/**
+ * 相对AddInlineTable，明确指定添加到的内容
+ * @refer AddInlineTable 
+ */
+CDocument.prototype.AddInlineTableToFooter = function(nCols, nRows, nMode) {
+	if (nCols <= 0 || nRows <= 0) {
+		return null;
+	}
+
+	var oTable = this.HeaderFooterController.AddInlineTable(nCols, nRows, nMode);
+
+	this.Recalculate();
+	this.UpdateSelection();
+	this.UpdateInterface();
+	this.UpdateRulers();
+
+	return oTable;
+};
+CDocument.prototype.dumpBlockLevelSdt = function(elementsContent) {
+	if (elementsContent) {
+		for (var Index = 0; Index < elementsContent.length; Index++) {
+			var Item;
+			if (elementsContent[Index].Element)
+				Item = elementsContent[Index].Element;
+			else
+				Item = elementsContent[Index];
+
+			if (type_Paragraph === Item.GetType()) {
+				var found = false;
+				if (Item.Content) {
+					for (var i = 0; i < Item.Content.length; i++) {
+						var para = Item.Content[i];
+						if (para.GetType() == para_InlineLevelSdt) {
+							found = true;
+							var rect = para.GetBoundingRect2();
+							console.log("InlineLevelSdt { (" + rect.X + ", " + rect.Y + " -- " + rect.W + ", " + rect.H + ") P: " + rect.Page + " }");
+						}
+					}
+				}
+
+				if (!found) {
+					var text = Item.GetText();
+					console.log("Paragraph: text=" + text);
+					var regex_bracket = REGEX_FILL_G;
+					// if (regex_bracket.test(text)) {
+					// 	console.log("Paragraph: detect ()");
+					// }
+					// var res = text.match(regex_bracket);
+					// if (res) {
+					// 	console.log("Paragraph: detect  "  + res);
+					// 	var idx = text.search(regex_bracket);
+					// 	Item.Set_SelectionContentPos(idx, idx + res.length);
+					// 	this.AddContentControl(c_oAscSdtLevelType.Inline);
+					// }
+
+					// 匹配括号
+					// /(?<!data-latex="[^"]*)(([\(]|[\（])(\s|\&nbsp\;)*([\）]|[\)]))|(___*)/g
+					// 匹配下划线
+					// /(?<!data-latex="[^"]*)(([\(]|[\（])(\s|\&nbsp\;)*([\）]|[\)]))|(___*)/
+				}
+			}
+			else if (type_BlockLevelSdt === Item.GetType()) {
+				let rects = Item.GetBoundingRect2();
+				for (var i = 0; i < rects.length; i++) {
+					let rect = rects[i];
+					console.log("BlockLevelSdt { (" + rect.X + ", " + rect.Y + " -- " + rect.W + ", " + rect.H + ") P: " + rect.Page + " }");
+				}
+				this.dumpBlockLevelSdt(Item.Content.Content);
+			}
+		}
+	}
+}
+/**
+ * chongxishen
+ */
+CDocument.prototype.dumpParagraphs = function() {
+	if (true) {
+		this.my_ClearAllContentControls(); /* clear all CC */
+		this.my_AutoLayout();
+		return;
+	}
+
+
+	let elementsContent = this.Content;
+	for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+		var Item;
+		if (elementsContent[Index].Element)
+			Item = elementsContent[Index].Element;
+		else
+			Item = elementsContent[Index];
+
+		const type = Item.GetType();
+		switch (type) {
+			case type_Paragraph:
+				let text = Item.GetText();
+				let numType = 0;
+				let textTrim = text.trim();
+				if (textTrim) {
+					numType = this.my_startQuesNumType(textTrim);
+				}
+
+				console.log("========= paragraph " + Index + " numType=" + numType);
+				if (Index === 88) {
+					console.log("test");
+				}
+				console.log(text);
+				console.log("=========");
+				break;
+
+			case type_BlockLevelSdt:
+				console.log("skip blocksdt");
+				break;
+
+			case type_Table:
+				console.log("skip table");
+				break;
+
+			default:
+				console.log("skip type=" + type);
+				break;
+		}
+	}
+}
+/**
+ * @refer CDocument.prototype.RemoveContentControlWrapper
+ */
+CDocument.prototype.my_ClearAllContentControls = function() {
+	let items = this.GetAllContentControls();
+	for (let i = items.length - 1; i >= 0; i--) {
+		let contentControl = items[i];
+		if (contentControl) {
+			contentControl.RemoveContentControlWrapper();
+		}
+	}
+
+	this.Recalculate();
+	this.UpdateInterface();
+	this.UpdateSelection();
+	this.FinalizeAction();
+}
+
+/**
+ * chongxishen
+ */
+CDocument.prototype.my_AutoLayout = function(settings) {
+	let contents = [];
+	let elementsContent = this.Content;
+	let examType = 0;
+	for (var Index = 0, N = elementsContent.length; Index < N; Index++) {
+		var Item;
+		if (elementsContent[Index].Element)
+			Item = elementsContent[Index].Element;
+		else
+			Item = elementsContent[Index];
+
+		const type = Item.GetType();
+		switch (type) {
+			case type_Paragraph:
+				let text = Item.GetText();
+				let textTrim = text.trim();
+				let numType = 0;
+				if (textTrim) {
+					numType = this.my_startQuesNumType(textTrim);
+				}
+				var ele = { type: type, item: Item, text: text, numType: numType };
+				contents.push(ele);
+
+				if (numType === 1) examType = 1; // 带中文数字
+				break;
+
+			// case type_BlockLevelSdt:
+			// 	console.log("skip blocksdt");				
+			// 	break;
+			case type_Table:
+				var ele = { type: type, item: Item };
+				contents.push(ele);
+				break;
+
+			default:
+				// var ele = { type: type, item: Item };
+				console.log("skip type=" + type);
+				break;
+		}
+	}
+
+
+	let count = contents.length;
+	if (count > 0) {
+		let structs = [];
+		let items = [];
+		let quesType = 0;
+
+		if (examType === 1) { // 存在中文数字
+
+			for (let i = 0; i < count; i++) {
+				let ele = contents[i];
+				if (type_Paragraph === ele.type) {
+					if (ele.numType === 1) {
+						if (items.length > 0) {
+							if (structs.length > 0) {
+								let last = structs[structs.length - 1];
+								let ques = { quesType: quesType, items: items };
+								last.childs.push(ques);
+							}
+							items = [];
+						}
+
+						quesType = this.my_startQuesType(ele.text);
+
+						ele.quesType = 1000; // 结构
+						ele.childs = [];						
+						ele.childQuesType = quesType; // childs的问题类型：选择OR填空？
+						structs.push(ele);
+					}
+					// 2 -- 阿拉伯数字  e.g 1.
+					// 4 -- 阿拉伯数字带括号  e.g 1). (3). (4) 
+					// 5 -- 括号带阿拉伯数字  e.g ()1. （）4.;
+					else if (ele.numType === 2 || ele.numType === 4 || ele.numType === 5) {
+						if (items.length > 0) {
+							let last = structs[structs.length - 1];
+							let ques = { quesType: quesType, items: items };
+							last.childs.push(ques);
+							items = [];
+						}
+						items.push(ele);
+					}
+					else if (ele.numType === 3) { // 选择题 e.g A. B. C. D.
+						items.push(ele);
+					}
+
+					else if (ele.numType === 0) { // 可能是段落或者图
+						items.push(ele);
+					}
+				} else if (type_Table === ele.type) {
+					items.push(ele);
+				}
+			}
+
+			// 追加最后的部分
+			if (items.length > 0) {
+				if (structs.length > 0) {
+					let last = structs[structs.length - 1];
+					let ques = { quesType: quesType, items: items };
+					last.childs.push(ques);
+				}
+				items = [];
+			}
+
+
+			//
+			// TODO: 分析属性
+			// 区分更多的类型，填空，选择或者文本等
+			//
+			for (let i = 0; i < structs.length; i++) {
+				let s = structs[i];
+				let childs = s.childs;
+
+				let k = 0;
+				let newChilds = [];
+				// let parent = s;
+				for (let j = 0; j < childs.length; j++) {
+					let child = childs[j];
+
+					// 检测是否空的段落
+					let empty = true;
+					for (let n = 0; n < child.items.length; n++) {
+						let item = child.items[n];
+						if (item.type === type_Paragraph && !item.text.trim()) {
+							if (!item.item.my_isParaDrawing()) continue;	
+						}
+
+						empty = false;
+						break;
+					}
+					if (empty) continue;
+
+					// 如果无法从结构上获取到题型，需要对child进行分析
+					if (s.childQuesType === 0) {
+						let quesType = 0;
+
+						if (quesType === 0) {
+							// 有没有可能是大小题？
+							if (j < childs.length - 1) {
+								if (child.items[0].numType !== childs[j + 1].items[0].numType
+									&&
+									// 当前是 2 -- 阿拉伯数字  e.g 1.
+									// 下一个是 4或5 阿拉伯数字带括号
+									(child.items[0].numType === 2 
+										&& (childs[j + 1].items[0].numType === 4 || childs[j + 1].items[0].numType === 5))
+									) {
+									quesType = 6;
+
+									// 修改层次结构. 只支持到3层结构
+									let jj = j + 1;
+									let itemChilds = [];
+									let curType = child.items[0].numType;
+									for (; jj < childs.length; jj++) {
+										let nextChild = childs[jj];
+										if (curType === nextChild.items[0].numType) {
+											jj--;
+											break;
+										}
+										nextChild.quesType = this.my_analyzeQuesType(nextChild);
+										itemChilds.push(nextChild);
+									}
+									child.childs = itemChilds;
+									j = jj;
+								}
+							}
+						}
+
+						if (quesType === 0) {
+							quesType = this.my_analyzeQuesType(child);
+						}
+
+						child.quesType = quesType;
+					}
+
+					newChilds[k++] = child;
+				}
+
+				s.childs = newChilds;
+			}
+
+		}
+
+		else {
+			console.log("TBD");
+		}
+
+		
+		//
+		// 后处理
+		// 	分栏的情况下会导致段落异常
+		//
+		for (let i = structs.length - 1; i >= 0; i--) {
+			let s = structs[i];
+			let childs = s.childs;
+			for (let j = childs.length - 1; j >= 0; j--) {
+				let child = childs[j];
+				let items = child.items;
+				// 去掉部分段落
+				let k = 0;
+				for (; k < items.length; k++) {
+					let item = items[k];
+					if (item.type === type_Paragraph && !item.text.trim()) {
+						if (item.item.my_ignoreBound()) {
+							break;
+						}
+					}
+				}
+				child.items = items.slice(0, k);
+			}
+		}
+
+
+		// add CC
+		this.my_AddContentControls(structs);
+	}
+}
+/**
+ * 根据structs结构添加文本控制块
+ */
+CDocument.prototype.my_AddContentControls = function (structs) {
+	//
+	// 添加文本控制块
+	// 	NOTE: 必须倒过来添加CC，否则会改变其index
+	//
+	for (let i = structs.length - 1; i >= 0; i--) {
+		let s = structs[i];
+		let childs = s.childs;
+		for (let j = childs.length - 1; j >= 0; j--) {
+			let child = childs[j];
+
+			if (child.childs) { // 第3级
+				let itemChilds = child.childs;
+				for (let k = itemChilds.length - 1; k >= 0; k--) {
+					let itemChild = itemChilds[k];
+					let lastIndex = itemChild.items.length - 1;
+					this.my_AddContentControlAndProp(itemChild.items[0].item.Index,
+						itemChild.items[lastIndex].item.Index, itemChild.quesType);
+				}
+			}
+
+			let lastItemIndex = child.items.length - 1;
+			this.my_AddContentControlAndProp(child.items[0].item.Index, child.items[lastItemIndex].item.Index, child.quesType);
+		}
+		this.my_AddContentControlAndProp(s.item.Index, s.item.Index, s.quesType);
+	}
+
+	this.Recalculate();
+	this.UpdateInterface();
+	this.UpdateSelection();
+	this.FinalizeAction();
+
+	//
+	// 	划分填空/选择题中的作答区
+	//
+	for (let i = structs.length - 1; i >= 0; i--) {
+		let s = structs[i];
+		let childs = s.childs;
+		for (let j = childs.length - 1; j >= 0; j--) {
+			let child = childs[j];
+			if (child.quesType === 6) { // 文本
+				if (child.childs) { // 第3级
+					let itemChilds = child.childs;
+					for (let k = itemChilds.length - 1; k >= 0; k--) {
+						let itemChild = itemChilds[k];
+						this.my_layoutAnswerArea(itemChild);
+					}
+				}
+			} else {
+				this.my_layoutAnswerArea(child);
+			}
+		}
+	}
+
+	this.Recalculate();
+	this.UpdateInterface();
+	this.UpdateSelection();
+	this.FinalizeAction();
+}
+/**
+ * 添加作答区
+ */
+CDocument.prototype.my_layoutAnswerArea = function(child) {
+	if (child.quesType === 1 || child.quesType === 5) { // 单选/多选
+		for (let k = 0; k < child.items.length; k++) {
+			let item = child.items[k];
+			let match = REGEX_FILL.exec(item.text);
+			if (match) {
+				const startIndex = match.index;
+				const endIndex = startIndex + match[0].length;
+				this.my_AddFnContentControl(item.item, startIndex, endIndex);
+				break;
+			}
+		}
+	} else if (child.quesType === 2) { // 填空
+		let matches = [];
+		for (let k = 0; k < child.items.length; k++) {
+			let item = child.items[k];
+			let match;
+			while ((match = REGEX_FILL_G.exec(item.text)) !== null) {
+				matches.push({
+					// match: match[0],
+					item: item.item,
+					startIndex: match.index,
+					endIndex: match.index + match[0].length
+				  });
+			}
+		}
+
+		for (let i = matches.length - 1; i >= 0; i--) {
+			let match = matches[i];
+			this.my_AddFnContentControl(match.item, match.startIndex, match.endIndex);
+		}
+	}
+}
+/**
+ * 分析题目的属性：单选/填空等
+ */
+CDocument.prototype.my_analyzeQuesType = function(child) {
+	for (let n = 0; n < child.items.length; n++) {
+		let item = child.items[n];
+		if (item.numType === 3) { // A. B.这种选项
+			return 1; // 默认单选
+		}
+	}
+
+	for (let n = 0; n < child.items.length; n++) {
+		let item = child.items[n];
+		if (REGEX_FILL.test(item.text)) {
+			return 2; // 填空
+		}
+	}
+
+	return 0;
+}
+/**
+ * chongxishen
+ * 
+ * 根据标题判断，如果未检测到，仍定义为0
+ * @refer quesTypes
+ * TODO: 英文
+ */
+CDocument.prototype.my_startQuesType = function(title) {
+	const NON_PATTERN = /(非选择)/;
+    if (NON_PATTERN.test(title)) {
+        return 0;
+    }
+
+    const SEL_PATTERN = /(单选|选择)/;
+    if (SEL_PATTERN.test(title)) {
+        return 1;
+    }
+
+    const FILL_PATTERN = /(填空)/;
+    if (FILL_PATTERN.test(title)) {
+        return 2;
+    }
+
+    const MUL_SEL_PATT = /(多选)/;
+    if (MUL_SEL_PATT.test(title)) {
+        return 5;
+    }
+
+    const ART_PATT = /(作文|表达|习作)/;
+    if (ART_PATT.test(title)) {
+        return 8;
+    }
+
+    return 0;
+}
+/**
+ * chongxishen
+ */
+CDocument.prototype.my_AddContentControlAndProp = function(startIndex, endIndex, quesType) {
+	const quesTypes = QUES_TYPES;
+	let type = quesTypes[0];
+	for (let i = 0, N = quesTypes.length; i < N; i++) {
+		if (quesType === quesTypes[i].value) {
+			type = quesTypes[i];
+			break;
+		}
+	}
+
+	this.SelectRange(startIndex, endIndex); /* index */
+	var oContentControl = this.AddContentControl(c_oAscSdtLevelType.Block);
+	if (oContentControl) {
+		var props = new AscCommon.CContentControlPr();
+		var tag = { type: quesType };
+		props.put_Tag(JSON.stringify(tag));
+		var color = this.my_getRgbColor(type.color);
+		props.put_Color(color.get_r(), color.get_g(), color.get_b());
+		oContentControl.SetContentControlPr(props);
+
+		// this.Recalculate();
+		// this.UpdateInterface();
+		// this.UpdateSelection();
+	}
+}
+CDocument.prototype.my_AddFnContentControl = function(item, startIndex, endIndex) {
+	const type = QUES_TYPES[10];
+	this.RemoveSelection();
+	item.my_getPosByTextIndex(startIndex, endIndex);
+	var oContentControl = item.AddContentControl(c_oAscSdtLevelType.Inline);
+	if (oContentControl) {
+		var props = new AscCommon.CContentControlPr();
+		var tag = { type: type.value };
+		props.put_Tag(JSON.stringify(tag));
+		var color = this.my_getRgbColor(type.color);
+		props.put_Color(color.get_r(), color.get_g(), color.get_b());
+		oContentControl.SetContentControlPr(props);
+
+		// this.Recalculate();
+		// this.UpdateInterface();
+		// this.UpdateSelection();
+	}
+}
+CDocument.prototype.my_getRgbColor = function(clr) {
+	var color = (typeof(clr) == 'object') ? clr.color : clr;
+	color = color.replace(/#/,'');
+	if (color.length == 3) color=color.replace(/(.)/g,'$1$1');
+	color = parseInt(color, 16);
+	var c = new Asc.asc_CColor();
+	c.put_type( (typeof(clr) == 'object' && clr.effectId !== undefined) ? Asc.c_oAscColor.COLOR_TYPE_SCHEME : Asc.c_oAscColor.COLOR_TYPE_SRGB);
+	c.put_r(color >> 16);
+	c.put_g((color & 0xff00) >> 8);
+	c.put_b(color & 0xff);
+	c.put_a(0xff);
+	if (clr.effectId !== undefined)
+		c.put_value(clr.effectId);
+	return c;
+}
+/**
+ * chongxishen
+ */
+CDocument.prototype.my_AddContentControl = function(index) {
+	this.SelectRange(index, index); /* index */
+	var oContentControl = this.AddContentControl(c_oAscSdtLevelType.Block);
+	if (oContentControl) {
+		this.Recalculate();
+		this.UpdateInterface();
+		this.UpdateSelection();
+		this.FinalizeAction();
+	}
+}
+/**
+ * chongxishen
+ * 返回开始的题号类型
+ * 0 -- none;
+ * 1 -- 中文大写 eg. 一、;
+ * 2 -- 阿拉伯数字  e.g 1. ;
+ * 3 -- 选择题 e.g A. B. C. D. ;
+ * 4 -- 阿拉伯数字带括号  e.g 1). (3). (4) ;
+ * 5 -- 括号带阿拉伯数字  e.g ()1. （）4.;
+ * 6 -- 罗马数字  e.g I. II. ;
+ */
+CDocument.prototype.my_startQuesNumType = function(text) {
+	const NUM_CN_PATTERN = /^[一二三四五六七八九十][、．\.]/;
+    if (NUM_CN_PATTERN.test(text)) {
+        return 1;
+    }
+
+    const NUM_PATTERN = /^(?:[1-9]|[1-9][0-9])[、．\.]/;
+    if (NUM_PATTERN.test(text)) {
+        return 2;
+    }
+
+    const LETTER_PATTERN = /^[A-E][．\.]/;
+    if (LETTER_PATTERN.test(text)) {
+        return 3;
+    }
+
+    const NUM_1_PATTERN = /^[(（]?(?:[1-9]|[1-9][0-9])[)）]\.?/;
+    if (NUM_1_PATTERN.test(text)) {
+        return 4;
+    }
+
+    const NUM_2_PATTERN = /^[(（]\s*[)）]\s*(?:[1-9]|[1-9][0-9])[\.]/;
+    if (NUM_2_PATTERN.test(text)) {
+        return 5;
+    }
+
+    const NUM_GR_PATTERN = /^(?:(?:I{1,3}|IV|IX|V?I{0,3})|Ⅰ|Ⅱ|Ⅲ|Ⅳ|Ⅴ|Ⅵ|Ⅶ|Ⅷ|Ⅸ)\./;
+    if (NUM_GR_PATTERN.test(text)) {
+        return 6;
+    }
+
+    return 0;
+}
+
 /**
  * Перерисовка заданной страницы документа.
  * @param nPageIndex
@@ -5588,6 +6520,7 @@ CDocument.prototype.Draw                                     = function(nPageInd
 
     this.Footnotes.Draw(nPageIndex, pGraphics);
 
+	// chongxishen: 绘制页面内容
     var Page = this.Pages[nPageIndex];
     for (var SectionIndex = 0, SectionsCount = Page.Sections.length; SectionIndex < SectionsCount; ++SectionIndex)
     {
@@ -5603,7 +6536,6 @@ CDocument.prototype.Draw                                     = function(nPageInd
 
             if (true === PageSection.ColumnsSep && ColumnIndex > 0 && !Column.IsEmpty())
 			{
-
 				var SepX = (Column.X + PageSection.Columns[ColumnIndex - 1].XLimit) / 2;
 				pGraphics.p_color(0, 0, 0, 255);
 				pGraphics.drawVerLine(c_oAscLineDrawingRule.Left, SepX, PageSection.Y, PageSection.YLimit, 0.75 * g_dKoef_pt_to_mm);
@@ -5621,11 +6553,12 @@ CDocument.prototype.Draw                                     = function(nPageInd
             for (var ContentPos = ColumnStartPos; ContentPos <= ColumnEndPos; ++ContentPos)
             {
             	var oElement = this.Content[ContentPos];
-            	if (Page.IsFlowTable(oElement) || Page.IsFrame(oElement))
+				if (Page.IsFlowTable(oElement) || Page.IsFrame(oElement)) {
             		continue;
+				}
 
 				var ElementPageIndex = this.private_GetElementPageIndex(ContentPos, nPageIndex, ColumnIndex, ColumnsCount);
-				this.Content[ContentPos].Draw(ElementPageIndex, pGraphics);
+				oElement.Draw(ElementPageIndex, pGraphics);
             }
 
             if (ColumnsCount > 1)

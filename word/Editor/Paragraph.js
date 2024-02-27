@@ -18837,7 +18837,80 @@ Paragraph.prototype.asc_canAddRefToCaptionText = Paragraph.prototype.CanAddRefAf
 Paragraph.prototype["asc_getText"]                = Paragraph.prototype.asc_getText;
 Paragraph.prototype["asc_canAddRefToCaptionText"] = Paragraph.prototype.asc_canAddRefToCaptionText;
 
+// chongxishen
+Paragraph.prototype.my_isParaDrawing = function() {
+	for (let i = 0, N = this.Content.length; i < N; i++) {
+		let ele = this.Content[i];
+		for (let j = 0, M = ele.Content.length; j < M; j++) {
+			let item = ele.Content[j];
+			if (item instanceof AscCommonWord.ParaDrawing) {
+				return true;
+			}
+		}
+	}
+	return false;
+};
+Paragraph.prototype.my_ignoreBound = function() {
+	if (this.Pages[0]) {
+		let ylimit = this.Pages[0].YLimit;
+		if (ylimit && ylimit > 5000) return true;
+	}
+	return false;
+};
+Paragraph.prototype.my_getPosByTextIndex = function(startIndex, endIndex) {
+	// this.RemoveSelection();
+	var oPr = undefined;
+	var oText = new CParagraphGetText();
 
+	oText.SetBreakOnNonText(false);
+	oText.SetParaEndToSpace(oPr && undefined !== oPr.ParaEndToSpace ? oPr.ParaEndToSpace: true);
+	oText.SetParaNumbering(oPr && undefined !== oPr.Numbering ? oPr.Numbering: true);
+	oText.SetParaMath(oPr && undefined !== oPr.Math ? oPr.Math: true);
+	oText.SetParaTabSymbol(oPr && undefined !== oPr.TabSymbol ? oPr.TabSymbol: " ");
+	oText.SetParaNewLineSeparator(oPr && undefined !== oPr.NewLineSeparator ? oPr.NewLineSeparator: "\r");
+
+	if (true === oText.Numbering)
+	{
+		var oNumPr = this.GetNumPr();
+		if (oNumPr && oNumPr.IsValid())
+		{
+			oText.Text += this.GetNumberingText(false);
+
+			var nSuff = this.Parent.GetNumbering().GetNum(oNumPr.NumId).GetLvl(oNumPr.Lvl).GetSuff();
+			if (Asc.c_oAscNumberingSuff.Tab === nSuff)
+				oText.Text += "	";
+			else if (Asc.c_oAscNumberingSuff.Space === nSuff)
+				oText.Text += " ";
+		}
+	}
+
+	let info = { start: -1, end: -1, itemStart: -1, itemEnd: -1 };
+	for (var nIndex = 0, nCount = this.Content.length; nIndex < nCount; ++nIndex) {
+		let item = this.Content[nIndex];
+		if (item.my_getRangeByTextIndex) {
+			let oRange = item.my_getRangeByTextIndex(oText, startIndex, endIndex);
+			if (oRange.start !== -1) {
+				info.start = nIndex;
+				info.itemStart = oRange.start;
+			}
+			if (oRange.end !== -1) {
+				info.end = nIndex;
+				info.itemEnd = oRange.end;
+				break;
+			}
+		}
+		else if (item.Get_Text) {
+			item.Get_Text(oText);
+		}
+	}
+
+	this.Selection.Use = true;
+	this.Selection.StartPos = info.start;
+	this.Selection.EndPos = info.end;
+	this.Content[info.start].Selection.StartPos = info.itemStart;
+	this.Content[info.end].Selection.EndPos = info.itemEnd + 1;
+}
+// ---
 
 var pararecalc_0_All  = 0;
 var pararecalc_0_None = 1;

@@ -200,10 +200,19 @@ CopyElement.prototype.getInnerHtml = function(){
 		return this.sName;
 	else{
 		var sRes = "";
-		for(var i = 0; i < this.aChildren.length; ++i)
+		for(var i = 0; i < this.aChildren.length; ++i) {
 			sRes += this.aChildren[i].getOuterHtml();
+		}
 		return sRes;
 	}
+};
+// chongxishen
+CopyElement.prototype.getQuesInnerHtml = function (start, end) {
+	var sRes = "";
+	for(var i = start; i < end; ++i) {
+		sRes += this.aChildren[i].getOuterHtml();
+	}
+	return sRes;
 };
 CopyElement.prototype.getOuterHtml = function(){
 	if(this.bText)
@@ -242,6 +251,7 @@ function CopyProcessor(api, onlyBinaryCopy)
 	this.oRoot = new CopyElement("root");
     this.listNextNumMap = [];
     this.instructionHyperlinkStart = null;
+	this.quesParaIdx = []; // chongxishen
 }
 CopyProcessor.prototype =
 {
@@ -249,6 +259,12 @@ CopyProcessor.prototype =
     {
         return this.oRoot.getInnerHtml();
     },
+	
+	// chongxishen
+	getQuesInnerHtml : function (start, end) {
+		return this.oRoot.getQuesInnerHtml(start, end);
+	},
+
     getInnerText : function()
     {
         return this.oRoot.getInnerText();
@@ -1261,15 +1277,17 @@ CopyProcessor.prototype =
 				else
 					Item = elementsContent[Index];
 
-				if(type_Table === Item.GetType() )
+				if (type_Table === Item.GetType())
 				{
 					this.oBinaryFileWriter.copyParams.bLockCopyElems++;
-					if(!this.onlyBinaryCopy)
+					if (!this.onlyBinaryCopy) {
 						this.CopyTable(oDomTarget, Item, null);
+					}
 					this.oBinaryFileWriter.copyParams.bLockCopyElems--;
 
-					if(!dNotGetBinary)
+					if (!dNotGetBinary) {
 						this.oBinaryFileWriter.CopyTable(Item, null);
+					}
 				}
 				else if ( type_Paragraph === Item.GetType() )
 				{
@@ -1305,6 +1323,41 @@ CopyProcessor.prototype =
 		}
 		else//presentation
 		{
+			this.copyPresentation2(oDomTarget, oDocument, elementsContent);
+		}
+    },
+
+	/**
+	 * chongxishen: 只导出BlockLevelSdt的内容
+	 * @refer CopyDocument2
+	 */
+	CopyDocumentBlockOnly : function(oDomTarget, oDocument, elementsContent, dNotGetBinary)
+	{
+		if (PasteElementsId.g_bIsDocumentCopyPaste) {
+			if (!elementsContent && oDocument && oDocument.Content) {
+				elementsContent = oDocument.Content;
+			}
+
+			for (var Index = 0; Index < elementsContent.length; Index++) {
+				var Item;
+				if (elementsContent[Index].Element) Item = elementsContent[Index].Element;
+				else Item = elementsContent[Index];
+
+				if (type_BlockLevelSdt === Item.GetType()) {
+					this.oBinaryFileWriter.copyParams.bLockCopyElems++;
+					if (!this.onlyBinaryCopy) {
+						this.CopyDocument2(oDomTarget, oDocument, Item.Content.Content, true);
+					}
+					this.oBinaryFileWriter.copyParams.bLockCopyElems--;
+
+					if (!dNotGetBinary) {
+						this.oBinaryFileWriter.CopySdt(Item);
+					}
+					this.quesParaIdx.push(oDomTarget.aChildren.length); // 记录每题的结束索引
+				}
+			}
+		}
+		else {
 			this.copyPresentation2(oDomTarget, oDocument, elementsContent);
 		}
     },
@@ -1761,6 +1814,89 @@ CopyProcessor.prototype =
 		return sBase64;
 	},
 
+	/**
+	 * chongxishen
+	 * 仅仅是将this.CopyDocument2替换成this.CopyDocumentBlockOnly
+	 * @refer Start
+	 */
+	StartBlockOnly : function () {
+		var oDocument = this.oDocument;
+		var bFromPresentation;
+
+		window['AscCommon'].g_specialPasteHelper.SpecialPasteButton_Hide();
+
+		var sBase64, oElem, sStyle;
+		var selectedContent;
+		if (PasteElementsId.g_bIsDocumentCopyPaste) {
+			selectedContent = oDocument.GetSelectedContent();
+
+			var elementsContent;
+			if (selectedContent && selectedContent.Elements && selectedContent.Elements[0] && selectedContent.Elements[0].Element) {
+				elementsContent = selectedContent.Elements;
+			} else {
+				return "";
+			}
+
+			//TODO заглушка для презентационных параграфов(выделен текст внутри диаграммы) - пока не пишем в бинарник
+			if (selectedContent.Elements[0].Element && selectedContent.Elements[0].Element.bFromDocument === false) {
+				this.oBinaryFileWriter.Document = this.oDocument;
+			} else {
+				//подменяем Document для копирования(если не подменить, то commentId будет не соответствовать)
+				this.oBinaryFileWriter.Document = elementsContent[0].Element.LogicDocument;
+			}
+
+			this.quesParaIdx = [];
+			this.oBinaryFileWriter.CopyStart();
+			this.CopyDocumentBlockOnly(this.oRoot, oDocument, elementsContent, bFromPresentation);
+			this.CopyFootnotes(this.oRoot, this.aFootnoteReference);
+			this.oBinaryFileWriter.CopyEnd();
+		} else {
+			selectedContent = oDocument.GetSelectedContent2();
+			if (!selectedContent[0].DocContent && (!selectedContent[0].Drawings ||
+				(selectedContent[0].Drawings && !selectedContent[0].Drawings.length)) &&
+				(!selectedContent[0].SlideObjects ||
+				(selectedContent[0].SlideObjects && !selectedContent[0].SlideObjects.length))) {
+				return false;
+			}
+
+			this.CopyDocumentBlockOnly(this.oRoot, oDocument, selectedContent);
+
+			sBase64 = this.oPresentationWriter.GetBase64Memory();
+			sBase64 = "pptData;" + this.oPresentationWriter.pos + ";" + sBase64;
+			if (this.oRoot.aChildren && this.oRoot.aChildren.length === 1 && AscBrowser.isSafariMacOs) {
+				oElem = this.oRoot.aChildren[0];
+				sStyle = oElem.oAttributes["style"];
+				if (null == sStyle) {
+					oElem.oAttributes["style"] = "font-weight:normal";
+				} else {
+					oElem.oAttributes["style"] = sStyle + ";font-weight:normal";
+				}//просто добавляем потому что в sStyle не могло быть font-weight, мы всегда пишем <b>
+				this.oRoot.wrapChild(new CopyElement("b"));
+			}
+			if (this.oRoot.aChildren && this.oRoot.aChildren.length > 0) {
+				this.oRoot.aChildren[0].oAttributes["class"] = sBase64;
+			}
+		}
+
+		if (PasteElementsId.g_bIsDocumentCopyPaste && PasteElementsId.copyPasteUseBinary && this.oBinaryFileWriter.copyParams.itemCount > 0 && !bFromPresentation) {
+			sBase64 = "docData;" + this.oBinaryFileWriter.GetResult();
+			if (this.oRoot.aChildren && this.oRoot.aChildren.length == 1 && AscBrowser.isSafariMacOs) {
+				oElem = this.oRoot.aChildren[0];
+				sStyle = oElem.oAttributes["style"];
+				if (null == sStyle) {
+					oElem.oAttributes["style"] = "font-weight:normal";
+				} else {
+					oElem.oAttributes["style"] = sStyle + ";font-weight:normal";
+				}//просто добавляем потому что в sStyle не могло быть font-weight, мы всегда пишем <b>
+				this.oRoot.wrapChild(new CopyElement("b"));
+			}
+			if (this.oRoot.aChildren && this.oRoot.aChildren.length > 0) {
+				this.oRoot.aChildren[0].oAttributes["class"] = sBase64;
+			}
+		}
+
+		return sBase64;
+	},
 
 	CopySlide: function (oDomTarget, slide) {
 		if (oDomTarget) {
