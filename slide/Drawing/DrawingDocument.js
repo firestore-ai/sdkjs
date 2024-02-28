@@ -1128,9 +1128,12 @@ function CDrawingDocument()
 		let isShow = false;
 		if (isNeedTarget)
 		{
-			if (oThis.m_oWordControl.m_oApi.isBlurEditor)
+			let api = oThis.m_oWordControl.m_oApi;
+			if (api.isBlurEditor)
 				isShow = true;
-			else if ("block" != oThis.TargetHtmlElement.style.display)
+			else if (api.isViewMode || api.isRestrictionView())
+				isShow = true;
+			else if ("block" !== oThis.TargetHtmlElement.style.display)
 				isShow = true;
 		}
 
@@ -3030,11 +3033,12 @@ function CDrawingDocument()
 
 		for (var i = start; i <= end; i++)
 		{
-			if (true === isSelection)
-			{
-				if (!this.m_oWordControl.Thumbnails.isSelectedPage(i))
-					continue;
-			}
+			if ((true === isSelection) && !this.m_oWordControl.Thumbnails.isSelectedPage(i))
+				continue;
+
+			if (!this.m_oLogicDocument.IsVisibleSlide(i))
+				continue;
+
 			renderer.BeginPage(this.m_oLogicDocument.GetWidthMM(), this.m_oLogicDocument.GetHeightMM());
 			this.m_oLogicDocument.DrawPage(i, renderer);
 			renderer.EndPage();
@@ -6036,7 +6040,7 @@ function CNotesDrawer(page)
 		_y += oThis.Scroll;
 		_x *= g_dKoef_pix_to_mm;
 		_y *= g_dKoef_pix_to_mm;
-		return { Page : oThis.GetCurrentSlideNumber(), X : _x, Y : _y, isNotes : false };
+		return { Page : oThis.GetCurrentSlideNumber(), X : _x, Y : _y, isNotes : true };
 	};
 
 	this.GetNotesWidth = function()
@@ -6461,7 +6465,7 @@ function CPaneDrawerBase(page, htmlElement, parentDrawer, pageControl)
 	{
 		return -1 === oThis.GetCurrentSlideNumber();
 	};
-	oThis.GetPosition = function (e)
+	oThis.GetPosition = function ()
 	{
 		var _x = global_mouseEvent.X - oThis.HtmlPage.X - ((oThis.HtmlPage.m_oMainParent.AbsolutePosition.L * g_dKoef_mm_to_pix + 0.5) >> 0);
 		var nTopPos = oThis.HtmlPage.m_oBottomPanesContainer.AbsolutePosition.T;

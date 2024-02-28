@@ -1985,6 +1985,7 @@ function CDrawingDocument()
 	// viewer
 	this.m_lCurrentRendererPage = -1;
 	this.m_oDocRenderer = null;
+	this.isHideTargetBeforeFirstClick = true;
 
 	// rulers
 	this.HorVerAnchors = [];
@@ -2094,6 +2095,15 @@ function CDrawingDocument()
 	// target
 	this.showTarget = function (isShow)
 	{
+		if (this.isHideTargetBeforeFirstClick)
+		{
+			if (!this.isHideTarget())
+				this.isHideTargetBeforeFirstClick = false;
+
+			if (this.isHideTargetBeforeFirstClick)
+				isShow = false;
+		}
+
 		if (this.TargetHtmlElementBlock)
 			this.TargetHtmlElement.style.display = isShow ? "display" : "none";
 		else
@@ -2497,11 +2507,29 @@ function CDrawingDocument()
 		oThis.TargetHtmlElement.style.top = oThis.TargetHtmlElementTop + "px";
 	};
 
+	this.isHideTarget = function()
+	{
+		let api = this.m_oWordControl.m_oApi;
+		if (api.isViewMode || (api.isRestrictionView() && !api.isRestrictionForms()))
+			return this.isHideTargetBeforeFirstClick;
+		return false;
+	};
+
 	this.DrawTarget = function()
 	{
 		if (oThis.NeedTarget)
 		{
-			if (oThis.m_oWordControl.IsFocus && !oThis.m_oWordControl.m_oApi.isBlurEditor)
+			let isActive = true;
+			let api = oThis.m_oWordControl.m_oApi;
+
+			if (!oThis.m_oWordControl.IsFocus)
+				isActive = false;
+			else if (oThis.m_oWordControl.m_oApi.isBlurEditor)
+				isActive = false;
+			else if (api.isViewMode || (api.isRestrictionView() && !api.isRestrictionForms()))
+				isActive = false;
+
+			if (isActive)
 				oThis.showTarget(!oThis.isShowTarget());
 			else
 				oThis.showTarget(true);

@@ -119,13 +119,23 @@
 		this.value = "";
 		this.valueEqualAddon = false;
 
+		this.equalAddon = "&nbsp;";
+		if (AscCommon.AscBrowser.isMacOs)
+			this.equalAddon = "<br/>";
+
 		this.setEnabled = function(isEnabled)
 		{
 			if (this.isEnabled === isEnabled)
 				return;
 
 			if (!AscCommon.g_inputContext)
+			{
+				var worker = this;
+				AscCommon.inputMethodAddInitEvent(function() {
+					worker.setEnabled(isEnabled);
+				});
 				return;
+			}
 
 			this.isEnabled = isEnabled;
 			if (this.isEnabled)
@@ -214,7 +224,7 @@
 				this.valueEqualAddon = !this.valueEqualAddon;
 				if (this.valueEqualAddon)
 				{
-					this.speechElement.innerHTML = this.value + "&nbsp;";
+					this.speechElement.innerHTML = this.value + this.equalAddon;
 				}
 				else
 				{
@@ -243,9 +253,20 @@
 
 		this._setValue = this._setValuePermanentlyDiffEqual;
 
-		this.speech = function(type, obj)
+		this.isSpeechEnabled = function()
 		{
 			if (!this.isEnabled)
+				return false;
+
+			if (AscCommon.g_inputContext && AscCommon.g_inputContext.isCompositionProcess())
+				return false;
+
+			return true;
+		};
+
+		this.speech = function(type, obj)
+		{
+			if (!this.isSpeechEnabled())
 				return;
 
 			if (undefined === obj)
@@ -271,6 +292,10 @@
 				this._log("End of the document");
 			else if (obj.moveToEndOfLine)
 				this._log("End of the line");
+			else if (obj.movePageUp)
+				this._log("Page up");
+			else if (obj.movePageDown)
+				this._log("Page down");
 
 			let translateManager = AscCommon.translateManager;
 			switch (type)
@@ -462,6 +487,9 @@
 		this.isApplyChanges = false;
 		this.isKeyDown      = false;
 		this.isUndoRedo     = false;
+
+		if (AscCommon.EditorActionSpeakerInitData && AscCommon.EditorActionSpeakerInitData.isEnabled)
+			this.run();
 	}
 	EditorActionSpeaker.prototype.toggle = function()
 	{
@@ -493,7 +521,7 @@
 		//se
 		this.editor.asc_registerCallback('asc_onActiveSheetChanged', this.onActiveSheetChanged);
 		
-		this.selectionState = this.editor.getSelectionState();
+		this.selectionState = this.editor.isDocumentLoadComplete ? this.editor.getSelectionState() : null;
 		this.isAction       = false;
 		this.isApplyChanges = false;
 		this.isKeyDown      = false;

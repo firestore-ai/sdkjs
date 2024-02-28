@@ -520,7 +520,10 @@
     var  c_oSer_PrintOptions =
     {
         GridLines: 0,
-        Headings: 1
+        Headings: 1,
+        GridLinesSet: 2,
+        HorizontalCentered: 3,
+        VerticalCentered: 4
     };
     /** @enum */
     var c_oSer_TablePart =
@@ -1539,7 +1542,7 @@
         pageLayout: 2
     };
 
-    var g_nNumsMaxId = 160;
+    var g_nNumsMaxId = 164;
 
     var DocumentPageSize = new function() {
         this.oSizes = [
@@ -2659,22 +2662,26 @@
             //cellxfs
             this.bs.WriteItem(c_oSerStylesTypes.CellXfs, function(){oThis.WriteCellXfs();});
 
-            //CellStyles
-            this.bs.WriteItem(c_oSerStylesTypes.CellStyles, function(){oThis.WriteCellStyles(wb.CellStyles.CustomStyles);});
+            if (wb) {
+                //CellStyles
+                this.bs.WriteItem(c_oSerStylesTypes.CellStyles, function(){oThis.WriteCellStyles(wb.CellStyles.CustomStyles);});
 
-            if(null != wb.TableStyles)
-                this.bs.WriteItem(c_oSerStylesTypes.TableStyles, function(){oThis.WriteTableStyles(wb.TableStyles);});
+                if(null != wb.TableStyles)
+                    this.bs.WriteItem(c_oSerStylesTypes.TableStyles, function(){oThis.WriteTableStyles(wb.TableStyles);});
+            }
             //Dxfs пишется после TableStyles, потому что Dxfs может пополниться при записи TableStyles
             var dxfs = this.InitSaveManager.getDxfs();
 			if(null != dxfs && dxfs.length > 0) {
 				this.bs.WriteItem(c_oSerStylesTypes.Dxfs, function(){oThis.WriteDxfs(dxfs);});
             }
-            var aExtDxfs = [];
-            var slicerStyles = this.InitSaveManager.PrepareSlicerStyles(wb.SlicerStyles, aExtDxfs);
-            if(aExtDxfs.length > 0) {
-                this.bs.WriteItem(c_oSerStylesTypes.ExtDxfs, function(){oThis.WriteDxfs(aExtDxfs);});
+            if (wb) {
+                var aExtDxfs = [];
+                var slicerStyles = this.InitSaveManager.PrepareSlicerStyles(wb.SlicerStyles, aExtDxfs);
+                if(aExtDxfs.length > 0) {
+                    this.bs.WriteItem(c_oSerStylesTypes.ExtDxfs, function(){oThis.WriteDxfs(aExtDxfs);});
+                }
+                this.bs.WriteItem(c_oSerStylesTypes.SlicerStyles, function(){oThis.WriteSlicerStyles(slicerStyles);});
             }
-            this.bs.WriteItem(c_oSerStylesTypes.SlicerStyles, function(){oThis.WriteSlicerStyles(slicerStyles);});
             //numfmts пишется в конце потому что они могут пополниться при записи Dxfs
             this.bs.WriteItem(c_oSerStylesTypes.NumFmts, function(){oThis.WriteNumFmts();});
         };
@@ -3778,42 +3785,41 @@
 		};
 		this.WriteFileSharing = function(fileSharing)
 		{
-			var oThis = this;
 			if (null != fileSharing.algorithmName) {
-				this.bs.WriteItem(c_oSerFileSharing.AlgorithmName, function() {
-					oThis.memory.WriteByte(fileSharing.algorithmName);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.AlgorithmName);
+				this.memory.WriteByte(c_oSerPropLenType.Byte);
+				this.memory.WriteByte(fileSharing.algorithmName);
 			}
 			if (null != fileSharing.spinCount) {
-				this.bs.WriteItem(c_oSerFileSharing.SpinCount, function() {
-					oThis.memory.WriteLong(fileSharing.spinCount);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.SpinCount);
+				this.memory.WriteByte(c_oSerPropLenType.Long);
+				this.memory.WriteLong(fileSharing.spinCount);
 			}
 			if (null != fileSharing.hashValue) {
-				this.bs.WriteItem(c_oSerFileSharing.HashValue, function() {
-					oThis.memory.WriteString3(fileSharing.hashValue);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.HashValue);
+				this.memory.WriteByte(c_oSerPropLenType.Variable);
+				this.memory.WriteString2(fileSharing.hashValue);
 			}
 			if (null != fileSharing.saltValue) {
-				this.bs.WriteItem(c_oSerFileSharing.SaltValue, function() {
-					oThis.memory.WriteString3(fileSharing.saltValue);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.SaltValue);
+				this.memory.WriteByte(c_oSerPropLenType.Variable);
+				this.memory.WriteString2(fileSharing.saltValue);
 			}
 
 			if (null != fileSharing.password) {
-				this.bs.WriteItem(c_oSerFileSharing.Password, function() {
-					oThis.memory.WriteString3(fileSharing.password);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.Password);
+				this.memory.WriteByte(c_oSerPropLenType.Variable);
+				this.memory.WriteString2(fileSharing.password);
 			}
 			if (null != fileSharing.userName) {
-				this.bs.WriteItem(c_oSerFileSharing.UserName, function() {
-					oThis.memory.WriteString3(fileSharing.userName);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.UserName);
+				this.memory.WriteByte(c_oSerPropLenType.Variable);
+				this.memory.WriteString2(fileSharing.userName);
 			}
 			if (null != fileSharing.readOnly) {
-				this.bs.WriteItem(c_oSerFileSharing.ReadOnly, function() {
-					oThis.memory.WriteBool(fileSharing.readOnly);
-				});
+				this.memory.WriteByte(c_oSerFileSharing.ReadOnly);
+				this.memory.WriteByte(c_oSerPropLenType.Byte);
+				this.memory.WriteBool(fileSharing.readOnly);
 			}
 		};
     }
@@ -4442,7 +4448,7 @@
             if (null !== oSheetView.topLeftCell && !oThis.isCopyPaste)
                 this.bs.WriteItem(c_oSer_SheetView.TopLeftCell, function(){oThis.memory.WriteString3(oSheetView.topLeftCell.getName());});
             if (null !== oSheetView.view && !oThis.isCopyPaste)
-                this.bs.WriteItem(c_oSer_SheetView.View, function(){oThis.memory.WriteLong(oSheetView.view);});
+                this.bs.WriteItem(c_oSer_SheetView.View, function(){oThis.memory.WriteByte(oSheetView.view);});
         };
         this.WriteSheetViewPane = function (oPane) {
             var oThis = this;
@@ -4747,23 +4753,41 @@
                 this.memory.WriteLong(oPageSetup.verticalDpi);
             }
         };
-        this.WritePrintOptions = function(oPrintOptions)
-        {
+        this.WritePrintOptions = function (oPrintOptions) {
             //GridLines
-            var bGridLines = oPrintOptions.asc_getGridLines();
-            if(null != bGridLines)
-            {
+            let bGridLines = oPrintOptions.asc_getGridLines();
+            if (null != bGridLines) {
                 this.memory.WriteByte(c_oSer_PrintOptions.GridLines);
                 this.memory.WriteByte(c_oSerPropLenType.Byte);
                 this.memory.WriteBool(bGridLines);
             }
             //Headings
-            var bHeadings = oPrintOptions.asc_getHeadings();
-            if(null != bHeadings)
-            {
+            let bHeadings = oPrintOptions.asc_getHeadings();
+            if (null != bHeadings) {
                 this.memory.WriteByte(c_oSer_PrintOptions.Headings);
                 this.memory.WriteByte(c_oSerPropLenType.Byte);
                 this.memory.WriteBool(bHeadings);
+            }
+            //GridLinesSet
+            let bGridLinesSet = oPrintOptions.asc_getGridLinesSet();
+            if (null != bGridLinesSet) {
+                this.memory.WriteByte(c_oSer_PrintOptions.GridLinesSet);
+                this.memory.WriteByte(c_oSerPropLenType.Byte);
+                this.memory.WriteBool(bGridLinesSet);
+            }
+            //HorizontalCentered
+            let bHorizontalCentered = oPrintOptions.asc_getHorizontalCentered();
+            if (null != bHorizontalCentered) {
+                this.memory.WriteByte(c_oSer_PrintOptions.HorizontalCentered);
+                this.memory.WriteByte(c_oSerPropLenType.Byte);
+                this.memory.WriteBool(bHorizontalCentered);
+            }
+            //VerticalCentered
+            let bVerticalCentered = oPrintOptions.asc_getVerticalCentered();
+            if (null != bVerticalCentered) {
+                this.memory.WriteByte(c_oSer_PrintOptions.VerticalCentered);
+                this.memory.WriteByte(c_oSerPropLenType.Byte);
+                this.memory.WriteBool(bVerticalCentered);
             }
         };
         this.WriteHyperlinks = function(ws)
@@ -5574,7 +5598,8 @@
 				this.bs.WriteItem(c_oSer_PivotTypes.cacheId, function() {oThis.memory.WriteLong(pivotTable.cacheId);});
 			}
 			var stylesForWrite = oThis.isCopyPaste ? undefined : oThis.stylesForWrite;
-			this.bs.WriteItem(c_oSer_PivotTypes.table, function() {pivotTable.toXml(oThis.memory, stylesForWrite);});
+			var dxfs = oThis.isCopyPaste ? undefined : this.InitSaveManager.getDxfs();
+			this.bs.WriteItem(c_oSer_PivotTypes.table, function() {pivotTable.toXml(oThis.memory, stylesForWrite, dxfs);});
 		};
         this.WriteHeaderFooter = function(headerFooter)
         {
@@ -6906,7 +6931,7 @@
                 res = this.bcr.Read1(length, function (t, l) {
                     return oThis.ReadDxfs(t, l, oStyleObject.aDxfs);
                 });
-            } else if (c_oSerStylesTypes.TableStyles === type) {
+            } else if (c_oSerStylesTypes.TableStyles === type && oThis.wb) {
                 res = this.bcr.Read1(length, function (t, l){
                     return oThis.ReadTableStyles(t, l, oThis.wb.TableStyles, oStyleObject.oCustomTableStyles);
                 });
@@ -7268,7 +7293,9 @@
                 res = this.bcr.Read2Spreadsheet(length, function(t,l){
                     return oThis.bssr.ReadRPr(t,l,oNewFont);
                 });
-				oNewFont.checkSchemeFont(this.wb.theme);
+                if (this.wb) {
+                    oNewFont.checkSchemeFont(this.wb.theme);
+                }
                 aFonts.push(oNewFont);
             }
             else
@@ -7390,7 +7417,9 @@
                 res = this.bcr.Read2Spreadsheet(length, function(t,l){
                     return oThis.bssr.ReadRPr(t,l,oNewFont);
                 });
-				oNewFont.checkSchemeFont(this.wb.theme);
+                if (this.wb) {
+                    oNewFont.checkSchemeFont(this.wb.theme);
+                }
                 oDxf.font = oNewFont;
             }
             else if ( c_oSer_Dxf.NumFmt == type )
@@ -8823,15 +8852,21 @@
                 res = c_oSerConstants.ReadUnknown;
             return res;
         };
-        this.ReadPrintOptions = function(type, length, oPrintOptions)
-        {
+        this.ReadPrintOptions = function (type, length, oPrintOptions) {
             var res = c_oSerConstants.ReadOk;
-            if ( c_oSer_PrintOptions.GridLines == type )
+            if (c_oSer_PrintOptions.GridLines === type) {
                 oPrintOptions.asc_setGridLines(this.stream.GetBool());
-            else if ( c_oSer_PrintOptions.Headings == type )
+            } else if (c_oSer_PrintOptions.Headings === type) {
                 oPrintOptions.asc_setHeadings(this.stream.GetBool());
-            else
+            } else if (c_oSer_PrintOptions.GridLinesSet === type) {
+                oPrintOptions.asc_setGridLinesSet(this.stream.GetBool());
+            } else if (c_oSer_PrintOptions.HorizontalCentered === type) {
+                oPrintOptions.asc_setHorizontalCentered(this.stream.GetBool());
+            } else if (c_oSer_PrintOptions.VerticalCentered === type) {
+                oPrintOptions.asc_setVerticalCentered(this.stream.GetBool());
+            } else {
                 res = c_oSerConstants.ReadUnknown;
+            }
             return res;
         };
         this.ReadHyperlinks = function(type, length, ws)
@@ -10579,6 +10614,7 @@
                     this.InitOpenManager.InitStyleManager(oStyleObject, aCellXfs);
                     this.InitOpenManager.Dxfs = oStyleObject.aDxfs;
                     wb.oNumFmtsOpen = oStyleObject.oNumFmts;
+                    wb.dxfsOpen = oStyleObject.aDxfs;
                 }
             }
 
@@ -11592,6 +11628,10 @@
                 //TODO так же он проставляет флаг ca - рассмотреть стоит ли его нам доблавлять
                 formula.v = formula.v.replace("_xludf.", "");
             }
+            if (formula.v.startsWith("=")) {
+                //LO write "=" to file
+                formula.v = formula.v.replace("=", "");
+            }
 
             var offsetRow;
             var shared;
@@ -11634,13 +11674,21 @@
                 }
 
                 if (null !== formula.ref) {
+                    let range;
                     if(formula.t === ECellFormulaType.cellformulatypeShared) {
-                        sharedRef = AscCommonExcel.g_oRangeCache.getAscRange(formula.ref).clone();
-                        parsed.setShared(sharedRef, newFormulaParent);
+                        range = AscCommonExcel.g_oRangeCache.getAscRange(formula.ref);
+                        sharedRef = range && range.clone();
+                        if (sharedRef) {
+                            parsed.setShared(sharedRef, newFormulaParent);
+                        }
                     } else if(formula.t === ECellFormulaType.cellformulatypeArray) {//***array-formula***
                         if(AscCommonExcel.bIsSupportArrayFormula) {
-                            parsed.setArrayFormulaRef(AscCommonExcel.g_oRangeCache.getAscRange(formula.ref).clone());
-                            tmp.formulaArray.push(parsed);
+                            range = AscCommonExcel.g_oRangeCache.getAscRange(formula.ref);
+                            range = range && range.clone();
+                            if (range) {
+                                parsed.setArrayFormulaRef(range);
+                                tmp.formulaArray.push(parsed);
+                            }
                         }
                     }
                 }
