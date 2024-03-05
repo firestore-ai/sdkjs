@@ -2813,11 +2813,11 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 		// line pitch 
 		this.memory.WriteByte(c_oSerProp_secPrDocGridType.LinePitch);
         this.memory.WriteByte(c_oSerPropLenType.Long);
-        this.memory.WriteLong(sectPr.GetLinePitch());
+        this.memory.WriteLong(sectPr.GetDocGridLinePitch());
 		// char space
 		this.memory.WriteByte(c_oSerProp_secPrDocGridType.CharSpace);
         this.memory.WriteByte(c_oSerPropLenType.Long);
-        this.memory.WriteLong(sectPr.GetCharSpace());
+        this.memory.WriteLong(sectPr.GetDocGridCharSpace());
 
 	};
 	this.WritePageSetting = function(sectPr, oDocument)
