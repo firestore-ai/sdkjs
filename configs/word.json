@@ -31,6 +31,7 @@
 			"common/apiBase_plugins.js",
 			"word/apiCommon.js",
 			"word/api.js",
+			"word/apiExt.js",
 			"word/api_plugins.js",
 			"common/spell/spell.js",
 			"word/Editor/Table/TableLook.js",

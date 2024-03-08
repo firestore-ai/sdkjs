@@ -190,6 +190,50 @@ CBlockLevelSdt.prototype.Read_FromBinary2 = function(Reader)
 	this.Id          = Reader.GetString2();
 	this.Content     = this.LogicDocument.Get_TableId().Get_ById(Reader.GetString2());
 };
+
+function parsePadding(paddingData) {
+	var paddingObj = {
+		Left: 0,
+		Right: 0,
+		Top: 0,
+		Bottom: 0
+	};
+
+	// if padding is not  a array
+	if (!Array.isArray(paddingData)) {
+		paddingObj.Left = paddingData;
+		paddingObj.Right = paddingData;
+		paddingObj.Top = paddingData;
+		paddingObj.Bottom = paddingData;
+		return paddingObj;
+	}
+
+	if (paddingData.length === 1) {
+		paddingObj.Left = paddingData[0];
+		paddingObj.Right = paddingData[0];
+		paddingObj.Top = paddingData[0];
+		paddingObj.Bottom = paddingData[0];
+		return paddingObj;
+	} else if (paddingData.length === 2) {
+		paddingObj.Left = paddingData[1];
+		paddingObj.Right = paddingData[1];
+		paddingObj.Top = paddingData[0];	
+		paddingObj.Bottom = paddingData[0];
+	} else if (paddingData.length === 3) {
+		paddingObj.Left = paddingData[1];
+		paddingObj.Right = paddingData[1];
+		paddingObj.Top = paddingData[0];
+		paddingObj.Bottom = paddingData[2];
+	} else if (paddingData.length === 4) {
+		paddingObj.Left = paddingData[3];
+		paddingObj.Right = paddingData[1];
+		paddingObj.Top = paddingData[0];
+		paddingObj.Bottom = paddingData[2];
+	}
+	return paddingObj;
+}
+
+
 CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 {
 	if (this.LogicDocument.GetSdtGlobalShowHighlight() && undefined === oGraphics.RENDERER_PDF_FLAG)
@@ -197,7 +241,51 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 		var oBounds = this.GetContentBounds(CurPage);
 		var oColor  = this.LogicDocument.GetSdtGlobalColor();
 
-		oGraphics.b_color1(oColor.r, oColor.g, oColor.b, 255);
+		var tag = this.Pr.Tag;
+		if (tag !== undefined && tag !== "") {
+			// draw highlight total length
+			let pageBounds    = this.Content.GetPageBounds(CurPage);
+			oBounds.Left	  = pageBounds.Left;
+			oBounds.Right	  = pageBounds.Right;
+			
+			// tag is json string, parse it
+			var tagObj = undefined;
+			try {
+				tagObj = JSON.parse(tag);
+			} catch (e) {
+				console.log("parse tag error: ");
+			}			
+			
+			if (tagObj !== undefined) {
+				if (tagObj.mode !== undefined) {
+					// colorDefines is a array of color defines
+					var colorDefines = [				
+						new CColor(0xCF, 0xE4, 0xFF),
+						new CColor(0xA3, 0xE3, 0xE8),
+						new CColor(0xC3, 0xF7, 0xC8),
+						new CColor(0xE8, 0xE2, 0xC8),
+						new CColor(0xFF, 0xF7, 0xA0),
+						new CColor(0xFF, 0xDD, 0xA6),
+						new CColor(0xFF, 0xD9, 0xD9),
+						new CColor(0xFF, 0xD6, 0xF5),
+						new CColor(0xF4, 0xD9, 0xFF),
+					];
+					oColor = colorDefines[tagObj.mode];
+				}
+
+				// rect expanding			
+				if (tagObj.padding !== undefined) {
+					var padding = parsePadding(tagObj.padding);
+					oBounds.Left 	= oBounds.Left 	+ padding.Left;
+					oBounds.Right 	= oBounds.Right - padding.Right;
+					oBounds.Top 	= oBounds.Top 	+ padding.Top;
+					oBounds.Bottom 	= oBounds.Bottom - padding.Bottom;
+				}
+			}
+		}
+		
+
+		oGraphics.b_color1(oColor.r, oColor.g, oColor.b, 128);		
 		oGraphics.rect(oBounds.Left, oBounds.Top, oBounds.Right - oBounds.Left, oBounds.Bottom - oBounds.Top);
 		oGraphics.df();
 	}
@@ -955,7 +1043,8 @@ CBlockLevelSdt.prototype.DrawContentControlsTrack = function(nType, X, Y, nCurPa
 
 	var oHdrFtr     = this.IsHdrFtr(true);
 	var nHdrFtrPage = oHdrFtr ? oHdrFtr.GetContent().GetAbsolutePage(0) : null;
-	let isFullWidth = oLogicDocument.IsFillingFormMode();
+	// let isFullWidth = oLogicDocument.IsFillingFormMode();
+	let isFullWidth = true;
 
 	for (var nPageIndex = 0, nPagesCount = this.GetPagesCount(); nPageIndex < nPagesCount; ++nPageIndex)
 	{
