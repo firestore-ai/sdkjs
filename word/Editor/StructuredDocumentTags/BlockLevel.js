@@ -233,6 +233,17 @@ function parsePadding(paddingData) {
 	return paddingObj;
 }
 
+// convert "#FF0000" to {r: 255, g: 0, b: 0}
+function parseColor(colorData) {
+	var colorObj = new CColor(0, 0, 0);
+
+	if (colorData.length === 7) {
+		colorObj.r = parseInt(colorData.substring(1, 3), 16);
+		colorObj.g = parseInt(colorData.substring(3, 5), 16);
+		colorObj.b = parseInt(colorData.substring(5, 7), 16);
+	}
+	return colorObj;
+}
 
 CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 {
@@ -271,6 +282,10 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 						new CColor(0xF4, 0xD9, 0xFF),
 					];
 					oColor = colorDefines[tagObj.mode];
+				}
+
+				if (tagObj.color !== undefined) {
+					oColor = parseColor(tagObj.color);
 				}
 
 				// rect expanding			
