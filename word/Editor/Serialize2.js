@@ -7618,6 +7618,7 @@ function BinaryCustomsTableWriter(memory, doc, CustomXmls)
 		}
 		if (null !== customXml.Content) {
 			this.bs.WriteItem(c_oSerCustoms.ContentA, function() {
+				oThis.memory.WriteLong(customXml.Content.length);
 				oThis.memory.WriteBuffer(customXml.Content, 0, customXml.Content.length)
 			});
 		}
@@ -16262,7 +16263,8 @@ function Binary_CustomsTableReader(doc, oReadResult, stream, CustomXmls) {
 		} else if (c_oSerCustoms.ItemId === type) {
 			custom.ItemId = this.stream.GetString2LE(length);
 		} else if (c_oSerCustoms.ContentA === type) {
-			custom.Content = this.stream.GetBuffer(length);
+			var contentLen = this.stream.GetLong();		
+			custom.Content = this.stream.GetBuffer(Math.min(contentLen, length - 4));
 		} else
 			res = c_oSerConstants.ReadUnknown;
 		return res;
