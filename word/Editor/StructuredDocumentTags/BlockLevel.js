@@ -252,6 +252,20 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 		var oBounds = this.GetContentBounds(CurPage);
 		var oColor  = this.LogicDocument.GetSdtGlobalColor();
 
+		// get current content control tag group id
+		var oContentControl = this.LogicDocument.GetContentControl();
+		var currentGroupId = undefined;
+		var currentContorlId = undefined;
+		if (oContentControl && !oContentControl.IsContentControlEquation() && oContentControl.GetContentControlPr()) {
+			try {
+				var theObj = JSON.parse(oContentControl.GetContentControlPr().Tag);
+				currentGroupId = theObj.group;
+				currentContorlId = oContentControl.GetContentControlPr().Id;
+			} catch (e) {
+				//console.log("parse tag error: ");
+			}
+		}
+
 		var tag = this.Pr.Tag;
 		if (tag !== undefined && tag !== "") {
 			// draw highlight total length
@@ -296,9 +310,19 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 					oBounds.Top 	= oBounds.Top 	+ padding.Top;
 					oBounds.Bottom 	= oBounds.Bottom - padding.Bottom;
 				}
+
+				// if current content control tag group id is equal to the tag group id, then draw a border
+				if (currentGroupId !== undefined && tagObj.group !== undefined && tagObj.group === currentGroupId && this.Id !== currentContorlId) {					
+					oGraphics.p_color(192, 192, 192, 255);
+					// oGraphics.rect(oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Right - oBounds.Left + 0.1, oBounds.Bottom - oBounds.Top + 0.1);
+					oGraphics.drawHorLine(0, oBounds.Top - 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.5);
+					oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.5);
+					oGraphics.drawVerLine(0, oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.5);
+					oGraphics.drawVerLine(0, oBounds.Right + 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.5);					
+				}
 			}
 		}
-		
+			
 
 		oGraphics.b_color1(oColor.r, oColor.g, oColor.b, 128);		
 		oGraphics.rect(oBounds.Left, oBounds.Top, oBounds.Right - oBounds.Left, oBounds.Bottom - oBounds.Top);
