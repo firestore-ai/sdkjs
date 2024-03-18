@@ -255,12 +255,12 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 		// get current content control tag group id
 		var oContentControl = this.LogicDocument.GetContentControl();
 		var currentGroupId = undefined;
-		var currentContorlId = undefined;
+		var currentControlId = undefined;
 		if (oContentControl && !oContentControl.IsContentControlEquation() && oContentControl.GetContentControlPr()) {
 			try {
 				var theObj = JSON.parse(oContentControl.GetContentControlPr().Tag);
 				currentGroupId = theObj.group;
-				currentContorlId = oContentControl.GetContentControlPr().Id;
+				currentControlId = oContentControl.Id;
 			} catch (e) {
 				//console.log("parse tag error: ");
 			}
@@ -312,13 +312,13 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 				}
 
 				// if current content control tag group id is equal to the tag group id, then draw a border
-				if (currentGroupId !== undefined && tagObj.group !== undefined && tagObj.group === currentGroupId && this.Id !== currentContorlId) {					
-					oGraphics.p_color(192, 192, 192, 255);
+				if (currentGroupId !== undefined && tagObj.group !== undefined && tagObj.group === currentGroupId && this.Id !== currentControlId) {					
+					oGraphics.p_color(0xF4, 0xD9, 0xFF, 255);
 					// oGraphics.rect(oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Right - oBounds.Left + 0.1, oBounds.Bottom - oBounds.Top + 0.1);
-					oGraphics.drawHorLine(0, oBounds.Top - 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.5);
-					oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.5);
-					oGraphics.drawVerLine(0, oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.5);
-					oGraphics.drawVerLine(0, oBounds.Right + 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.5);					
+					oGraphics.drawHorLine(0, oBounds.Top - 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
+					oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
+					oGraphics.drawVerLine(0, oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);
+					oGraphics.drawVerLine(0, oBounds.Right + 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);					
 				}
 			}
 		}
