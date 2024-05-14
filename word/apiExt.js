@@ -97,7 +97,7 @@
             return {
                 Uri: customXml.Uri,
                 ItemId: customXml.ItemId,
-                Content: String.fromCharCode(...customXml.Content)
+                Content: String.fromCharCode.apply(String, Array.from(customXml.Content))
             }
         }
 
@@ -179,122 +179,51 @@
         return uuid;
     }
 
-    function ProcessNode(element, handler) {
-        if (element === undefined || element === null) {
-            return;
-        }
 
-        const cname = element.GetClassType()
-        //const id = element.Id;
-
-        let getText = function (element) {
-            if (element.GetClassType() === "run") {
-                return element.GetText();
-            }
-            return undefined;
-        }
-
-        handler.onStartElement(cname, getText(element));
-        if (element.GetElementsCount != undefined) {
-            for (var i = 0, n = element.GetElementsCount(); i < n; i++) {
-                ProcessNode(element.GetElement(i), handler);
-            }
-        }
-        handler.onEndElement(cname);
-    }
-
-    // 遍历文档dom结构
-    asc_docs_api.prototype.asc_StartSaxParse = function (element, handler) {
-        ProcessNode(element, handler);
-    }
-
-    asc_docs_api.prototype.asc_RunSaxTest = function () {
-        var handler = {
-            onStartElement: function (cname, text) {
-                console.log("onStartElement: " + cname + " " + (text || ""));
-            },
-            onEndElement: function (cname) {
-                console.log("onEndElement: " + cname + " ");
-            }
-        }
-
-        this.asc_StartSaxParse(this.GetDocument(), handler);
-    }
-
+    /**
+     * Make range by path
+     * @param {string|number} beg - The beginning path or index
+     * @param {string|number} end - The ending path or index
+     * @returns {Range} - The created range
+     */
     asc_docs_api.prototype.asc_MakeRangeByPath = function (beg, end) {
-        if (typeof beg === 'number' && typeof end === 'number')
-            return Api.GetDocument().GetRange().GetRange(beg, end);
-        // make range by path
-
-        function toClass(node) {
-            if (node.GetClassType() === "run") {
-                return node.Run;
-            } else if (node.GetClassType() === "paragraph") {
-                return node.Paragraph;
-            } else if (node.GetClassType() === "table") {
-                return node.Table;
-            } else if (node.GetClassType() === "cell") {
-                return node.Cell;
-            } else if (node.GetClassType() === "row") {
-                return node.Row;
-            } else if (node.GetClassType() === "document") {
-                return node.Document;
-            }
-            return undefined;
+        if (typeof beg === 'number' && typeof end === 'number') {
+            return this.GetDocument().GetRange().GetRange(beg, end);
         }
 
-        var begIdxs = beg.match(/([-]?\d+)/g).map(e => parseInt(e));
-        var endIdxs = end.match(/([-]?\d+)/g).map(e => parseInt(e));
-        var startPos = []
-        var endPos = []
+        var parsePath = function (path) {
+            var indexes = path.match(/([-]?\d+)/g).map(e => parseInt(e));
+            var currNode = this.private_GetLogicDocument();
+            var positions = indexes.map(e => {
+                if (!currNode.Content.length) {
+                    currNode = currNode.Content;
+                }
 
-        var currNode = this.private_GetLogicDocument();
-        startPos = begIdxs.map(e => {
-            // is content array
-            if (!currNode.Content.length) {
-                currNode = currNode.Content;                
-            }
+                if (e < 0) {
+                    e = currNode.Content.length + e;
+                }
 
-            if (e < 0) {
-                e = currNode.Content.length  + e;
-            }            
+                var position = {
+                    Class: currNode,
+                    Position: e
+                };
+                currNode = currNode.Content[e];
+                return position;
+            });
+            return positions;
+        }.bind(this);
 
-            var r  = {
-                Class: currNode,
-                Position: e
-            };            
-            currNode = currNode.Content[e];
-            return r;
-        });
+        var startPos = parsePath(beg);
+        var endPos = parsePath(end);
 
-        var currNode = this.private_GetLogicDocument();
-        endPos = endIdxs.map(e => {
-            if (!currNode.Content.length) {
-                currNode = currNode.Content;                
-            }
-
-            if (e < 0) {
-                e = currNode.Content.length  + e;
-            }            
-
-            var r =   {
-                Class: currNode,
-                Position: e
-            };   
-            currNode = currNode.Content[e];
-            return r;            
-        });
-
-        return  this.GetDocument().GetRange(startPos, endPos);
+        return this.GetDocument().GetRange(startPos, endPos);
     }
-
 
     asc_docs_api.prototype["asc_GetContentControlBoundingRectExt"] = asc_docs_api.prototype.asc_GetContentControlBoundingRectExt;
     asc_docs_api.prototype["asc_SetCustomXmlExt"] = asc_docs_api.prototype.asc_SetCustomXmlExt;
     asc_docs_api.prototype["asc_GetCustomXmlExt"] = asc_docs_api.prototype.asc_GetCustomXmlExt;
     asc_docs_api.prototype["asc_SetBiyueCustomDataExt"] = asc_docs_api.prototype.asc_SetBiyueCustomDataExt;
     asc_docs_api.prototype["asc_GetBiyueCustomDataExt"] = asc_docs_api.prototype.asc_GetBiyueCustomDataExt;
-    asc_docs_api.prototype["asc_StartSaxParse"] = asc_docs_api.prototype.asc_StartSaxParse;
 
     asc_docs_api.prototype["asc_MakeRangeByPath"] = asc_docs_api.prototype.asc_MakeRangeByPath;
 
