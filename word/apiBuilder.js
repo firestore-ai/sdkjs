@@ -8509,8 +8509,8 @@
 
 			var StartChar	= this.Paragraph.ConvertParaContentPosToRangePos(StartSearchContentPos);
 			var EndChar		= this.Paragraph.ConvertParaContentPosToRangePos(EndSearchContentPos);
-			if (EndChar > 0)
-				EndChar--;
+			// if (EndChar > 0)
+			// 	EndChar--;
 
 			arrApiRanges.push(this.GetRange(StartChar, EndChar));
 		}
