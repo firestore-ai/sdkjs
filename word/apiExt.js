@@ -220,7 +220,7 @@
         // extend to range
         var ExtentToRun = function(isFirst, posArray) {
             var lastNode = posArray[posArray.length - 1];
-            while (lastNode.Class.GetType == undefined || lastNode.Class.GetType()() !== para_Run) {
+            while (lastNode.Class.GetType == undefined || lastNode.Class.GetType() !== para_Run) {
                 var next =  {};
                 next.Class = lastNode.Class.Content[lastNode.Position];
                 if (!next.Class.Content.length) {
