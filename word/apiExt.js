@@ -210,14 +210,106 @@
                 currNode = currNode.Content[e];
                 return position;
             });
+
             return positions;
         }.bind(this);
 
         var startPos = parsePath(beg);
         var endPos = parsePath(end);
 
+        // extend to range
+        var ExtentToRun = function(isFirst, posArray) {
+            var lastNode = posArray[posArray.length - 1];
+            while (lastNode.Class.GetType == undefined || lastNode.Class.GetType()() !== para_Run) {
+                var next =  {};
+                next.Class = lastNode.Class.Content[lastNode.Position];
+                if (!next.Class.Content.length) {
+                    next.Class = next.Class.Content;
+                }
+                if (isFirst) {
+                    next.Position = 0;
+                } else {
+                    next.Position = next.Class.Content.length - 1;
+                }
+                posArray.push(next);
+                lastNode = next;
+            }
+            return posArray;
+        };
+        
+        startPos = ExtentToRun(true, startPos);
+        endPos = ExtentToRun(false, endPos);
+
         return this.GetDocument().GetRange(startPos, endPos);
     }
+
+    // Regex search in range for word
+    // @param {Range} range - The range to search
+    // @param {pattern} pattern - The pattern to search
+    // @return {Array} - The array of Range objects
+    function marker_log(str, ranges) {             
+        let styledString = '';
+        let currentIndex = 0;
+        const styles = [];
+    
+        ranges.forEach(([start, end], index) => {
+            // 添加高亮前的部分
+            if (start > currentIndex) {
+                styledString += '%c' + str.substring(currentIndex, start);
+                styles.push('');
+            }
+            // 添加高亮部分
+            styledString += '%c' + str.substring(start, end);
+            styles.push('border: 1px solid red; padding: 2px');
+            currentIndex = end;
+        });
+    
+        // 添加剩余的部分
+        if (currentIndex < str.length) {
+            styledString += '%c' + str.substring(currentIndex);
+            styles.push('');
+        }
+    
+        console.log(styledString, ...styles);                                          
+    }
+
+    function CalcTextPos(text_all, text_plain) {
+        text_plain = text_plain.replace(/[\r]/g, '');
+        var text_pos = new Array(text_all.length);
+        var j = 0;
+        for (var i = 0, n = text_plain.length; i < n; i++) {
+            while (text_all[j] !== text_plain[i]) {
+                text_pos[j] = i;
+                j++;
+            }
+            text_pos[j] = i;
+            j++;
+        }            
+        return text_pos;
+    }
+
+    asc_docs_api.prototype.asc_RegexSearch = function (range, pattern, options = {log: false}) {
+        // 用正则表达式实现
+        // 自定义位置
+        var text = range.GetText({Math:false });
+        var text_plain = range.GetText({Math:false, Numbering: false});
+        var text_pos = CalcTextPos(text, text_plain);
+
+        var match;
+        var matchRanges = [];
+        var ranges = []
+        while ((match = pattern.exec(text)) !== null) {
+            var begPos = text_pos[match.index];
+            var endPos = text_pos[match.index + match[0].length];
+            ranges.push([match.index, match.index + match.length]);
+            matchRanges.push(range.GetRange(begPos, endPos));
+        }
+        if (ranges.length > 0 && options.log) {
+            marker_log(text, ranges);
+        }
+        return matchRanges;
+    }
+
 
     asc_docs_api.prototype["asc_GetContentControlBoundingRectExt"] = asc_docs_api.prototype.asc_GetContentControlBoundingRectExt;
     asc_docs_api.prototype["asc_SetCustomXmlExt"] = asc_docs_api.prototype.asc_SetCustomXmlExt;
@@ -226,6 +318,6 @@
     asc_docs_api.prototype["asc_GetBiyueCustomDataExt"] = asc_docs_api.prototype.asc_GetBiyueCustomDataExt;
 
     asc_docs_api.prototype["asc_MakeRangeByPath"] = asc_docs_api.prototype.asc_MakeRangeByPath;
-
+    asc_docs_api.prototype["asc_RegexSearch"] = asc_docs_api.prototype.asc_RegexSearch;
 
 }(window, null));
