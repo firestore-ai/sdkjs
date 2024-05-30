@@ -1336,7 +1336,7 @@
 
 		if (this.Element instanceof CDocument || this.Element instanceof CDocumentContent || this.Element instanceof CTable || this.Element instanceof CBlockLevelSdt)
 		{
-			var allParagraphs	= this.Element.GetAllParagraphs({OnlyMainDocument : true, All : true});
+			var allParagraphs	= this.Element.GetAllParagraphs({OnlyMainDocument : true, All : true, Shapes : false});
 
 			for (var paraItem = 0; paraItem < allParagraphs.length; paraItem++)
 			{
