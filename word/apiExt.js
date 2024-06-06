@@ -58,14 +58,19 @@
     /**
      * update custom xml
      */
-    function updateCustomXml(document, uri, id, xml) {
+    function updateCustomXml(document, uri, id, xml) {        
         var customXmls = document.CustomXmls;
         for (var i = 0, n = customXmls.length; i < n; i++) {
-            var customXml = customXmls[i];
+            var customXml = customXmls[i];            
             if (customXml.ItemId === id) {
-                var oldContent = customXml.Content;
-                customXml.Content = xml;
-                return oldContent
+                var newCustomXml = {}
+                newCustomXml.Uri = customXml.Uri;
+                newCustomXml.ItemId = customXml.ItemId;
+                newCustomXml.Content = xml;                
+                
+                customXmls[i] = newCustomXml;
+                document.History.Add(new CChangesDocumentCustomXml(document, customXml, newCustomXml));
+                return customXml.Content;
             }
         }
 
@@ -74,11 +79,13 @@
             uri = [uri];
         }
 
-        customXmls.push({
+        var newCustomXml = {
             Uri: uri,
             ItemId: id,
             Content: xml
-        });
+        }
+        customXmls.push(newCustomXml);
+        document.History.Add(new CChangesDocumentCustomXml(document, undefined, newCustomXml));
         return undefined;
     }
 
@@ -150,7 +157,7 @@
             for (var i = 0, n = customXmls.length; i < n; i++) {
                 var customXml = this.asc_GetCustomXmlExt(i);
                 // if uri in uri list                
-                if (customXml.Uri.includes(uri)) {
+                if (customXml.Uri != undefined && customXml.Uri.includes(uri)) {
                     result.push({ "ItemId": customXml.ItemId, "Content": decodeObjFromXml(customXml.Content) });
                 }
             }

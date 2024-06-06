@@ -1292,6 +1292,10 @@
 				break;
 			case AscDFH.historydescription_Document_ComplexField_MergeFormat:
 				sString = "Document_ComplexField_MergeFormat";
+			case AscDFH.historydescription_Document_SetParagraphSnapToGrid:
+				sString = "Document_SetParagraphSnapToGrid";
+			case AscDFH.historydescription_Document_SetCustomXml:
+				sString = "Document_SetCustomXml";
 				break;
 		}
 		return sString;
@@ -1770,6 +1774,7 @@
 	window['AscDFH'].historyitem_Document_Settings_ConsecutiveHyphenLimit = window['AscDFH'].historyitem_type_Document | 13;
 	window['AscDFH'].historyitem_Document_Settings_DoNotHyphenateCaps     = window['AscDFH'].historyitem_type_Document | 14;
 	window['AscDFH'].historyitem_Document_Settings_HyphenationZone        = window['AscDFH'].historyitem_type_Document | 15;
+	window['AscDFH'].historyitem_Document_CustomXml                       = window['AscDFH'].historyitem_type_Document | 16;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе Paragraph
 	//------------------------------------------------------------------------------------------------------------------
@@ -4491,6 +4496,7 @@
 	window['AscDFH'].historydescription_Document_SetAllFormsData                    = 0x01aa;
 	window['AscDFH'].historydescription_Document_ComplexField_MergeFormat           = 0x01ab;
 	window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01ac;
+	window['AscDFH'].historydescription_Document_SetCustomXml					    = 0x01ad;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

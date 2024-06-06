@@ -48,6 +48,7 @@ AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_AutoHyphenation]     
 AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_ConsecutiveHyphenLimit] = CChangesDocumentSettingsConsecutiveHyphenLimit;
 AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_DoNotHyphenateCaps]     = CChangesDocumentSettingsDoNotHyphenateCaps;
 AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_HyphenationZone]        = CChangesDocumentSettingsHyphenationZone;
+AscDFH.changesFactory[AscDFH.historyitem_Document_CustomXml]             	       = CChangesDocumentCustomXml;
 //----------------------------------------------------------------------------------------------------------------------
 // Карта зависимости изменений
 //----------------------------------------------------------------------------------------------------------------------
@@ -68,6 +69,7 @@ AscDFH.changesRelationMap[AscDFH.historyitem_Document_Settings_GutterAtTop]     
 AscDFH.changesRelationMap[AscDFH.historyitem_Document_Settings_MirrorMargins]     = [AscDFH.historyitem_Document_Settings_MirrorMargins];
 AscDFH.changesRelationMap[AscDFH.historyitem_Document_SpecialFormsGlobalSettings] = [AscDFH.historyitem_Document_SpecialFormsGlobalSettings];
 AscDFH.changesRelationMap[AscDFH.historyitem_Document_Settings_TrackRevisions]    = [AscDFH.historyitem_Document_Settings_TrackRevisions];
+AscDFH.changesRelationMap[AscDFH.historyitem_Document_CustomXml] 				  = [AscDFH.historyitem_Document_CustomXml];
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
@@ -1158,3 +1160,124 @@ CChangesDocumentSettingsHyphenationZone.prototype.private_SetValue = function(va
 	this.Class.Settings.hyphenationZone = value;
 	this.Class.OnChangeAutoHyphenation();
 };
+
+function CChangesDocumentCustomXml(Class, Old, New, Color)
+{
+	AscDFH.CChangesBase.call(this, Class);
+
+	this.Old = Old;
+	this.New = New;
+	this.Color = Color;
+}
+CChangesDocumentCustomXml.prototype = Object.create(AscDFH.CChangesBase.prototype);
+CChangesDocumentCustomXml.prototype.constructor = CChangesDocumentCustomXml;
+CChangesDocumentCustomXml.prototype.Type = AscDFH.historyitem_Document_CustomXml;
+CChangesDocumentCustomXml.prototype.Redo = function()
+{
+	var oDocument = this.Class;
+	var CustomXmls = oDocument.CustomXmls;
+	
+	if(this.Old) {
+		// remove this.Old from CustomXmls array
+		for(var i = 0; i < CustomXmls.length; ++i) {
+			if(CustomXmls[i].ItemId === this.Old.ItemId) {
+				CustomXmls.splice(i, 1);
+				break;
+			}
+		}
+	}
+	if (this.New) {
+		// add this.New to CustomXmls array
+		CustomXmls.push(this.New);
+	}	
+};
+CChangesDocumentCustomXml.prototype.Undo = function()
+{
+	var oDocument = this.Class;
+	var CustomXmls = oDocument.CustomXmls;
+	if (this.New) {
+		for(var i = 0; i < CustomXmls.length; ++i) {
+			if(CustomXmls[i].ItemId === this.New.ItemId) {
+				CustomXmls.splice(i, 1);
+				break;
+			}
+		}
+	}
+	if (this.Old) {
+		CustomXmls.push(this.Old);
+	}
+};
+CChangesDocumentCustomXml.prototype.WriteToBinary = function(Writer)
+{
+	var nFlags = 0;
+
+	if (false !== this.Color)
+		nFlags |= 1;
+
+	if (undefined === this.New)
+		nFlags |= 2;
+
+	if (undefined === this.Old)
+		nFlags |= 4;
+
+	Writer.WriteLong(nFlags);
+
+	if (undefined !== this.New)
+		this.private_WriteItem(Writer, this.New);		
+
+	if (undefined !== this.Old)
+		this.private_WriteItem(Writer, this.Old);	
+};
+CChangesDocumentCustomXml.prototype.ReadFromBinary = function(Reader)
+{	
+	var nFlags = Reader.GetLong();
+
+	if (nFlags & 1)
+		this.Color = true;
+	else
+		this.Color = false;
+
+	if (nFlags & 2)
+		this.New = undefined;
+	else
+		this.New = this.private_ReadItem(Reader);
+
+	if (nFlags & 4)
+		this.Old = undefined;
+	else
+		this.Old = this.private_ReadItem(Reader);
+};
+CChangesDocumentCustomXml.prototype.CreateReverseChange = function()
+{
+	return new CChangesDocumentCustomXml(this.Class, this.New, this.Old);
+};
+CChangesDocumentCustomXml.prototype.private_WriteItem = function(Writer, customXml)
+{
+	Writer.WriteString2(customXml.ItemId);
+	Writer.WriteLong(customXml.Uri.length);
+	customXml.Uri.forEach(function (Uri) {
+		Writer.WriteString2(Uri);
+	})
+	Writer.WriteLong(customXml.Content.length);
+	Writer.WriteBuffer(customXml.Content, 0, customXml.Content.length);
+}
+CChangesDocumentCustomXml.prototype.private_ReadItem = function(Reader)
+{
+	var ItemId = Reader.GetString2();
+	var Uri = [];
+	var UriCount = Reader.GetLong();
+	if (UriCount > 1024) 
+		return null;
+	for (var i = 0; i < UriCount; ++i)
+	{
+		Uri.push(Reader.GetString2());
+	}
+	
+	var ContentCount = Reader.GetLong();	
+	var Content = Reader.GetBufferUint8(ContentCount);
+	Reader.Skip2(ContentCount);
+	
+	return { ItemId: ItemId, Uri: Uri, Content: Content };	
+}
+
+
