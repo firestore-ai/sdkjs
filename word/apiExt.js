@@ -58,16 +58,16 @@
     /**
      * update custom xml
      */
-    function updateCustomXml(document, uri, id, xml) {        
+    function updateCustomXml(document, uri, id, xml) {
         var customXmls = document.CustomXmls;
         for (var i = 0, n = customXmls.length; i < n; i++) {
-            var customXml = customXmls[i];            
+            var customXml = customXmls[i];
             if (customXml.ItemId === id) {
                 var newCustomXml = {}
                 newCustomXml.Uri = customXml.Uri;
                 newCustomXml.ItemId = customXml.ItemId;
-                newCustomXml.Content = xml;                
-                
+                newCustomXml.Content = xml;
+
                 customXmls[i] = newCustomXml;
                 document.History.Add(new CChangesDocumentCustomXml(document, customXml, newCustomXml));
                 return customXml.Content;
@@ -225,10 +225,10 @@
         var endPos = parsePath(end);
 
         // extend to range
-        var ExtentToRun = function(isFirst, posArray) {
+        var ExtentToRun = function (isFirst, posArray) {
             var lastNode = posArray[posArray.length - 1];
             while (lastNode.Class.GetType == undefined || lastNode.Class.GetType() !== 39) {
-                var next =  {};
+                var next = {};
                 next.Class = lastNode.Class.Content[lastNode.Position];
                 if (!next.Class.Content.length) {
                     next.Class = next.Class.Content;
@@ -243,7 +243,7 @@
             }
             return posArray;
         };
-        
+
         startPos = ExtentToRun(true, startPos);
         endPos = ExtentToRun(false, endPos);
 
@@ -254,11 +254,11 @@
     // @param {Range} range - The range to search
     // @param {pattern} pattern - The pattern to search
     // @return {Array} - The array of Range objects
-    function marker_log(str, ranges) {             
+    function marker_log(str, ranges) {
         let styledString = '';
         let currentIndex = 0;
         const styles = [];
-    
+
         ranges.forEach(([start, end], index) => {
             // 添加高亮前的部分
             if (start > currentIndex) {
@@ -270,14 +270,14 @@
             styles.push('border: 1px solid red; padding: 2px');
             currentIndex = end;
         });
-    
+
         // 添加剩余的部分
         if (currentIndex < str.length) {
             styledString += '%c' + str.substring(currentIndex);
             styles.push('');
         }
-    
-        console.log(styledString, ...styles);                                          
+
+        console.log(styledString, ...styles);
     }
 
     function CalcTextPos(text_all, text_plain) {
@@ -291,15 +291,15 @@
             }
             text_pos[j] = i;
             j++;
-        }            
+        }
         return text_pos;
     }
 
-    asc_docs_api.prototype.asc_RegexSearch = function (range, pattern, options = {log: false}) {
+    asc_docs_api.prototype.asc_RegexSearch = function (range, pattern, options = { log: false }) {
         // 用正则表达式实现
         // 自定义位置
-        var text = range.GetText({Math:false });
-        var text_plain = range.GetText({Math:false, Numbering: false});
+        var text = range.GetText({ Math: false });
+        var text_plain = range.GetText({ Math: false, Numbering: false });
         var text_pos = CalcTextPos(text, text_plain);
 
         var match;
@@ -318,6 +318,60 @@
     }
 
 
+
+    asc_docs_api.prototype.asc_GenSelectionAsXml = function (callback) {
+        // copy selection to bin_data
+        let bin_data = {
+            data: "",
+            // 返回的数据中class属性里面有binary格式的dom信息，需要删除掉
+            pushData: function (format, value) {
+                if (format === AscCommon.c_oAscClipboardDataFormat.Internal)
+                {
+                    this.data = value;
+                }
+            }
+        };
+        this.asc_CheckCopy(bin_data, AscCommon.c_oAscClipboardDataFormat.Internal);
+
+        if (bin_data.data == "" || bin_data.data === undefined) {
+            console.log("asc_GenSelectionAsXml: bin_data is empty");
+            callback(undefined);
+            return;
+        }
+
+        var isNoBase64 = false;
+        const options = new Asc.asc_CDownloadOptions(Asc.c_oAscFileType.DOCX_PACKAGE);
+        var dataContainer = { data: bin_data.data, part: null, index: 0, count: 0 };
+        var oAdditionalData = {};
+        oAdditionalData["c"] = 'save';
+        oAdditionalData["id"] = this.documentId;
+        oAdditionalData["userid"] = this.documentUserId;
+        oAdditionalData["tokenSession"] = this.CoAuthoringApi.get_jwt();
+        oAdditionalData["outputformat"] = options.fileType;
+        oAdditionalData["title"] = AscCommon.changeFileExtention(this.documentTitle, AscCommon.getExtentionByFormat(options.fileType), Asc.c_nMaxDownloadTitleLen);
+        oAdditionalData["isNoBase64"] = isNoBase64;
+        let locale = this.asc_getLocale() || undefined;
+		if (typeof locale === "string") {
+			locale = Asc.g_oLcidNameToIdMap[locale];
+		}
+		oAdditionalData["lcid"] = locale;
+        oAdditionalData["withoutPassword"] = true;
+        oAdditionalData["inline"] = 1;
+
+        options.callback = callback;
+
+        this._downloadAsUsingServer(
+            Asc.c_oAscAsyncAction.DownloadAs,
+            options,
+            oAdditionalData,
+            dataContainer,
+            AscCommon.DownloadType.Save
+        );
+
+        return xml;
+    }
+
+
     asc_docs_api.prototype["asc_GetContentControlBoundingRectExt"] = asc_docs_api.prototype.asc_GetContentControlBoundingRectExt;
     asc_docs_api.prototype["asc_SetCustomXmlExt"] = asc_docs_api.prototype.asc_SetCustomXmlExt;
     asc_docs_api.prototype["asc_GetCustomXmlExt"] = asc_docs_api.prototype.asc_GetCustomXmlExt;
@@ -326,5 +380,6 @@
 
     asc_docs_api.prototype["asc_MakeRangeByPath"] = asc_docs_api.prototype.asc_MakeRangeByPath;
     asc_docs_api.prototype["asc_RegexSearch"] = asc_docs_api.prototype.asc_RegexSearch;
+    asc_docs_api.prototype["asc_GenSelectionAsXml"] = asc_docs_api.prototype.asc_GenSelectionAsXml;
 
 }(window, null));
