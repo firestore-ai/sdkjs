@@ -1169,6 +1169,31 @@
 	};
 
 	/**
+     * Returns the current select as new file to download in the specified format.
+     * @memberof Api
+     * @typeofeditors ["CDE", "CSE", "CPE"]
+     * @alias GetFileToDownload
+     * @param {string} [format=" "] - A format in which you need to download a file.
+     * @returns {string} - URL to download the file in the specified format or error.
+     * @since 7.2.0
+     */
+	Api.prototype["pluginMethod_GetSelectionToDownload"] = function(format)
+	{
+		window.g_asc_plugins && window.g_asc_plugins.setPluginMethodReturnAsync();
+		let dwnldF = Asc.c_oAscFileType[format] || Asc.c_oAscFileType[this.DocInfo.Format.toUpperCase()];
+		let opts = new Asc.asc_CDownloadOptions(dwnldF);
+		let _t = this;
+		opts.callback = function() {
+			_t.sync_EndAction(Asc.c_oAscAsyncActionType.BlockInteraction, Asc.c_oAscAsyncAction.DownloadAs);
+			_t.fCurCallback = function(res) {
+				let data = (res.status == "ok") ? res.data : "error";
+				window.g_asc_plugins && window.g_asc_plugins.onPluginMethodReturn(data);
+			};
+		}
+		this.asc_GenSelectionAsXml(opts);
+	};
+
+	/**
 	 * Specifies how to adjust the image object in case of replacing the selected image.
 	 * @typedef {("fill" | "fit" | "original" | "stretch")} ReplaceImageMode
 	 */

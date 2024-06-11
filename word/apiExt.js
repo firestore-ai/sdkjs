@@ -319,7 +319,7 @@
 
 
 
-    asc_docs_api.prototype.asc_GenSelectionAsXml = function (callback) {
+    asc_docs_api.prototype.asc_GenSelectionAsXml = function (options) {
         // copy selection to bin_data
         let bin_data = {
             data: "",
@@ -333,15 +333,16 @@
         };
         this.asc_CheckCopy(bin_data, AscCommon.c_oAscClipboardDataFormat.Internal);
 
-        if (bin_data.data == "" || bin_data.data === undefined) {
+        if (bin_data.data == "" || bin_data.data === undefined || bin_data.data === null) {
             console.log("asc_GenSelectionAsXml: bin_data is empty");
-            callback(undefined);
+            if (options.callback != undefined)
+                options.callback(undefined);
             return;
         }
 
+        var oLogicDocument = this.private_GetLogicDocument();        
+
         var isNoBase64 = false;
-        const options = new Asc.asc_CDownloadOptions(Asc.c_oAscFileType.DOCX_PACKAGE);
-        var dataContainer = { data: bin_data.data, part: null, index: 0, count: 0 };
         var oAdditionalData = {};
         oAdditionalData["c"] = 'save';
         oAdditionalData["id"] = this.documentId;
@@ -349,26 +350,34 @@
         oAdditionalData["tokenSession"] = this.CoAuthoringApi.get_jwt();
         oAdditionalData["outputformat"] = options.fileType;
         oAdditionalData["title"] = AscCommon.changeFileExtention(this.documentTitle, AscCommon.getExtentionByFormat(options.fileType), Asc.c_nMaxDownloadTitleLen);
-        oAdditionalData["isNoBase64"] = isNoBase64;
+        oAdditionalData["isNoBase64"] = isNoBase64;        
+        
+        var dataContainer = { data: null, part: null, index: 0, count: 0 };
+        dataContainer.data = bin_data.data.slice(8);
+
+        //var oBinaryFileWriter = new AscCommonWord.BinaryFileWriter(oLogicDocument, undefined, undefined, options.compatible);
+		//dataContainer.data = oBinaryFileWriter.Write(oAdditionalData["nobase64"]);
+
+        
         let locale = this.asc_getLocale() || undefined;
 		if (typeof locale === "string") {
 			locale = Asc.g_oLcidNameToIdMap[locale];
 		}
 		oAdditionalData["lcid"] = locale;
-        oAdditionalData["withoutPassword"] = true;
-        oAdditionalData["inline"] = 1;
-
-        options.callback = callback;
+        //oAdditionalData["withoutPassword"] = true;
+        //oAdditionalData["inline"] = 1;
+        var actionType = AscCommon.DownloadType.Download;
+        var downloadType = actionType;
 
         this._downloadAsUsingServer(
             Asc.c_oAscAsyncAction.DownloadAs,
             options,
             oAdditionalData,
             dataContainer,
-            AscCommon.DownloadType.Save
+            actionType
         );
 
-        return xml;
+        return undefined;
     }
 
 
