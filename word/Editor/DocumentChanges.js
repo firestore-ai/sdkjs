@@ -48,6 +48,7 @@ AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_AutoHyphenation]     
 AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_ConsecutiveHyphenLimit] = CChangesDocumentSettingsConsecutiveHyphenLimit;
 AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_DoNotHyphenateCaps]     = CChangesDocumentSettingsDoNotHyphenateCaps;
 AscDFH.changesFactory[AscDFH.historyitem_Document_Settings_HyphenationZone]        = CChangesDocumentSettingsHyphenationZone;
+AscDFH.changesFactory[AscDFH.historyitem_Document_PageColor]                       = CChangesDocumentPageColor;
 AscDFH.changesFactory[AscDFH.historyitem_Document_CustomXml]             	       = CChangesDocumentCustomXml;
 //----------------------------------------------------------------------------------------------------------------------
 // Карта зависимости изменений
@@ -1281,3 +1282,42 @@ CChangesDocumentCustomXml.prototype.private_ReadItem = function(Reader)
 }
 
 
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesBase}
+ */
+function CChangesDocumentPageColor(Class, Old, New)
+{
+	AscDFH.CChangesBase.call(this, Class);
+	
+	this.Old = Old;
+	this.New = New;
+}
+CChangesDocumentPageColor.prototype = Object.create(AscDFH.CChangesBase.prototype);
+CChangesDocumentPageColor.prototype.constructor = CChangesDocumentPageColor;
+CChangesDocumentPageColor.prototype.Type = AscDFH.historyitem_Document_PageColor;
+CChangesDocumentPageColor.prototype.Undo = function()
+{
+	this.Class.Background = this.Old;
+};
+CChangesDocumentPageColor.prototype.Redo = function()
+{
+	this.Class.Background = this.New;
+};
+CChangesDocumentPageColor.prototype.WriteToBinary = function(writer)
+{
+	this.New.writeToBinary(writer);
+	this.Old.writeToBinary(writer);
+};
+CChangesDocumentPageColor.prototype.ReadFromBinary = function(reader)
+{
+	this.New = new AscWord.DocumentBackground();
+	this.Old = new AscWord.DocumentBackground();
+	
+	this.New.readFromBinary(reader);
+	this.Old.readFromBinary(reader);
+};
+CChangesDocumentPageColor.prototype.CreateReverseChange = function()
+{
+	return new CChangesDocumentPageColor(this.Class, this.New, this.Old);
+};
