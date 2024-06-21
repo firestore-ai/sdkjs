@@ -7340,6 +7340,43 @@ CDocument.prototype.Set_DocumentDefaultTab = function(DTab)
 	this.History.Add(new CChangesDocumentDefaultTab(this, AscCommonWord.Default_Tab_Stop, DTab));
 	AscCommonWord.Default_Tab_Stop = DTab;
 };
+
+CDocument.prototype.Update_CustomXml= function(uri, id, xml)
+{
+	function updateCustomXml(document, uri, id, xml) {
+        var customXmls = document.CustomXmls;
+        for (var i = 0, n = customXmls.length; i < n; i++) {
+            var customXml = customXmls[i];
+            if (customXml.ItemId === id) {
+                var newCustomXml = {}
+                newCustomXml.Uri = customXml.Uri;
+                newCustomXml.ItemId = customXml.ItemId;
+                newCustomXml.Content = xml;
+
+                customXmls[i] = newCustomXml;
+                document.History.Add(new CChangesDocumentCustomXml(document, customXml, newCustomXml));
+                return customXml.Content;
+            }
+        }
+
+        // if uri is string, convert uri = [uir]
+        if (typeof uri === "string") {
+            uri = [uri];
+        }
+
+        var newCustomXml = {
+            Uri: uri,
+            ItemId: id,
+            Content: xml
+        }
+        customXmls.push(newCustomXml);
+        document.History.Add(new CChangesDocumentCustomXml(document, undefined, newCustomXml));
+        return undefined;
+    }
+	return updateCustomXml(this, uri, id, xml);
+};
+
+
 CDocument.prototype.Set_DocumentEvenAndOddHeaders = function(Value)
 {
 	if (Value !== EvenAndOddHeaders)

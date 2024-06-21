@@ -56,46 +56,12 @@
     };
 
     /**
-     * update custom xml
-     */
-    function updateCustomXml(document, uri, id, xml) {
-        var customXmls = document.CustomXmls;
-        for (var i = 0, n = customXmls.length; i < n; i++) {
-            var customXml = customXmls[i];
-            if (customXml.ItemId === id) {
-                var newCustomXml = {}
-                newCustomXml.Uri = customXml.Uri;
-                newCustomXml.ItemId = customXml.ItemId;
-                newCustomXml.Content = xml;
-
-                customXmls[i] = newCustomXml;
-                document.History.Add(new CChangesDocumentCustomXml(document, customXml, newCustomXml));
-                return customXml.Content;
-            }
-        }
-
-        // if uri is string, convert uri = [uir]
-        if (typeof uri === "string") {
-            uri = [uri];
-        }
-
-        var newCustomXml = {
-            Uri: uri,
-            ItemId: id,
-            Content: xml
-        }
-        customXmls.push(newCustomXml);
-        document.History.Add(new CChangesDocumentCustomXml(document, undefined, newCustomXml));
-        return undefined;
-    }
-
-    /**
      * Set custom xml     * 
      */
     asc_docs_api.prototype.asc_SetCustomXmlExt = function (uri, id, xml) {
         var document = this.private_GetLogicDocument();
         const encoder = new TextEncoder();
-        return updateCustomXml(document, uri, id, encoder.encode(xml));
+        return document.Update_CustomXml(uri, id, encoder.encode(xml));
     }
 
     asc_docs_api.prototype.asc_GetCustomXmlExt = function (id) {
@@ -317,8 +283,10 @@
         return matchRanges;
     }
 
+    
 
 
+    // 将选中范围导出为ooxml
     asc_docs_api.prototype.asc_GenSelectionAsXml = function (options) {
         // copy selection to bin_data
         let bin_data = {
