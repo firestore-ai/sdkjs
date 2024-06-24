@@ -16906,12 +16906,9 @@ CParaPr.prototype.Is_Empty = function(oPr)
 		|| undefined !== this.PStyle
 		|| undefined !== this.OutlineLvl
 		|| undefined !== this.SuppressLineNumbers
-<<<<<<< HEAD
-        || undefined !== this.SnapToGrid);
-=======
+        || undefined !== this.SnapToGrid
 		|| undefined !== this.Bidi
 	);
->>>>>>> master
 };
 CParaPr.prototype.IsEmpty = function()
 {
