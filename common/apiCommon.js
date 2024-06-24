@@ -2916,10 +2916,10 @@ function (window, undefined) {
 	asc_CParagraphProperty.prototype.asc_getOutlineLvlStyle = function () {
 		return this.OutlineLvlStyle;
 	};
-	asc_CParagraphProperty.prototype.asc_putSnapToGrid: function(snapToGrid) {
+	asc_CParagraphProperty.prototype.asc_putSnapToGrid = function(snapToGrid) {
 			this.SnapToGrid = snapToGrid;
 	};
-	asc_CParagraphProperty.prototype.asc_getSnapToGrid: function() {
+	asc_CParagraphProperty.prototype.asc_getSnapToGrid = function() {
 			return this.SnapToGrid;
 	};	
 	asc_CParagraphProperty.prototype.asc_getSuppressLineNumbers = function () {
