@@ -808,8 +808,10 @@
 				{
 					if (window.Asc.plugin.onCallCommandCallback)
 					{
-						window.Asc.plugin.onCallCommandCallback(pluginData.commandReturnData);
+						var commandCallback = window.Asc.plugin.onCallCommandCallback;
 						window.Asc.plugin.onCallCommandCallback = null;
+						commandCallback(pluginData.commandReturnData);
+						commandCallback = null;
 					}
 					else if (window.Asc.plugin.onCommandCallback)
 						window.Asc.plugin.onCommandCallback(pluginData.commandReturnData);
