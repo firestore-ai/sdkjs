@@ -8340,6 +8340,7 @@ CDocument.prototype.OnEndTextDrag = function(NearPos, bCopy)
 
 		var oSelectInfo = this.GetSelectedElementsInfo({CheckAllSelection : true});
 		var arrSdts     = oSelectInfo.GetAllSdts();
+		var isRemoveWholeElement = false;
 		if (arrSdts.length > 0 && !bCopy)
 		{
 			for (var nIndex = 0, nCount = arrSdts.length; nIndex < nCount; ++nIndex)
@@ -8354,6 +8355,10 @@ CDocument.prototype.OnEndTextDrag = function(NearPos, bCopy)
 					this.FinalizeAction();
 					this.SetCheckContentControlsLock(true);
 					return;
+				}
+
+				if (oSdt.Seletion === true) {
+					isRemoveWholeElement = true;
 				}
 			}
 		}
@@ -8392,7 +8397,8 @@ CDocument.prototype.OnEndTextDrag = function(NearPos, bCopy)
             {
                 this.TurnOff_Recalculate();
                 this.TurnOff_InterfaceEvents();
-                this.Remove(1, false, false, true);
+
+                this.Remove(1, isRemoveWholeElement, false, true);
                 this.TurnOn_Recalculate(false);
                 this.TurnOn_InterfaceEvents(false);
 

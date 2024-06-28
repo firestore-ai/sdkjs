@@ -56,6 +56,8 @@ function CBlockLevelSdt(oLogicDocument, oParent)
 
 	this.SkipSpecialLock = false;
 	this.Current         = false;
+	// set to true if the content control select as an object
+	this.Selection       = false;
 }
 
 CBlockLevelSdt.prototype = Object.create(CDocumentContentElementBase.prototype);
@@ -389,6 +391,7 @@ CBlockLevelSdt.prototype.UpdateCursorType = function(X, Y, CurPage)
 };
 CBlockLevelSdt.prototype.Selection_SetStart = function(X, Y, CurPage, MouseEvent, isTableBorder)
 {
+	this.Selection = false;
 	if (this.IsPlaceHolder())
 	{
 		var nDirection = this.Parent && this.Parent.GetSelectDirection ? this.Parent.GetSelectDirection() : 1;
@@ -430,6 +433,7 @@ CBlockLevelSdt.prototype.IsSelectionToEnd = function()
 };
 CBlockLevelSdt.prototype.RemoveSelection = function()
 {
+	this.Selection = false;
 	this.Content.RemoveSelection();
 };
 CBlockLevelSdt.prototype.SetSelectionUse = function(isUse)
@@ -438,6 +442,7 @@ CBlockLevelSdt.prototype.SetSelectionUse = function(isUse)
 };
 CBlockLevelSdt.prototype.SetSelectionToBeginEnd = function(isSelectionStart, isElementStart)
 {
+	this.Selection = false;
 	this.Content.SetSelectionToBeginEnd(isSelectionStart, isElementStart);
 };
 CBlockLevelSdt.prototype.SelectAll = function(nDirection)
@@ -1461,6 +1466,7 @@ CBlockLevelSdt.prototype.GetMargins = function()
 };
 CBlockLevelSdt.prototype.SelectContentControl = function()
 {
+	this.Selection = true;
 	this.SelectAll(1);
 	this.Set_CurrentElement(false, 0, this.Content);
 };
