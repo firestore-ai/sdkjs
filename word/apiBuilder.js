@@ -4171,6 +4171,26 @@
 	{
 		return new ApiDocument(this.WordControl.m_oLogicDocument);
 	};
+
+	
+	Api.prototype.LookupObject = function(sid)
+	{
+		var obj = AscCommon.g_oTableId.Get_ById(sid)
+		if (obj === undefined)
+			return undefined;
+
+		var Type = obj.GetType();
+		if (type_Paragraph === Type)
+			return new ApiParagraph(obj);
+		else if (type_Table === Type)
+			return new ApiTable(obj);
+		else if (type_BlockLevelSdt === Type)
+			return new ApiBlockLvlSdt(obj);
+
+		return undefined;
+	};
+
+
 	/**
 	 * Creates a new paragraph.
 	 * @memberof Api
@@ -20251,6 +20271,7 @@
 	Api.prototype["CreateRange"]		             = Api.prototype.CreateRange;
 	
 	Api.prototype["Px2Emu"]                          = Px2Emu;
+	Api.prototype["LookupObject"]                    = Api.prototype.LookupObject;
 
 	ApiUnsupported.prototype["GetClassType"]         = ApiUnsupported.prototype.GetClassType;
 
