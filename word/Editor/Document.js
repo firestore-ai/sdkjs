@@ -8357,7 +8357,7 @@ CDocument.prototype.OnEndTextDrag = function(NearPos, bCopy)
 					return;
 				}
 
-				if (oSdt.Seletion === true) {
+				if (oSdt.Selection === true) {
 					isRemoveWholeElement = true;
 				}
 			}
