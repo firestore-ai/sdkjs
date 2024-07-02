@@ -1,4 +1,4 @@
-/*
+xxxxxxx/*
  * (c) Copyright Ascensio System SIA 2010-2023
  *
  * This program is a free software product. You can redistribute it and/or
@@ -4179,13 +4179,46 @@
 		if (obj === undefined)
 			return undefined;
 
-		var Type = obj.GetType();
-		if (type_Paragraph === Type)
-			return new ApiParagraph(obj);
-		else if (type_Table === Type)
-			return new ApiTable(obj);
-		else if (type_BlockLevelSdt === Type)
+		if (obj instanceof CDocument)
+		{
+			return new ApiDocument(obj);
+		}
+		else if (obj instanceof CDocumentContent)
+		{
+			return new ApiDocumentContent(obj);
+		}
+		else if (obj instanceof CInlineLevelSdt) 
+		{
+			return new ApiInlineLvlSdt(obj);
+		}
+		else if (obj instanceof CBlockLevelSdt)
+		{
 			return new ApiBlockLvlSdt(obj);
+		}
+		else if (obj instanceof Paragraph)
+		{
+			return new ApiParagraph(obj);
+		}
+		else if (obj instanceof CTable)
+		{
+			return new ApiTable(obj);
+		}
+		else if (obj instanceof CTableRow)
+		{
+			return new ApiTableRow(obj);
+		}
+		else if (obj instanceof CTableCell)
+		{
+			return new ApiTableCell(obj);
+		}
+		else if (obj instanceof CShape)
+		{
+			return new ApiShape(obj);
+		}
+		else if (obj instanceof ParaRun)
+		{
+			return new ApiRun(obj);
+		}
 
 		return undefined;
 	};
