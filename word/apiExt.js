@@ -168,8 +168,12 @@
             var indexes = path.match(/([-]?\d+)/g).map(e => parseInt(e));
             var currNode = this.private_GetLogicDocument();
             var positions = indexes.map(e => {
-                if (!currNode.Content.length) {
+                if (currNode.Content.length === undefined) {
                     currNode = currNode.Content;
+                }
+
+                if (currNode.Content === undefined) {
+                    return undefined;
                 }
 
                 if (e < 0) {
@@ -180,9 +184,15 @@
                     Class: currNode,
                     Position: e
                 };
+
+                if (currNode.Content === undefined) {
+                    debugger;
+                }
                 currNode = currNode.Content[e];
+
                 return position;
             });
+            positions = positions.filter(e => e !== undefined);
 
             return positions;
         }.bind(this);
@@ -194,6 +204,9 @@
         var ExtentToRun = function (isFirst, posArray) {
             var lastNode = posArray[posArray.length - 1];
             while (lastNode.Class.GetType == undefined || lastNode.Class.GetType() !== 39) {
+                if (lastNode.Class.Content === undefined) {
+                    break;
+                }
                 var next = {};
                 next.Class = lastNode.Class.Content[lastNode.Position];
                 if (!next.Class.Content.length) {
@@ -283,7 +296,7 @@
         return matchRanges;
     }
 
-    
+
 
 
     // 将选中范围导出为ooxml
@@ -293,8 +306,7 @@
             data: "",
             // 返回的数据中class属性里面有binary格式的dom信息，需要删除掉
             pushData: function (format, value) {
-                if (format === AscCommon.c_oAscClipboardDataFormat.Internal)
-                {
+                if (format === AscCommon.c_oAscClipboardDataFormat.Internal) {
                     this.data = value;
                 }
             }
@@ -308,7 +320,7 @@
             return;
         }
 
-        var oLogicDocument = this.private_GetLogicDocument();        
+        var oLogicDocument = this.private_GetLogicDocument();
 
         var isNoBase64 = false;
         var oAdditionalData = {};
@@ -318,20 +330,20 @@
         oAdditionalData["tokenSession"] = this.CoAuthoringApi.get_jwt();
         oAdditionalData["outputformat"] = options.fileType;
         oAdditionalData["title"] = AscCommon.changeFileExtention(this.documentTitle, AscCommon.getExtentionByFormat(options.fileType), Asc.c_nMaxDownloadTitleLen);
-        oAdditionalData["isNoBase64"] = isNoBase64;        
-        
+        oAdditionalData["isNoBase64"] = isNoBase64;
+
         var dataContainer = { data: null, part: null, index: 0, count: 0 };
         dataContainer.data = bin_data.data.slice(8);
 
         //var oBinaryFileWriter = new AscCommonWord.BinaryFileWriter(oLogicDocument, undefined, undefined, options.compatible);
-		//dataContainer.data = oBinaryFileWriter.Write(oAdditionalData["nobase64"]);
+        //dataContainer.data = oBinaryFileWriter.Write(oAdditionalData["nobase64"]);
 
-        
+
         let locale = this.asc_getLocale() || undefined;
-		if (typeof locale === "string") {
-			locale = Asc.g_oLcidNameToIdMap[locale];
-		}
-		oAdditionalData["lcid"] = locale;
+        if (typeof locale === "string") {
+            locale = Asc.g_oLcidNameToIdMap[locale];
+        }
+        oAdditionalData["lcid"] = locale;
         //oAdditionalData["withoutPassword"] = true;
         //oAdditionalData["inline"] = 1;
         var actionType = AscCommon.DownloadType.Download;
