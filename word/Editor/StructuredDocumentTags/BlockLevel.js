@@ -1065,6 +1065,54 @@ CBlockLevelSdt.prototype.GetBoundingRect = function()
 		Transform : this.Get_ParentTextTransform()
 	};
 };
+/**
+ * Get BoundingRect On All Pages
+ * @return {[{X:number, Y:number, W:number, H:number, Page:number, Transform:object}]}
+ */
+CBlockLevelSdt.prototype.GetBoundingRect2 = function()
+{
+	
+
+	var rects = [];
+	for (var nPageIndex = 0, nPagesCount = this.GetPagesCount(); nPageIndex < nPagesCount; ++nPageIndex)
+	{
+		if (this.IsEmptyPage(nPageIndex))
+			continue;
+
+		var nL = null;
+		var nR = null;
+		var nT = null;
+		var nB = null;
+
+		var nCurPage = nPageIndex;
+
+		var oBounds = this.Content.GetContentBounds(nPageIndex);
+
+		if (null === nL || nL > oBounds.Left)
+			nL = oBounds.Left;
+
+		if (null === nR || nR < oBounds.Right)
+			nR = oBounds.Right;
+
+		if (null === nT || nT > oBounds.Top)
+			nT = oBounds.Top;
+
+		if (null === nB || nB < oBounds.Bottom)
+			nB = oBounds.Bottom;
+
+		rects.push({
+			X         : nL,
+			Y         : nT,
+			W         : nR - nL,
+			H         : nB - nT,
+			Page      : this.GetAbsolutePage(nCurPage),
+			Transform : this.Get_ParentTextTransform()
+		});
+	}
+
+	return rects;
+};
+
 CBlockLevelSdt.prototype.DrawContentControlsTrack = function(nType, X, Y, nCurPage, isCheckHit)
 {
 	if (!this.IsRecalculated() || !this.LogicDocument)

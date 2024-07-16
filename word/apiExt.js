@@ -16,43 +16,57 @@
     /**
      * Extents the Api class
      */
-    asc_docs_api.prototype.asc_GetContentControlBoundingRectExt = function (id) {
-        var document = this.private_getDocument();
-        var oElement = document.GetContentControlById(id);
+    asc_docs_api.prototype.asc_GetContentControlBoundingRectExt = function (sId) {
+        var oLogicDocument = this.private_GetLogicDocument();
+		if (!oLogicDocument)
+			return null;
 
-        var ccRects = []
-        for (var nPageIndex = 0, PageCount = this.Pages.length; nPageIndex < PageCount; nPageIndex++) {
-            var Page = this.Pages[nPageIndex];
-            for (var SectionIndex = 0, SectionsCount = Page.Sections.length; SectionIndex < SectionsCount; ++SectionIndex) {
-                var PageSection = Page.Sections[SectionIndex];
+		var oContentControl = oLogicDocument.GetContentControl(sId);
+		if (!oContentControl)
+			return null;
 
-                for (var ColumnIndex = 0, ColumnsCount = PageSection.Columns.length; ColumnIndex < ColumnsCount; ++ColumnIndex) {
-                    var Column = PageSection.Columns[ColumnIndex];
-                    var ColumnStartPos = Column.Pos;
-                    var ColumnEndPos = Column.EndPos;
+		var aRect = oContentControl.GetBoundingRect2();
 
-                    for (var ContentPos = ColumnStartPos; ContentPos <= ColumnEndPos; ++ContentPos) {
-                        var oElement = this.Content[ContentPos];
-                        if (Page.IsFlowTable(oElement) || Page.IsFrame(oElement)) {
-                            continue;
-                        }
+		if (!aRect || aRect.length <= 0)
+			return null;
 
-                        if (oElement.GetType() === type_BlockLevelSdt) {
-                            var rects = oElement.GetBoundingRect2();
-                            for (var a = 0, n = rects.length; a < n; a++) {
-                                var rect = rects[a];
-                                if (rect && rect.Page == nPageIndex) { // fix: 避免重复
-                                    ccRects.push(rects[a]);
-                                }
-                            }
-                            // this.dumpBlockLevelSdt(oElement.Content.Content);
-                        }
-                    }
-                }
+        var rects = aRect.map((oRect) => {
+		    var nX, nY, nW, nH;
+		    var oTransform = oRect.Transform;
+		    if (oTransform)
+		    {
+                var nX0 = oTransform.TransformPointX(oRect.X, oRect.Y);
+                var nY0 = oTransform.TransformPointY(oRect.X, oRect.Y);
+                var nX1 = oTransform.TransformPointX(oRect.X + oRect.W, oRect.Y);
+                var nY1 = oTransform.TransformPointY(oRect.X + oRect.W, oRect.Y);
+                var nX2 = oTransform.TransformPointX(oRect.X + oRect.W, oRect.Y + oRect.H);
+                var nY2 = oTransform.TransformPointY(oRect.X + oRect.W, oRect.Y + oRect.H);
+                var nX3 = oTransform.TransformPointX(oRect.X, oRect.Y + oRect.H);
+                var nY3 = oTransform.TransformPointY(oRect.X, oRect.Y + oRect.H);
+
+                nX = Math.min(nX0, nX1, nX2, nX3);
+                nY = Math.min(nY0, nY1, nY2, nY3);
+                nW = Math.max(nX0, nX1, nX2, nX3) - nX;
+                nH = Math.max(nY0, nY1, nY2, nY3) - nY;
             }
-        }
+		    else
+		    {
+                nX = oRect.X;
+                nY = oRect.Y;
+                nW = oRect.W;
+                nH = oRect.H;
+		    }
 
-        return ccRects;
+            return {
+                Page: oRect.Page,
+                X0: nX,
+                Y0: nY,
+                X1: nX + nW,
+                Y1: nY + nH
+            };
+        });
+
+        return rects;
     };
 
     /**
