@@ -9402,6 +9402,9 @@
 				case "lin":
 					nFracType = LINEAR_FRACTION;
 					break;
+				case "noBar":
+					nFracType = NO_BAR_FRACTION;
+					break;
 				default:
 					nFracType = BAR_FRACTION;
 					break;
