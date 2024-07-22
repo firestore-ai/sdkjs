@@ -13641,6 +13641,12 @@
 			nType = Asc.c_oAscNumberingFormat.UpperLetter;
 		else if ("decimalZero" === sType)
 			nType = Asc.c_oAscNumberingFormat.DecimalZero;
+		else if ("chineseCounting" === sType)
+			nType = Asc.c_oAscNumberingFormat.ChineseCounting;
+		else if ("chineseCountingThousand" === sType)
+			nType = Asc.c_oAscNumberingFormat.ChineseCountingThousand;
+		else if ("chineseLegalSimplified" === sType)
+			nType = Asc.c_oAscNumberingFormat.ChineseLegalSimplified;
 
 		var nAlign = align_Left;
 		if ("left" === sAlign)
