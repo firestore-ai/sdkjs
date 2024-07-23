@@ -13647,6 +13647,10 @@
 			nType = Asc.c_oAscNumberingFormat.ChineseCountingThousand;
 		else if ("chineseLegalSimplified" === sType)
 			nType = Asc.c_oAscNumberingFormat.ChineseLegalSimplified;
+		else if ("decimalEnclosedCircle" === sType)
+			nType = Asc.c_oAscNumberingFormat.DecimalEnclosedCircle;
+		else if ("decimalEnclosedCircleChinese" === sType)
+			nType = Asc.c_oAscNumberingFormat.DecimalEnclosedCircleChinese;
 
 		var nAlign = align_Left;
 		if ("left" === sAlign)
