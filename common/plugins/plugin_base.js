@@ -806,7 +806,11 @@
 				}
 				case "onCommandCallback":
 				{
-					if (window.Asc.plugin.onCallCommandCallback)
+					if (pluginData.commandReturnData !== undefined && pluginData.commandReturnData.token !== undefined)
+					{
+						window.Asc.plugin.onCommandCallback(pluginData.commandReturnData);
+					}
+					else if (window.Asc.plugin.onCallCommandCallback)
 					{
 						var commandCallback = window.Asc.plugin.onCallCommandCallback;
 						window.Asc.plugin.onCallCommandCallback = null;
