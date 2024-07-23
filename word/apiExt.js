@@ -84,7 +84,7 @@
             return {
                 Uri: customXml.Uri,
                 ItemId: customXml.ItemId,
-                Content: String.fromCharCode.apply(String, Array.from(customXml.Content))
+                Content: customXml.Content.map(code => String.fromCharCode(code)).join('')
             }
         }
 
