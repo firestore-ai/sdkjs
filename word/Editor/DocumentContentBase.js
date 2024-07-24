@@ -1239,6 +1239,7 @@ CDocumentContentBase.prototype.private_AddContentControl = function(nContentCont
 
 				var oLogicDocument = this instanceof CDocument ? this : this.LogicDocument;
 				oLogicDocument.RemoveCommentsOnPreDelete = false;
+				oLogicDocument.PreventPreDelete = true;
 
 				var nStartPos = this.Selection.StartPos;
 				var nEndPos   = this.Selection.EndPos;
@@ -1267,6 +1268,7 @@ CDocumentContentBase.prototype.private_AddContentControl = function(nContentCont
 				this.CurPos.ContentPos  = nStartPos;
 
 				oLogicDocument.RemoveCommentsOnPreDelete = true;
+				oLogicDocument.PreventPreDelete = false;
 				return oSdt;
 			}
 		}
