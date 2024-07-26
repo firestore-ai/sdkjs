@@ -21,3 +21,5 @@ connector
 */*.cache
 */sdk-all.js
 */sdk-all-min.js
+common/embed/embed.min.js
+package.json
