@@ -56,6 +56,7 @@ function CInlineLevelSdt()
 	this.SkipSpecialLock  = 0;
 	this.SkipFillFormLock = 0;
 	this.Current          = false;
+	this.CustomColor	  = undefined;
 }
 
 CInlineLevelSdt.prototype = Object.create(CParagraphContentWithParagraphLikeContent.prototype);
@@ -476,6 +477,17 @@ CInlineLevelSdt.prototype.Recalculate_Range_Spaces = function(PRSA, _CurLine, _C
 
 	this.BoundsPaths = null;
 };
+
+CInlineLevelSdt.prototype.GetCustomColor = function(defaultHighlightColor)
+{	
+	return this.CustomColor ? this.CustomColor : defaultHighlightColor;	
+}
+
+CInlineLevelSdt.prototype.SetCustomColor = function(color)
+{
+	this.CustomColor = color;
+}
+
 CInlineLevelSdt.prototype.Draw_HighLights = function(PDSH)
 {
 	PDSH.AddInlineSdt(this);
@@ -1723,12 +1735,31 @@ CInlineLevelSdt.prototype.GetContentControlId = function()
 {
 	return this.Pr.Id;
 };
+
+function ParseInlineTag(oSdt, sTag) {
+	oSdt.CustomColor = undefined;
+	if (sTag && sTag.length > 0) {
+		try {
+			var tagObj = JSON.parse(sTag);
+			if (tagObj && tagObj.color && tagObj.color.length === 7) {
+				oSdt.CustomColor =  new CColor(0, 0, 0);
+				oSdt.CustomColor.put_hex(tagObj.color.substring(1, 7));
+			}						
+		}
+		catch (e) {
+			console.log(e);
+		}
+	} 
+}
+
 CInlineLevelSdt.prototype.SetTag = function(sTag)
 {
 	if (this.Pr.Tag !== sTag)
 	{
 		History.Add(new CChangesSdtPrTag(this, this.Pr.Tag, sTag));
 		this.Pr.Tag = sTag;
+
+		ParseInlineTag(this, sTag);
 	}
 };
 CInlineLevelSdt.prototype.GetTag = function()

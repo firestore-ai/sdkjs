@@ -1789,6 +1789,13 @@ function (window, undefined) {
 		return this.hex;
 	};
 
+	CColor.prototype.put_hex = function(hex) {		
+		this.r = parseInt(hex.substring(0, 2), 16);
+		this.g = parseInt(hex.substring(2, 4), 16);
+		this.b = parseInt(hex.substring(4, 6), 16);
+		this.hex = hex;
+	}
+
 	CColor.prototype.Compare = function (Color) {
 		return (this.r === Color.r && this.g === Color.g && this.b === Color.b && this.a === Color.a);
 	};
@@ -6140,6 +6147,7 @@ function (window, undefined) {
 	prot["put_b"] = prot.put_b;
 	prot["getA"] = prot.getA;
 	prot["get_hex"] = prot.get_hex;
+	prot["put_hex"] = prot.put_hex;
 
 	window["Asc"]["asc_CColor"] = window["Asc"].asc_CColor = asc_CColor;
 	prot = asc_CColor.prototype;
