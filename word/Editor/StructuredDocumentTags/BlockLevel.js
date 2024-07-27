@@ -271,13 +271,13 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 		var currentControlId = undefined;
 		if (oContentControl && !oContentControl.IsContentControlEquation() && oContentControl.GetContentControlPr()) {
 			if (oContentControl.CustomTagPr !== undefined) {				
-				currentGroupId = oContentControl.CustomeTagPr.Group;
+				currentGroupId = oContentControl.CustomTagPr.Group;
 				currentControlId = oContentControl.Id;
 			}
 		}
 
 		var tag = this.Pr.Tag;
-		if (tag !== "" && this.CustomTagPr === undefined) {
+		if (tag !== undefined && tag !== "" && this.CustomTagPr === undefined) {
 			this.CustomTagPr = ParseCustomTag(tag);
 		}
 
