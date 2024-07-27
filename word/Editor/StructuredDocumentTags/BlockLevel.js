@@ -58,6 +58,7 @@ function CBlockLevelSdt(oLogicDocument, oParent)
 	this.Current         = false;
 	// set to true if the content control select as an object
 	this.Selection       = false;
+	this.CustomTagPr	 = undefined;
 }
 
 CBlockLevelSdt.prototype = Object.create(CDocumentContentElementBase.prototype);
@@ -238,13 +239,23 @@ function parsePadding(paddingData) {
 // convert "#FF0000" to {r: 255, g: 0, b: 0}
 function parseColor(colorData) {
 	var colorObj = new CColor(0, 0, 0);
-
 	if (colorData.length === 7) {
-		colorObj.r = parseInt(colorData.substring(1, 3), 16);
-		colorObj.g = parseInt(colorData.substring(3, 5), 16);
-		colorObj.b = parseInt(colorData.substring(5, 7), 16);
+		colorObj.put_hex(colorData.substring(1, 7));
 	}
 	return colorObj;
+}
+
+CBlockLevelSdt.prototype.GetCustomColor = function(defaultHighlightColor)
+{	
+	if (this.CustomTagPr && this.CustomTagPr.Color) {
+		return this.CustomTagPr.Color;
+	}
+	return defaultHighlightColor;	
+}
+
+CBlockLevelSdt.prototype.SetCustomColor = function(color)
+{
+	this.CustomTagPr.Color = color;
 }
 
 CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
@@ -259,72 +270,46 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 		var currentGroupId = undefined;
 		var currentControlId = undefined;
 		if (oContentControl && !oContentControl.IsContentControlEquation() && oContentControl.GetContentControlPr()) {
-			try {
-				var theObj = JSON.parse(oContentControl.GetContentControlPr().Tag);
-				currentGroupId = theObj.group;
+			if (oContentControl.CustomTagPr !== undefined) {				
+				currentGroupId = oContentControl.CustomeTagPr.Group;
 				currentControlId = oContentControl.Id;
-			} catch (e) {
-				//console.log("parse tag error: ");
 			}
 		}
 
 		var tag = this.Pr.Tag;
-		if (tag !== undefined && tag !== "") {
+		if (tag !== "" && this.CustomTagPr === undefined) {
+			this.CustomTagPr = ParseCustomTag(tag);
+		}
+
+		if (this.CustomTagPr) {
 			// draw highlight total length
 			let pageBounds    = this.Content.GetPageBounds(CurPage);
 			oBounds.Left	  = pageBounds.Left;
 			oBounds.Right	  = pageBounds.Right;
 			
-			// tag is json string, parse it
-			var tagObj = undefined;
-			try {
-				tagObj = JSON.parse(tag);
-			} catch (e) {
-				console.log("parse tag error: ");
-			}			
 			
-			if (tagObj !== undefined) {
-				if (tagObj.mode !== undefined) {
-					// colorDefines is a array of color defines
-					var colorDefines = [				
-						new CColor(0xCF, 0xE4, 0xFF),
-						new CColor(0xA3, 0xE3, 0xE8),
-						new CColor(0xC3, 0xF7, 0xC8),
-						new CColor(0xE8, 0xE2, 0xC8),
-						new CColor(0xFF, 0xF7, 0xA0),
-						new CColor(0xFF, 0xDD, 0xA6),
-						new CColor(0xFF, 0xD9, 0xD9),
-						new CColor(0xFF, 0xD6, 0xF5),
-						new CColor(0xF4, 0xD9, 0xFF),
-					];
-					oColor = colorDefines[tagObj.mode];
-				}
+			if (this.CustomTagPr.Color)
+				oColor = this.CustomTagPr.Color;		
 
-				if (tagObj.color !== undefined) {
-					oColor = parseColor(tagObj.color);
-				}
-
-				// rect expanding			
-				if (tagObj.padding !== undefined) {
-					var padding = parsePadding(tagObj.padding);
-					oBounds.Left 	= oBounds.Left 	+ padding.Left;
-					oBounds.Right 	= oBounds.Right - padding.Right;
-					oBounds.Top 	= oBounds.Top 	+ padding.Top;
-					oBounds.Bottom 	= oBounds.Bottom - padding.Bottom;
-				}
-
-				// if current content control tag group id is equal to the tag group id, then draw a border
-				if (currentGroupId !== undefined && tagObj.group !== undefined && tagObj.group === currentGroupId && this.Id !== currentControlId) {					
-					oGraphics.p_color(0xF4, 0xD9, 0xFF, 255);
-					// oGraphics.rect(oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Right - oBounds.Left + 0.1, oBounds.Bottom - oBounds.Top + 0.1);
-					oGraphics.drawHorLine(0, oBounds.Top - 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
-					oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
-					oGraphics.drawVerLine(0, oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);
-					oGraphics.drawVerLine(0, oBounds.Right + 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);					
-				}
+			// rect expanding			
+			if (this.CustomTagPr.Padding !== undefined) {
+				oBounds.Left 	= oBounds.Left 	+ padding.Left;
+				oBounds.Right 	= oBounds.Right - padding.Right;
+				oBounds.Top 	= oBounds.Top 	+ padding.Top;
+				oBounds.Bottom 	= oBounds.Bottom - padding.Bottom;
 			}
+
+			// if current content control tag group id is equal to the tag group id, then draw a border
+			if (currentGroupId !== undefined && this.CustomTagPr.Group !== undefined && this.CustomTagPr.Group === currentGroupId && this.Id !== currentControlId) {					
+				oGraphics.p_color(0xF4, 0xD9, 0xFF, 255);
+				// oGraphics.rect(oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Right - oBounds.Left + 0.1, oBounds.Bottom - oBounds.Top + 0.1);
+				oGraphics.drawHorLine(0, oBounds.Top - 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
+				oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
+				oGraphics.drawVerLine(0, oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);
+				oGraphics.drawVerLine(0, oBounds.Right + 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);					
+			}
+		
 		}
-			
 
 		oGraphics.b_color1(oColor.r, oColor.g, oColor.b, 128);		
 		oGraphics.rect(oBounds.Left, oBounds.Top, oBounds.Right - oBounds.Left, oBounds.Bottom - oBounds.Top);
@@ -1693,12 +1678,52 @@ CBlockLevelSdt.prototype.GetContentControlId = function()
 {
 	return this.Pr.Id;
 };
+
+
+
+function ParseCustomTag(sTag) {
+	var modeColorDefines = [				
+		new CColor(0xCF, 0xE4, 0xFF),
+		new CColor(0xA3, 0xE3, 0xE8),
+		new CColor(0xC3, 0xF7, 0xC8),
+		new CColor(0xE8, 0xE2, 0xC8),
+		new CColor(0xFF, 0xF7, 0xA0),
+		new CColor(0xFF, 0xDD, 0xA6),
+		new CColor(0xFF, 0xD9, 0xD9),
+		new CColor(0xFF, 0xD6, 0xF5),
+		new CColor(0xF4, 0xD9, 0xFF),
+	];
+	
+	try {
+		var oCustomPr = {};
+		var tagObj = JSON.parse(sTag);
+		if (tagObj !== undefined) {
+			oCustomPr.Group = tagObj.group;
+
+			oCustomPr.Mode = tagObj.mode;
+			oCustomPr.Color = modeColorDefines[tagObj.mode];
+
+			if (tagObj.color ) 
+				oCustomPr.Color = parseColor(tagObj.color);
+
+			if (tagObj.padding) 
+				oCustomPr.Padding = parsePadding(tagObj.padding);
+
+		}
+		return oCustomPr;
+	} catch (e) {
+		console.log("parse tag error:" + e);
+		return undefined;
+	}
+}
 CBlockLevelSdt.prototype.SetTag = function(sTag)
 {
 	if (this.Pr.Tag !== sTag)
 	{
 		History.Add(new CChangesSdtPrTag(this, this.Pr.Tag, sTag));
 		this.Pr.Tag = sTag;
+
+		this.CustomTagPr = ParseCustomTag(sTag);
 	}
 };
 CBlockLevelSdt.prototype.GetTag = function()
