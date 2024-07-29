@@ -292,10 +292,11 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 				oColor = this.CustomTagPr.Color;		
 
 			// rect expanding			
-			if (this.CustomTagPr.Padding !== undefined) {
-				oBounds.Left 	= oBounds.Left 	+ padding.Left;
-				oBounds.Right 	= oBounds.Right - padding.Right;
-				oBounds.Top 	= oBounds.Top 	+ padding.Top;
+			var padding = this.CustomTagPr.Padding;
+			if (padding !== undefined) {
+				oBounds.Left 	= oBounds.Left 	 + padding.Left;
+				oBounds.Right 	= oBounds.Right  - padding.Right;
+				oBounds.Top 	= oBounds.Top 	 + padding.Top;
 				oBounds.Bottom 	= oBounds.Bottom - padding.Bottom;
 			}
 
