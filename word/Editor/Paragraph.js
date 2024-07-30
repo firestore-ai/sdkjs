@@ -13890,6 +13890,7 @@ Paragraph.prototype.Refresh_RecalcData = function(Data)
 		case AscDFH.historyitem_Paragraph_Borders_Right:
 		case AscDFH.historyitem_Paragraph_Borders_Top:
 		case AscDFH.historyitem_Paragraph_FramePr:
+		case AscDFH.historyitem_Paragraph_SnapToGrid:
 		{
 			bNeedRecalc = true;
 			break;
