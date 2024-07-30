@@ -1,17 +1,218 @@
+/*
+ * (c) Copyright Ascensio System SIA 2010-2023
+ *
+ * This program is a free software product. You can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License (AGPL)
+ * version 3 as published by the Free Software Foundation. In accordance with
+ * Section 7(a) of the GNU AGPL its Section 15 shall be amended to the effect
+ * that Ascensio System SIA expressly excludes the warranty of non-infringement
+ * of any third-party rights.
+ *
+ * This program is distributed WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  PURPOSE. For
+ * details, see the GNU AGPL at: http://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * You can contact Ascensio System SIA at 20A-6 Ernesta Birznieka-Upish
+ * street, Riga, Latvia, EU, LV-1050.
+ *
+ * The  interactive user interfaces in modified source and object code versions
+ * of the Program must display Appropriate Legal Notices, as required under
+ * Section 5 of the GNU AGPL version 3.
+ *
+ * Pursuant to Section 7(b) of the License you must retain the original Product
+ * logo when distributing the program. Pursuant to Section 7(e) we decline to
+ * grant you any rights under trademark law for use of our trademarks.
+ *
+ * All the Product's GUI elements, including illustrations and icon sets, as
+ * well as technical writing content are licensed under the terms of the
+ * Creative Commons Attribution-ShareAlike 4.0 International. See the License
+ * terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
+ *
+ */
+
 "use strict";
 (function (window, builder) {
-    /**
-     * Base class
-     * @global
-     * @class
-     * @name Api
-     */
     var asc_docs_api = window["Asc"]["asc_docs_api"] || window["Asc"]["spreadsheet_api"];
     var c_oAscRevisionsChangeType = Asc.c_oAscRevisionsChangeType;
     var c_oAscSectionBreakType = Asc.c_oAscSectionBreakType;
     var c_oAscSdtLockType = Asc.c_oAscSdtLockType;
     var c_oAscAlignH = Asc.c_oAscAlignH;
     var c_oAscAlignV = Asc.c_oAscAlignV;
+
+    // 获取段落的边界    
+    asc_docs_api.prototype.asc_GetParagraphBoundingRect = function(sId, page) {
+        var oLogicDocument = this.private_GetLogicDocument();
+        if (!oLogicDocument)
+            return null;
+
+        const oParagraph = AscCommon.g_oTableId.Get_ById(sId);
+        if (!oParagraph || !oParagraph.GetContentBounds)
+            return null;
+
+        if (page === undefined) 
+        {
+            page = oParagraph.GetStartPageAbsolute()
+        }
+
+        var oBounds = oParagraph.GetContentBounds(page);
+        if (!oBounds)
+            return null;
+
+        var oRect = {
+            X: oBounds.Left,
+            Y: oBounds.Top,
+            W: oBounds.Bottom - oBounds.Top,
+            H: oBounds.Right - oBounds.Left,
+            Transform : oParagraph.Get_ParentTextTransform()
+        }
+
+        var nX, nY, nW, nH;
+
+        var oTransform = oRect.Transform;
+        if (oTransform)
+        {
+            var nX0 = oTransform.TransformPointX(oRect.X, oRect.Y);
+            var nY0 = oTransform.TransformPointY(oRect.X, oRect.Y);
+            var nX1 = oTransform.TransformPointX(oRect.X + oRect.W, oRect.Y);
+            var nY1 = oTransform.TransformPointY(oRect.X + oRect.W, oRect.Y);
+            var nX2 = oTransform.TransformPointX(oRect.X + oRect.W, oRect.Y + oRect.H);
+            var nY2 = oTransform.TransformPointY(oRect.X + oRect.W, oRect.Y + oRect.H);
+            var nX3 = oTransform.TransformPointX(oRect.X, oRect.Y + oRect.H);
+            var nY3 = oTransform.TransformPointY(oRect.X, oRect.Y + oRect.H);
+
+            nX = Math.min(nX0, nX1, nX2, nX3);
+            nY = Math.min(nY0, nY1, nY2, nY3);
+            nW = Math.max(nX0, nX1, nX2, nX3) - nX;
+            nH = Math.max(nY0, nY1, nY2, nY3) - nY;
+        }
+        else
+        {
+            nX = oRect.X;
+            nY = oRect.Y;
+            nW = oRect.W;
+            nH = oRect.H;
+        }
+
+        return {
+            Page: page,
+            X0: nX,
+            Y0: nY,
+            X1: nX + nW,
+            Y1: nY + nH
+        };
+    }
+
+    let MeasureNumberingTextWidth = function(oPara, nCharCount) {                
+        var oNumbering = oPara.Parent.GetNumbering();
+        var oTheme = oPara.GetTheme();
+        var oNumTextPr = oPara.GetNumberingTextPr();
+        var sId = oPara.Numbering.Internal.FinalNumId;
+        var nLvl =oPara.Numbering.Internal.FinalNumLvl;
+
+        var oNum =  oNumbering.GetNum(sId);
+        var oLvl    = oNum.GetLvl(nLvl);
+        var arrText = oLvl.GetLvlText();
+        var dKoef   = oNumTextPr.VertAlign !== AscCommon.vertalign_Baseline ? AscCommon.vaKSize : 1;
+        
+        g_oTextMeasurer.SetTextPr(oNumTextPr, oTheme);
+        g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
+
+        var Width = 0;
+    
+        for (var nTextIndex = 0, nTextLen = arrText.length; nTextIndex < nTextLen && nTextIndex < nCharCount; ++nTextIndex)
+        {
+            switch (arrText[nTextIndex].Type)
+            {
+                case numbering_lvltext_Text:
+                {
+                    let strValue  = arrText[nTextIndex].Value;
+                    let codePoint = strValue.charCodeAt(0);
+                    let curCoef   = dKoef;
+    
+                    let info;
+                    if ((info = oNum.ApplyTextPrToCodePoint(codePoint, oNumTextPr)))
+                    {
+                        curCoef *= info.FontCoef;
+                        codePoint = info.CodePoint;
+                        strValue  = String.fromCodePoint(codePoint);
+                    }
+    
+                    var FontSlot = AscWord.GetFontSlotByTextPr(codePoint, oNumTextPr);
+    
+                    g_oTextMeasurer.SetFontSlot(FontSlot, curCoef);
+    
+                    Width += g_oTextMeasurer.Measure(strValue).Width;
+    
+                    break;
+                }
+                case numbering_lvltext_Num:
+                {
+                    g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
+                    var langForTextNumbering = oNumTextPr.Lang;
+    
+                    var nCurLvl = arrText[nTextIndex].Value;
+                    var T = "";
+    
+                    if (nCurLvl < oNumInfo.length)
+                        T = oNum.private_GetNumberedLvlText(nCurLvl, oNumInfo[nCurLvl], oLvl.IsLegalStyle() && nCurLvl < nLvl, langForTextNumbering);
+    
+                    for (var iter = T.getUnicodeIterator(); iter.check(); iter.next())
+                    {
+                        var CharCode = iter.value();
+                        Width += g_oTextMeasurer.MeasureCode(CharCode).Width;
+                    }
+    
+                    break;
+                }
+            }
+        }
+        return Width;
+    }
+
+    // 获取段落编号的边界
+    // @param {string} sId - 段落ID
+    // @param {number} charCount - 字符元素数，如果不传则返回整个编号的边界，如果传了则返回指定字符数的边界，如果%1也只算一个元素
+    asc_docs_api.prototype.asc_GetParagraphNumberingBoundingRect = function(sId, charCount) {
+        var oLogicDocument = this.private_GetLogicDocument();
+        if (!oLogicDocument)
+            return null;
+
+        const oParagraph = AscCommon.g_oTableId.Get_ById(sId);
+        if (!oParagraph || !oParagraph.GetContentBounds)
+            return null;
+
+        if (oParagraph.GetNumPr() === undefined) 
+            return null;
+        
+        var oNum = oParagraph.Numbering;
+        if (!oNum)
+            return null;
+
+        var oBounds = oParagraph.GetContentBounds(oNum.Page);
+        if (!oBounds)
+            return null;                
+        
+        var oRect = {
+            X: oBounds.Left,
+            Y: oBounds.Top,
+            W: oNum.Width,
+            H: oNum.Height,
+            Transform : oParagraph.Get_ParentTextTransform()
+        }
+
+        if (charCount !== undefined && charCount > 0) 
+        {
+           oRect.W = MeasureNumberingTextWidth(oParagraph, charCount);
+        }            
+       
+        return {
+                Page: oRect.Page,
+                X0: oRect.X,
+                Y0: oRect.Y,
+                X1: oRect.X + oRect.W,
+                Y1: oRect.Y + oRect.H
+        };        
+    }
 
     /**
      * Extents the Api class
@@ -84,7 +285,7 @@
             return {
                 Uri: customXml.Uri,
                 ItemId: customXml.ItemId,
-   	        Content: decoder.decode(Uint8Array.from(customXml.Content))
+                Content: decoder.decode(Uint8Array.from(customXml.Content))
             }
         }
 
@@ -375,6 +576,9 @@
     }
 
 
+    asc_docs_api.prototype["asc_GetParagraphBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphBoundingRect;
+    asc_docs_api.prototype["asc_GetParagraphNumberingBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphNumberingBoundingRect;
+
     asc_docs_api.prototype["asc_GetContentControlBoundingRectExt"] = asc_docs_api.prototype.asc_GetContentControlBoundingRectExt;
     asc_docs_api.prototype["asc_SetCustomXmlExt"] = asc_docs_api.prototype.asc_SetCustomXmlExt;
     asc_docs_api.prototype["asc_GetCustomXmlExt"] = asc_docs_api.prototype.asc_GetCustomXmlExt;
@@ -384,5 +588,6 @@
     asc_docs_api.prototype["asc_MakeRangeByPath"] = asc_docs_api.prototype.asc_MakeRangeByPath;
     asc_docs_api.prototype["asc_RegexSearch"] = asc_docs_api.prototype.asc_RegexSearch;
     asc_docs_api.prototype["asc_GenSelectionAsXml"] = asc_docs_api.prototype.asc_GenSelectionAsXml;
+    
 
 }(window, null));

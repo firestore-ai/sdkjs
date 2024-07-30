@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost/example/editor?fileName=new.docx&userid=uid-1&lang=zh",
+            "url": "http://localhost/example/editor?fileName=num.docx&userid=uid-1&lang=zh",
             "webRoot": "/Users/houmingyuan/oo/www"
         }
     ]
