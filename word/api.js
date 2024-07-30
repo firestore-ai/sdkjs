@@ -4629,10 +4629,10 @@ background-repeat: no-repeat;\
 		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
 		{
 			// TODO coauthoring
-			//this.WordControl.m_oLogicDocument.StartAction(AscDFH.historydescription_Document_SetParagraphSnapToGrid);
+			this.WordControl.m_oLogicDocument.StartAction(AscDFH.historydescription_Document_SetParagraphSnapToGrid);
 			this.WordControl.m_oLogicDocument.SetParagraphSnapToGrid(bValue);
 			this.sync_SnapToGridCallback(bValue);
-			//this.WordControl.m_oLogicDocument.FinalizeAction();
+			this.WordControl.m_oLogicDocument.FinalizeAction();
 		}
 	};
 
