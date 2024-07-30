@@ -11628,7 +11628,7 @@ Paragraph.prototype.Set_SnapToGrid = function(Value)
 	if (Value != this.Pr.SnaptoGrid)
 	{
 		this.private_AddPrChange();
-		History.Add(new CChangesParagraphSnapToGrid(this, this.Pr.SnapToGrid, Value));
+		AscCommon.History.Add(new CChangesParagraphSnapToGrid(this, this.Pr.SnapToGrid, Value));
 		this.Pr.SnapToGrid = Value;
 
 		this.CompiledPr.NeedRecalc = true;
