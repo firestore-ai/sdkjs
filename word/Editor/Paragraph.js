@@ -11623,10 +11623,10 @@ Paragraph.prototype.Set_WidowControl = function(Value)
 };
 Paragraph.prototype.Set_SnapToGrid = function(Value)
 {
-	if (Value != this.Pr.SnaptoGrid)
+	if (Value != this.Pr.SnapToGrid)
 	{
 		this.private_AddPrChange();
-		History.Add(new CChangesParagraphSnapToGrid(this, this.Pr.SnapToGrid, Value));
+		AscCommon.History.Add(new CChangesParagraphSnapToGrid(this, this.Pr.SnapToGrid, Value));
 		this.Pr.SnapToGrid = Value;
 
 		this.CompiledPr.NeedRecalc = true;

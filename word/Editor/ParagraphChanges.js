@@ -1145,7 +1145,7 @@ CChangesParagraphWidowControl.prototype.Load = private_ParagraphChangesOnLoadPr;
 CChangesParagraphWidowControl.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
 /**
  * @constructor
- * @extends {AscDFH.CChangesBaseBoolProperty}
+ * @extends {AscDFH.CChangesParagraphSnapToGrid}
  */
 function CChangesParagraphSnapToGrid(Class, Old, New, Color)
 {
@@ -1164,6 +1164,7 @@ CChangesParagraphSnapToGrid.prototype.private_SetValue = function(Value)
 };
 CChangesParagraphSnapToGrid.prototype.Merge = private_ParagraphChangesOnMergePr;
 CChangesParagraphSnapToGrid.prototype.Load = private_ParagraphChangesOnLoadPr;
+CChangesParagraphSnapToGrid.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
 /**
  * @constructor
  * @extends {AscDFH.CChangesBaseObjectProperty}
