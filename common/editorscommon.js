@@ -10642,6 +10642,7 @@
 
 	function isEastAsianScript(value)
 	{
+		// CJK Symbols and Punctuation (3000-303F)		
 		// Bopomofo (3100–312F)
 		// Bopomofo Extended (31A0–31BF)
 		// CJK Unified Ideographs (4E00–9FEA)
@@ -10677,7 +10678,8 @@
 		// Yi Syllables (A000–A48F)
 		// Yi Radicals (A490–A4CF)
 
-		return ((0x3100 <= value && value <= 0x312F)
+		return ((0x3000 <= value && value <= 0x303F)
+			|| (0x3100 <= value && value <= 0x312F)
 			|| (0x31A0 <= value && value <= 0x31BF)
 			|| (0x4E00 <= value && value <= 0x9FEA)
 			|| (0x3400 <= value && value <= 0x4DB5)
