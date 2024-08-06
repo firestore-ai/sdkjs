@@ -1304,7 +1304,15 @@ Paragraph.prototype.private_RecalculateLineMetrics     = function(CurLine, CurPa
 	}
 
     // Рассчитаем метрики строки
-    this.Lines[CurLine].Metrics.Update( PRS.LineTextAscent, PRS.LineTextAscent2, PRS.LineTextDescent, PRS.LineAscent, PRS.LineDescent, ParaPr );
+	var oriLinePitch = 0;	
+	var oSectPr = this.Get_SectPr();
+	if (oSectPr)  {
+		var docGridType = oSectPr.GetDocGridType();	
+		if (docGridType === Asc.c_oAscDocGridType.Lines || docGridType === Asc.c_oAscDocGridType.LinesAndChars)
+			oriLinePitch =AscCommon.TwipsToMM(oSectPr.GetDocGridLinePitch());		
+	}
+
+    this.Lines[CurLine].Metrics.Update( PRS.LineTextAscent, PRS.LineTextAscent2, PRS.LineTextDescent, PRS.LineAscent, PRS.LineDescent, ParaPr, oriLinePitch);
 
 	if (true === PRS.End && true !== PRS.EmptyLine && true !== PRS.TextOnLine && Math.abs(this.Lines[CurLine].Metrics.Descent - this.Lines[CurLine].Metrics.TextDescent) < 0.001)
 		this.Lines[CurLine].Metrics.Descent = 0;
@@ -1523,7 +1531,8 @@ Paragraph.prototype.private_RecalculateLinePosition    = function(CurLine, CurPa
 			Bottom = this.YLimit;
 	}
 
-    if (this.Get_SectPr() != null) {
+    //if (this.Get_SectPr() != null) {
+	if (false) {
         // --------------------
         // 是否进行网格对齐
         var oSectPr = this.Get_SectPr();
@@ -1531,7 +1540,7 @@ Paragraph.prototype.private_RecalculateLinePosition    = function(CurLine, CurPa
 
         if (docGridType === Asc.c_oAscDocGridType.Lines || docGridType === Asc.c_oAscDocGridType.LinesAndChars) 
         {
-            if (ParaPr.SnapToGrid === true) 
+            if (ParaPr.SnapToGrid === true && ParaPr.Spacing.LineRule !== Asc.linerule_Exact) 
             {
                 // 获取当前行距
                 var oriLinePitch = AscCommon.TwipsToMM(oSectPr.GetDocGridLinePitch());
@@ -2868,7 +2877,7 @@ function CParaLineMetrics()
 
 CParaLineMetrics.prototype =
 {
-    Update : function(TextAscent, TextAscent2, TextDescent, Ascent, Descent, ParaPr)
+    Update : function(TextAscent, TextAscent2, TextDescent, Ascent, Descent, ParaPr, linePitch)
     {
         if ( TextAscent > this.TextAscent )
             this.TextAscent = TextAscent;
@@ -2899,6 +2908,24 @@ CParaLineMetrics.prototype =
             this.Ascent  = this.Ascent + this.LineGap;
             this.LineGap = 0;
         }
+
+		if (Asc.linerule_Auto === ParaPr.Spacing.LineRule && ParaPr.SnapToGrid && linePitch > 0)
+		{
+			var n = Math.round((this.TextAscent2 + this.Descent)/linePitch+0.5);
+			var newLineGap = n*linePitch;
+			var lineGap = linePitch * ParaPr.Spacing.Line;
+			if (newLineGap > lineGap)
+			{
+				lineGap = newLineGap;
+			}
+			
+			var gapOffset = lineGap - (this.TextAscent + this.TextDescent);
+			if (gapOffset > 0)
+			{
+				this.Ascent += gapOffset/2;				
+			}
+			this.LineGap = lineGap - (this.Ascent + this.Descent);
+		}
     },
 
     Recalculate_LineGap : function(ParaPr, TextAscent, TextDescent)
