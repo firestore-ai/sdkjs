@@ -7321,6 +7321,32 @@ CDocument.prototype.Set_DocumentOrientation = function(Orientation, bNoRecalc)
 		this.Document_UpdateRulersState();
 	}
 };
+CDocument.prototype.Get_DocumentDocGrid = function()
+{
+	var CurPos = this.CurPos.ContentPos;
+	var SectPr = this.SectionsInfo.Get_SectPr(CurPos).SectPr;
+
+	return SectPr.DocGrid;
+}
+CDocument.prototype.Set_DocumentDocGrid = function(type, linePitch, charSpace, bNoRecalc)
+{
+	var CurPos = this.CurPos.ContentPos;
+	var SectPr = this.SectionsInfo.Get_SectPr(CurPos).SectPr;
+
+	SectPr.SetDocGridType(type);
+	SectPr.SetDocGridLinePitch(linePitch);
+	SectPr.SetDocGridCharSpace(charSpace);
+
+	this.DrawingObjects.CheckAutoFit();
+	if (true != bNoRecalc)
+	{
+		this.Recalculate();
+		this.Document_UpdateSelectionState();
+		this.Document_UpdateInterfaceState();
+		this.Document_UpdateRulersState();
+	}
+}
+
 CDocument.prototype.Get_DocumentOrientation = function()
 {
 	// TODO: Document.Get_DocumentOrientation Сделать в зависимости от выделения

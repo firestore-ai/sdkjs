@@ -14585,7 +14585,9 @@ CTextMetrics.prototype.Update = function(oFontInfo)
 	if (this.Ascent < _nAscent)
 		this.Ascent = _nAscent;
 
-	this.LineGap = Math.max(0, this.Height - this.Ascent - this.Descent);
+	if (this.LineGap < _nLineGap)
+	  this.LineGap = _nLineGap;
+    
 };
 //----------------------------------------------------------------------------------------------------------------------
 // CTextPr Export

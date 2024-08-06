@@ -575,6 +575,45 @@
         return undefined;
     }
 
+    // 计算文档网格可以设置的设置的最大行数
+    asc_docs_api.prototype.asc_GetMaxGridRows = function (height) {
+        var nPageHeight = AscCommon.MMToTwip(height);
+        var nGridHeight = 285;
+        var nGridRows = Math.floor(nPageHeight / nGridHeight);
+        return nGridRows;
+    }
+
+    // 根据行数计算一行高度
+    asc_docs_api.prototype.asc_CalcLinePitch = function (height, row) {
+        if (row == 0) {
+            return height;
+        }
+        var nPageHeight = AscCommon.MMToTwip(height);
+        return Math.floor(nPageHeight / row)        
+    }
+
+    asc_docs_api.prototype.asc_SetLines = function(lines)
+    {
+        var oLogicDocument = this.private_GetLogicDocument();
+        if (!oLogicDocument)
+            return;
+
+        var CurPos = oLogicDocument.CurPos.ContentPos;
+        var SectPr = oLogicDocument.SectionsInfo.Get_SectPr(CurPos).SectPr;
+
+        var DocGrid = SectPr.DocGrid;
+    
+        const height = SectPr.GetContentFrameHeight();
+        const maxLines = asc_GetMaxGridRows(height);
+        if (lines > maxLines) {
+            lines = maxLines;
+        }
+
+        var linePitch = asc_CalcLinePitch(height, lines);
+        
+        SectPr.SetDocGridLinePitch(linePitch);
+    }
+
 
     asc_docs_api.prototype["asc_GetParagraphBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphBoundingRect;
     asc_docs_api.prototype["asc_GetParagraphNumberingBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphNumberingBoundingRect;
