@@ -1784,7 +1784,8 @@ function (window, undefined) {
 			let r = this.r.toString(16);
 			let g = this.g.toString(16);
 			let b = this.b.toString(16);
-			this.hex = (r.length == 1 ? "0" + r : r) + (g.length == 1 ? "0" + g : g) + (b.length == 1 ? "0" + b : b);
+			let a = this.a.toString(16);
+			this.hex = (r.length == 1 ? "0" + r : r) + (g.length == 1 ? "0" + g : g) + (b.length == 1 ? "0" + b : b) + (a.length == 1 ? "0" + b : b);
 		}
 		return this.hex;
 	};
@@ -1793,6 +1794,7 @@ function (window, undefined) {
 		this.r = parseInt(hex.substring(0, 2), 16);
 		this.g = parseInt(hex.substring(2, 4), 16);
 		this.b = parseInt(hex.substring(4, 6), 16);
+		this.a = parseInt(hex.substring(6, 8), 16);
 		this.hex = hex;
 	}
 

@@ -2567,9 +2567,9 @@ Paragraph.prototype.drawRunHighlight = function(CurPage, pGraphics, Pr, drawStat
 					{
 						var highlightColor = oInlineSdt.GetCustomColor(SdtHighlightColor);
 
-						if (!oPrevColor.IsEqualRGB(highlightColor))
+						//if (!oPrevColor.IsEqualRGB(highlightColor))
 						{
-							pGraphics.b_color1(highlightColor.r, highlightColor.g, highlightColor.b, 255);
+							pGraphics.b_color1(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a ? highlightColor.a : 255);
 							oPrevColor.SetFromColor(highlightColor);
 						}
 					}

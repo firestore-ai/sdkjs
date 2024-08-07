@@ -236,11 +236,14 @@ function parsePadding(paddingData) {
 	return paddingObj;
 }
 
-// convert "#FF0000" to {r: 255, g: 0, b: 0}
+// convert "#FF010203" to {r: 255, g: 1, b: 2, a: 3}
 function parseColor(colorData) {
 	var colorObj = new CColor(0, 0, 0);
-	if (colorData.length === 7) {
-		colorObj.put_hex(colorData.substring(1, 7));
+	// if not set alpha set as 7f
+	if (colorData.length === 7)
+		colorData += "7F";
+	if (colorData.length === 9) {
+		colorObj.put_hex(colorData.substring(1, colorData.length));
 	}
 	return colorObj;
 }
@@ -304,15 +307,15 @@ CBlockLevelSdt.prototype.Draw = function(CurPage, oGraphics)
 			if (currentGroupId !== undefined && this.CustomTagPr.Group !== undefined && this.CustomTagPr.Group === currentGroupId && this.Id !== currentControlId) {					
 				oGraphics.p_color(0xF4, 0xD9, 0xFF, 255);
 				// oGraphics.rect(oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Right - oBounds.Left + 0.1, oBounds.Bottom - oBounds.Top + 0.1);
-				oGraphics.drawHorLine(0, oBounds.Top - 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
-				oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right + 0.1, 0.7);
-				oGraphics.drawVerLine(0, oBounds.Left - 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);
-				oGraphics.drawVerLine(0, oBounds.Right + 0.1, oBounds.Top - 0.1, oBounds.Bottom + 0.1, 0.7);					
+				oGraphics.drawHorLine(0, oBounds.Top    - 0.1, oBounds.Left - 0.1, oBounds.Right  + 0.1, 0.7);
+				oGraphics.drawHorLine(0, oBounds.Bottom + 0.1, oBounds.Left - 0.1, oBounds.Right  + 0.1, 0.7);
+				oGraphics.drawVerLine(0, oBounds.Left   - 0.1, oBounds.Top  - 0.1, oBounds.Bottom + 0.1, 0.7);
+				oGraphics.drawVerLine(0, oBounds.Right  + 0.1, oBounds.Top  - 0.1, oBounds.Bottom + 0.1, 0.7);					
 			}
 		
 		}
 
-		oGraphics.b_color1(oColor.r, oColor.g, oColor.b, 128);		
+		oGraphics.b_color1(oColor.r, oColor.g, oColor.b, oColor.a ? oColor.a : 128);		
 		oGraphics.rect(oBounds.Left, oBounds.Top, oBounds.Right - oBounds.Left, oBounds.Bottom - oBounds.Top);
 		oGraphics.df();
 	}

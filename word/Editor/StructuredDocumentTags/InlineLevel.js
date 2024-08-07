@@ -1741,9 +1741,12 @@ function ParseInlineTag(oSdt, sTag) {
 	if (sTag && sTag.length > 0) {
 		try {
 			var tagObj = JSON.parse(sTag);
-			if (tagObj && tagObj.color && tagObj.color.length === 7) {
+			if (tagObj && tagObj.color && tagObj.color.length >= 7) {
 				oSdt.CustomColor =  new CColor(0, 0, 0);
-				oSdt.CustomColor.put_hex(tagObj.color.substring(1, 7));
+				var color = tagObj.color;
+				if (color.length === 7)
+					color += "7F";
+				oSdt.CustomColor.put_hex(color.substring(1, color.length));
 			}						
 		}
 		catch (e) {
