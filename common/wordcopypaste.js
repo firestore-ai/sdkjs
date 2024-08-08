@@ -544,7 +544,11 @@ CopyProcessor.prototype =
 					oImg.oAttributes["style"] = "max-width:100%;";
 					oImg.oAttributes["width"] = Math.round(_w);
 					oImg.oAttributes["height"] = Math.round(_h);
-					oImg.oAttributes["src"] = sSrc;
+					oImg.oAttributes["src"] = sSrc;			
+					if (ParaItem.docPr !== undefined &&
+						ParaItem.docPr.title &&
+						ParaItem.docPr.title.search("feature") >= 0)
+						oImg.oAttributes['class'] = "bfeature";
 					oTarget.addChild(oImg);
                     break;
                 }
