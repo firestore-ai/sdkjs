@@ -459,6 +459,38 @@ CopyProcessor.prototype =
 		if(aProp.length > 0)
 			oTarget.oAttributes["style"] = aProp.join(';');
     },
+
+	__ProcessBiyueTag : function(oTarget, tagString, isfeature) 
+	{
+		try {
+			var oObj = JSON.parse(tagString);
+			if (oObj) {
+				if (oObj.feature && isfeature) {
+					oObj = oObj.feature;
+				}
+				for (var key in oObj) {
+					oTarget.oAttributes['data-' + key] = oObj[key];
+				}		
+			}
+		} catch (e) {
+			console.log("parse failed:" +e);
+		}
+	},
+	__ProcessImgPos : function(oTarget, Img)
+	{
+		var strWrapDict = {
+			[WRAPPING_TYPE_NONE]: "none",
+			[WRAPPING_TYPE_SQUARE]: "square",				
+			[WRAPPING_TYPE_THROUGH]: "through",
+			[WRAPPING_TYPE_TIGHT]: "tight",
+			[WRAPPING_TYPE_TOP_AND_BOTTOM]: "top_and_bottom"
+		};
+		// drawingType 
+		oTarget.oAttributes["data-drawing-type"] = Img.DrawingType === drawing_Inline ? "inline" : "anchor";			// wrappingType
+		oTarget.oAttributes["data-wrapping-type"] = strWrapDict[Img.wrappingType] || "none";		
+		// word 的定位方式太复杂，现在想让判断是不是inline可能就足够了
+	},
+
     ParseItem : function(ParaItem, oTarget, nextParaItem, lengthContent)
     {
         let oSpan;
@@ -542,13 +574,19 @@ CopyProcessor.prototype =
 
 					let oImg = new CopyElement("img");
 					oImg.oAttributes["style"] = "max-width:100%;";
+					if (ParaItem.DrawingType !== drawing_Inline) 
+					{
+						this.__ProcessImgPos(oImg, ParaItem);
+					}
 					oImg.oAttributes["width"] = Math.round(_w);
 					oImg.oAttributes["height"] = Math.round(_h);
 					oImg.oAttributes["src"] = sSrc;			
 					if (ParaItem.docPr !== undefined &&
 						ParaItem.docPr.title &&
 						ParaItem.docPr.title.search("feature") >= 0)
-						oImg.oAttributes['class'] = "bfeature";
+					{
+						this.__ProcessBiyueTag(oImg, ParaItem.docPr.title, true);
+					}					
 					oTarget.addChild(oImg);
                     break;
                 }
@@ -681,8 +719,15 @@ CopyProcessor.prototype =
 					oImg.oAttributes["src"] = sSrc.ImageUrl;
 					oTarget.addChild(oImg);
 				}
-			} else if (para_InlineLevelSdt === item.Type) {
-				this.CopyRunContent(item, oTarget);
+			} else if (para_InlineLevelSdt === item.Type) {				
+				if (item.Pr.Tag === undefined || item.Pr.Tag === "") {
+					this.CopyRunContent(item, oTarget);					
+				} else {
+					var oSpan = new CopyElement("span");
+					this.__ProcessBiyueTag(oSpan, item.Pr.Tag);
+					this.CopyRunContent(item, oSpan);
+					oTarget.addChild(oSpan);
+				}
 			} else if (para_Field === item.Type) {
 				this.CopyRunContent(item, oTarget);
 			} else if (para_Bookmark === item.Type) {
@@ -1301,7 +1346,17 @@ CopyProcessor.prototype =
 					this.oBinaryFileWriter.copyParams.bLockCopyElems++;
 					if(!this.onlyBinaryCopy)
 					{
-						this.CopyDocument2(oDomTarget, oDocument, Item.Content.Content, true);
+						if (!!Item.CustomTagPr)
+						{
+							this.CopyDocument2(oDomTarget, oDocument, Item.Content.Content, true);						
+						} 
+						else  
+						{
+							var sdt = new CopyElement("div");							
+							this.__ProcessBiyueTag(sdt, Item.Pr.Tag);
+							oDomTarget.addChild( sdt );							
+							this.CopyDocument2(sdt, oDocument, Item.Content.Content, true);						
+						} 
 					}
 					this.oBinaryFileWriter.copyParams.bLockCopyElems--;
 
