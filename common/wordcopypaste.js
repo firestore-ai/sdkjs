@@ -1346,7 +1346,7 @@ CopyProcessor.prototype =
 					this.oBinaryFileWriter.copyParams.bLockCopyElems++;
 					if(!this.onlyBinaryCopy)
 					{
-						if (!!Item.CustomTagPr)
+						if (Item.Pr.Tag === undefined || Item.Pr.Tag === "")
 						{
 							this.CopyDocument2(oDomTarget, oDocument, Item.Content.Content, true);						
 						} 
