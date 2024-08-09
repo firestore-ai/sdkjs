@@ -684,7 +684,6 @@ CopyProcessor.prototype =
 			} else if (para_InlineLevelSdt === item.Type) {
 				this.CopyRunContent(item, oTarget);
 			} else if (para_Field === item.Type) {
-
 				this.CopyRunContent(item, oTarget);
 			} else if (para_Bookmark === item.Type) {
 				//для внутренних ссылок
