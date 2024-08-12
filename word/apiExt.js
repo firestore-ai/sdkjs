@@ -191,15 +191,16 @@
         if (!oNum)
             return null;
 
-        var oBounds = oParagraph.GetContentBounds(oNum.Page);
+        var oBounds = oParagraph.GetLineBounds(oNum.Page, 1);
         if (!oBounds)
-            return null;                
+            return null;                        
         
         var oRect = {
+            Page: oNum.Page,
             X: oBounds.Left,
             Y: oBounds.Top,
             W: oNum.Width,
-            H: oNum.Height,
+            H: oBounds.Bottom - oBounds.Top,
             Transform : oParagraph.Get_ParentTextTransform()
         }
 

@@ -691,6 +691,67 @@ Paragraph.prototype.GetContentBounds = function(CurPage)
 
 	return oBounds;
 };
+Paragraph.prototype.GetLineBounds = function(CurPage, LineCount)
+{
+	var oPage = this.Pages[CurPage];
+	if (!oPage || oPage.StartLine > oPage.EndLine)
+		return this.Get_PageBounds(CurPage).Copy();
+
+	var isJustify = (this.Get_CompiledPr2(false).ParaPr.Jc === AscCommon.align_Justify) && this.Lines.length > 1;
+
+	var oBounds = null;
+	var nLines = 0;
+	for (var CurLine = oPage.StartLine; CurLine <= oPage.EndLine && nLines < LineCount; ++CurLine, ++nLines)
+	{
+		var oLine = this.Lines[CurLine];
+
+		var Top    = oLine.Top + oPage.Y;
+		var Bottom = oLine.Bottom + oPage.Y;
+
+		var Left = null, Right = null;
+
+		for (var CurRange = 0, RangesCount = oLine.Ranges.length; CurRange < RangesCount; ++CurRange)
+		{
+			var oRange = oLine.Ranges[CurRange];
+			if (null === Left || Left > oRange.XVisible)
+				Left = oRange.XVisible;
+
+			if (isJustify)
+			{
+				if (null === Right || Right < oRange.XEnd)
+					Right = oRange.XEnd;
+			}
+			else
+			{
+				if (null === Right || Right < oRange.XVisible + oRange.W + oRange.WEnd + oRange.WBreak)
+					Right = oRange.XVisible + oRange.W + oRange.WEnd + oRange.WBreak;
+			}
+		}
+
+
+		if (!oBounds)
+		{
+			oBounds = new CDocumentBounds(Left, Top, Right, Bottom);
+		}
+		else
+		{
+			if (oBounds.Top > Top)
+				oBounds.Top = Top;
+
+			if (oBounds.Bottom < Bottom)
+				oBounds.Bottom = Bottom;
+
+			if (oBounds.Left > Left)
+				oBounds.Left = Left;
+
+			if (oBounds.Right < Right)
+				oBounds.Right = Right;
+		}
+	}
+
+	return oBounds;
+};
+
 Paragraph.prototype.Get_EmptyHeight = function()
 {
 	var Pr        = this.Get_CompiledPr();
