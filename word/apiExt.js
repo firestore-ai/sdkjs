@@ -113,7 +113,8 @@
         var oLvl    = oNum.GetLvl(nLvl);
         var arrText = oLvl.GetLvlText();
         var dKoef   = oNumTextPr.VertAlign !== AscCommon.vertalign_Baseline ? AscCommon.vaKSize : 1;
-        
+
+	let g_oTextMeasurer =  AscCommon.g_oTextMeasurer;
         g_oTextMeasurer.SetTextPr(oNumTextPr, oTheme);
         g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
 
