@@ -204,7 +204,7 @@
             X: oBounds.Left,
             Y: oBounds.Top,
             W: oNum.Width,
-            H: oNum.Height,
+            H: oBounds.Bottom - oBounds.Top,
             Transform : oParagraph.Get_ParentTextTransform()
         }
 

@@ -709,7 +709,8 @@ Paragraph.prototype.GetMulLineBounds = function(CurPage, LineCount)
 		var Bottom = oLine.Bottom + oPage.Y;
 		if (CurLine === 0) 
 		{
-			Top = oLine.Y + oPage.Y - oLine.Metrics.Ascent;
+			Top = oLine.Y + oPage.Y - oLine.Metrics.TextAscent2;
+			Bottom = oLine.Y + oPage.Y  + oLine.Metrics.Descent;
 		}
 
 		var Left = null, Right = null;
@@ -2176,6 +2177,15 @@ Paragraph.prototype.Draw = function(CurPage, pGraphics)
 	//    Рисуем верхнюю, нижнюю и промежуточную границы
 	this.Internal_Draw_6(CurPage, pGraphics, Pr);
 	
+
+	// test draw numbering 
+	let box = editor.asc_GetParagraphNumberingBoundingRect(this.Id, 1);
+	if (box) {
+		pGraphics.b_color1(255, 0, 255, 40);		
+		pGraphics.rect(box.X0, box.Y0, box.X1 - box.X0, box.Y1-box.Y0);
+		pGraphics.df();
+	}
+
 	pGraphics.End_Command();
 	
 	AscWord.ParagraphStatePool.release(drawState);
