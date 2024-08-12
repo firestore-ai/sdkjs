@@ -691,7 +691,7 @@ Paragraph.prototype.GetContentBounds = function(CurPage)
 
 	return oBounds;
 };
-Paragraph.prototype.GetLineBounds = function(CurPage, LineCount)
+Paragraph.prototype.GetMulLineBounds = function(CurPage, LineCount)
 {
 	var oPage = this.Pages[CurPage];
 	if (!oPage || oPage.StartLine > oPage.EndLine)
@@ -707,6 +707,10 @@ Paragraph.prototype.GetLineBounds = function(CurPage, LineCount)
 
 		var Top    = oLine.Top + oPage.Y;
 		var Bottom = oLine.Bottom + oPage.Y;
+		if (CurLine === 0) 
+		{
+			Top = oLine.Y + oPage.Y - oLine.Metrics.Ascent;
+		}
 
 		var Left = null, Right = null;
 

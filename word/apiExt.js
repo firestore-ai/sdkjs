@@ -117,6 +117,10 @@
 	    let g_oTextMeasurer =  AscCommon.g_oTextMeasurer;
         g_oTextMeasurer.SetTextPr(oNumTextPr, oTheme);
         g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
+        
+        let NumPr = oPara.Pr.NumPr;
+        var arrNumInfo = oPara.Parent.CalculateNumberingValues(oPara, NumPr, true) || [];
+        var oNumInfo = arrNumInfo[0] || [];
 
         var Width = 0;
     
@@ -191,7 +195,7 @@
         if (!oNum)
             return null;
 
-        var oBounds = oParagraph.GetLineBounds(oNum.Page, 1);
+        var oBounds = oParagraph.GetMulLineBounds(oNum.Page, 1);
         if (!oBounds)
             return null;                        
         
@@ -200,7 +204,7 @@
             X: oBounds.Left,
             Y: oBounds.Top,
             W: oNum.Width,
-            H: oBounds.Bottom - oBounds.Top,
+            H: oNum.Height,
             Transform : oParagraph.Get_ParentTextTransform()
         }
 
