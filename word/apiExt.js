@@ -114,7 +114,7 @@
         var arrText = oLvl.GetLvlText();
         var dKoef   = oNumTextPr.VertAlign !== AscCommon.vertalign_Baseline ? AscCommon.vaKSize : 1;
 
-	let g_oTextMeasurer =  AscCommon.g_oTextMeasurer;
+	    let g_oTextMeasurer =  AscCommon.g_oTextMeasurer;
         g_oTextMeasurer.SetTextPr(oNumTextPr, oTheme);
         g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
 
@@ -124,7 +124,8 @@
         {
             switch (arrText[nTextIndex].Type)
             {
-                case numbering_lvltext_Text:
+                //case numbering_lvltext_Text:
+                case 1:
                 {
                     let strValue  = arrText[nTextIndex].Value;
                     let codePoint = strValue.charCodeAt(0);
@@ -146,7 +147,8 @@
     
                     break;
                 }
-                case numbering_lvltext_Num:
+                //case numbering_lvltext_Num:
+                case 2:
                 {
                     g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
                     var langForTextNumbering = oNumTextPr.Lang;
