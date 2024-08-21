@@ -574,6 +574,16 @@ CopyProcessor.prototype =
 
 					let oImg = new CopyElement("img");
 					oImg.oAttributes["style"] = "max-width:100%;";
+
+					if (sSrc.blipFill && sSrc.blipFill.srcRect) 
+					{
+						let srcRect = sSrc.blipFill.srcRect;
+						if (srcRect.l > 0 || srcRect.r < 100|| srcRect.t > 0 || srcRect.b < 100) 
+						{
+							oImg.oAttributes["style"] += "clip-path: rect(" + srcRect.t + "% " + srcRect.r + "% " + srcRect.b + "% " + srcRect.l + "%);";
+						}						
+					}
+
 					if (ParaItem.DrawingType !== drawing_Inline) 
 					{
 						this.__ProcessImgPos(oImg, ParaItem);
