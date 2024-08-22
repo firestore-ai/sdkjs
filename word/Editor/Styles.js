@@ -16502,7 +16502,7 @@ CParaPr.prototype.Write_ToBinary = function(Writer)
     if (undefined !== this.SnapToGrid)
     {
         Writer.WriteBool(this.SnapToGrid);
-        Flags |= 33554432;        
+        Flags |= (1 << 26);        
     }
 
 	var EndPos = Writer.GetCurPosition();
