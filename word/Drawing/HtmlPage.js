@@ -2160,7 +2160,10 @@ function CEditorPage(api)
 		if (AscCommon.check_MouseClickOnUp())
 		{
 			if (window.g_asc_plugins)
-				window.g_asc_plugins.onPluginEvent("onClick", oWordControl.m_oLogicDocument.IsSelectionUse());
+			{
+				var keyInfo = {isSelectionUse: oWordControl.m_oLogicDocument.IsSelectionUse(),	altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey};
+				window.g_asc_plugins.onPluginEvent("onClick", keyInfo);
+			}
 		}
 	};
 
