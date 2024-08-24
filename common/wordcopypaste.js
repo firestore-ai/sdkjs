@@ -1212,6 +1212,11 @@ CopyProcessor.prototype =
         var bBorder = false;
         if(null != Pr)
         {
+			if (Pr.TableCaption && Pr.TableCaption != "")
+			{
+				this.__ProcessBiyueTag(DomTable, Pr.TableCaption);
+			}
+
 			var align = "";
             if(true != table.Inline && null != table.PositionH)
 			{
