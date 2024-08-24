@@ -458,7 +458,12 @@ var c_oSerParType = {
 	BookmarkEnd: 24,
 	MRun: 25,
 	AltChunk: 26,
-	DocParts: 27
+	DocParts: 27,
+	PermStart: 28,
+	PermEnd: 29,
+	JsaProjectExternal: 30,
+	ParaId: 31,
+	TextId: 32
 };
 var c_oSerGlossary = {
 	DocPart: 0,
@@ -11447,7 +11452,16 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
     {
         var res = c_oSerConstants.ReadOk;
         var oThis = this;
-        if ( c_oSerParType.pPr === type )
+
+		if ( c_oSerParType.ParaId === type )
+		{			
+			paragraph.paraId = this.stream.GetLongLE();		
+		}
+		else if ( c_oSerParType.textId === type )
+		{
+			paragraph.textId = this.stream.GetLongLE();		
+		}
+        else if ( c_oSerParType.pPr === type )
         {
 			var paraPr = new CParaPr();
             res = this.bpPrr.Read(length, paraPr, paragraph);
