@@ -7055,6 +7055,7 @@ CDocument.prototype.SetParagraphSnapToGrid = function(Value)
 	this.Document_UpdateSelectionState();
 	this.Document_UpdateInterfaceState();
 };
+
 CDocument.prototype.SetParagraphBorders = function(Borders)
 {
 	this.Controller.SetParagraphBorders(Borders);

@@ -42,6 +42,7 @@ AscDFH.changesFactory[AscDFH.historyitem_TableRow_TableHeader] = CChangesTableRo
 AscDFH.changesFactory[AscDFH.historyitem_TableRow_Pr]          = CChangesTableRowPr;
 AscDFH.changesFactory[AscDFH.historyitem_TableRow_PrChange]    = CChangesTableRowPrChange;
 AscDFH.changesFactory[AscDFH.historyitem_TableRow_ReviewType]  = CChangesTableRowReviewType;
+AscDFH.changesFactory[AscDFH.historyitem_TableRow_DivId]       = CChangesTableRowDivId;
 //----------------------------------------------------------------------------------------------------------------------
 // Карта зависимости изменений
 //----------------------------------------------------------------------------------------------------------------------
@@ -79,6 +80,7 @@ AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_Pr]          = [
 	AscDFH.historyitem_TableRow_CellSpacing,
 	AscDFH.historyitem_TableRow_Height,
 	AscDFH.historyitem_TableRow_TableHeader,
+	AscDFH.historyitem_TableRow_DivId,
 	AscDFH.historyitem_TableRow_Pr,
 	AscDFH.historyitem_TableRow_PrChange
 ];
@@ -88,6 +90,10 @@ AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_PrChange] = [
 ];
 AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_ReviewType] = [
 	AscDFH.historyitem_TableRow_ReviewType
+];
+AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_DivId] = [
+	AscDFH.historyitem_TableRow_DivId,
+	AscDFH.historyitem_TableRow_Pr
 ];
 /**
  * Общая функция объединения изменений, которые зависят только от себя и AscDFH.historyitem_TableRow_Pr
@@ -864,3 +870,23 @@ CChangesTableRowReviewType.prototype.private_SetValue = function(Value)
 	oTableRow.updateTrackRevisions();
 };
 CChangesTableRowReviewType.prototype.CheckLock = private_TableChangesCheckLock;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesTableRowDivId}
+ */
+function CChangesTableRowDivId(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseLongProperty.call(this, Class, Old, New, Color);
+}
+CChangesTableRowDivId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
+CChangesTableRowDivId.prototype.constructor = CChangesTableRowDivId;
+CChangesTableRowDivId.prototype.Type = AscDFH.historyitem_Paragraph_SnapToGrid;
+CChangesTableRowDivId.prototype.private_SetValue = function(Value)
+{
+	var oTableRow = this.Class;
+	oTableRow.Pr.DivId = Value;
+
+	oTableRow.updateTrackRevisions();
+};
+CChangesTableRowDivId.prototype.Merge = private_TableRowChangesOnMergePr;
+CChangesTableRowDivId.prototype.CheckLock = private_TableChangesCheckLock;

@@ -282,7 +282,8 @@ var c_oSerProp_pPrType = {
 	SuppressLineNumbers: 44,
 	CnfStyle: 45,
 	SnapToGrid: 46,
-	Bidi: 47
+	Bidi: 47,
+	DivId: 48
 };
 var c_oSerProp_rPrType = {
     Bold:0,
@@ -2458,6 +2459,12 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 			this.memory.WriteByte(c_oSerPropLenType.Long);
 			this.memory.WriteLong(pPr.OutlineLvl);
 		}
+		if(null != pPr.DivId)
+		{
+			this.memory.WriteByte(c_oSerProp_pPrType.DivId);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(pPr.DivId);
+		}
 		if(null != pPr.SuppressLineNumbers)
 		{
 			this.memory.WriteByte(c_oSerProp_pPrType.SuppressLineNumbers);
@@ -4625,6 +4632,13 @@ Binary_tblPrWriter.prototype =
             this.memory.WriteByte(c_oSerPropLenType.Byte);
             this.memory.WriteBool(rowPr.CantSplit);
         }
+		//DivId
+		if(null != rowPr.DivId)
+		{
+			this.memory.WriteByte(c_oSerProp_rowPrType.DivId);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(rowPr.DivId);
+		}
         //After
         if(null != rowPr.GridAfter || null != rowPr.WAfter)
         {
@@ -9235,12 +9249,15 @@ function Binary_pPrReader(doc, oReadResult, stream)
 			case c_oSerProp_pPrType.outlineLvl:
 				pPr.OutlineLvl = this.stream.GetLongLE();
 				break;
+			case c_oSerProp_pPrType.DivId:
+				pPr.DivId = this.stream.GetLongLE();
+				break;
 			case c_oSerProp_pPrType.SuppressLineNumbers:
 				pPr.SuppressLineNumbers = this.stream.GetBool();
 				break;
 			case c_oSerProp_pPrType.SnapToGrid:
 				pPr.SnapToGrid = this.stream.GetBool();
-				break;
+				break;			
             default:
                 res = c_oSerConstants.ReadUnknown;
                 break;
@@ -10566,6 +10583,10 @@ Binary_tblPrReader.prototype =
         {
             Pr.CantSplit = (this.stream.GetUChar() != 0);
         }
+		else if ( c_oSerProp_rowPrType.DivId === type )
+		{
+			Pr.DivId = this.stream.GetLongLE();
+		}
         else if( c_oSerProp_rowPrType.After === type )
         {
             res = this.bcr.Read2(length, function(t, l){

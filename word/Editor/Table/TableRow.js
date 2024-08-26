@@ -1028,6 +1028,15 @@ CTableRow.prototype.SetHeader = function(isHeader)
 	this.Recalc_CompiledPr();
 	this.RecalcCopiledPrCells();
 };
+CTableRow.prototype.SetDivId = function(Value)
+{
+	if (Value === this.Pr.DivId) 
+		return;
+	
+	this.private_AddPrChange
+	AscCommon.History.Add(new CChangesTableRowDivId(this, this.Pr.DivId, Value));
+	this.DivId = Value;	
+};
 /**
  * Пересчитываем рассчитанные настройки для ячеек
  */

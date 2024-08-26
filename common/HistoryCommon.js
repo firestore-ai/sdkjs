@@ -257,8 +257,11 @@
 				sString = "Document_SetParagraphWidowControl";
 				break;
 			case AscDFH.historydescription_Document_SetParagraphSnapToGrid             :
-					sString = "Document_SetParagraphSnapToGrid";
-					break;
+				sString = "Document_SetParagraphSnapToGrid";
+				break;			
+			case AscDFH.historydescription_Document_SetDivId:
+				sString = "Document_SetDivId";
+				break;
 			case AscDFH.historydescription_Document_SetParagraphKeepLines              :
 				sString = "Document_SetParagraphKeepLines";
 				break;
@@ -1292,10 +1295,15 @@
 				break;
 			case AscDFH.historydescription_Document_ComplexField_MergeFormat:
 				sString = "Document_ComplexField_MergeFormat";
+				break;
 			case AscDFH.historydescription_Document_SetParagraphSnapToGrid:
 				sString = "Document_SetParagraphSnapToGrid";
+				break;
 			case AscDFH.historydescription_Document_SetCustomXml:
 				sString = "Document_SetCustomXml";
+				break;
+			case AscDFH.historydescription_Document_SetDivId:
+				sString = "Document_SetDivId";
 				break;
 			case AscDFH.historydescription_Presentation_ResetSlideBackground:
 				sString = "historydescription_Presentation_ResetSlideBackground";
@@ -1833,6 +1841,7 @@
 	window['AscDFH'].historyitem_Paragraph_Shd_Fill                  = window['AscDFH'].historyitem_type_Paragraph | 40;
 	window['AscDFH'].historyitem_Paragraph_Shd_ThemeFill             = window['AscDFH'].historyitem_type_Paragraph | 41;
 	window['AscDFH'].historyitem_Paragraph_SnapToGrid                = window['AscDFH'].historyitem_type_Paragraph | 46;
+	window['AscDFH'].historyitem_Paragraph_DivId                     = window['AscDFH'].historyitem_type_Paragraph | 47;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaTextPr
 	//------------------------------------------------------------------------------------------------------------------
@@ -1941,6 +1950,7 @@
 	window['AscDFH'].historyitem_TableRow_Pr          = window['AscDFH'].historyitem_type_TableRow | 8;
 	window['AscDFH'].historyitem_TableRow_PrChange    = window['AscDFH'].historyitem_type_TableRow | 9;
 	window['AscDFH'].historyitem_TableRow_ReviewType  = window['AscDFH'].historyitem_type_TableRow | 10;
+	window['AscDFH'].historyitem_TableRow_DivId       = window['AscDFH'].historyitem_type_TableRow | 11;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе CTableCell
 	//------------------------------------------------------------------------------------------------------------------
@@ -4519,8 +4529,9 @@
 	window['AscDFH'].historydescription_Document_AddRemoveBeforeAfterParagraph      = 0x01b0;
 	window['AscDFH'].historydescription_Document_SectionPageNumFormat               = 0x01b1;
 	window['AscDFH'].historydescription_Document_SetPageColor                       = 0x01b2;
-        window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01b3;
-	window['AscDFH'].historydescription_Document_SetCustomXml			= 0x01b4;
+    window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01b3;
+	window['AscDFH'].historydescription_Document_SetCustomXml						= 0x01b4;
+	window['AscDFH'].historydescription_Document_SetDivId				            = 0x01b5;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

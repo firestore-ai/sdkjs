@@ -2684,6 +2684,7 @@ function (window, undefined) {
 			this.KeepNext = (undefined != obj.KeepNext) ? obj.KeepNext : undefined;
 			this.WidowControl = (undefined != obj.WidowControl ? obj.WidowControl : undefined );
 			this.SnapToGrid = (undefined != obj.SnapToGrid ? obj.SnapToGrid : undefined );
+			this.DivId = (undefined != obj.DivId ? obj.DivId : undefined );
 			this.PageBreakBefore = (undefined != obj.PageBreakBefore) ? obj.PageBreakBefore : null;
 			this.Spacing = (undefined != obj.Spacing && null != obj.Spacing) ? new asc_CParagraphSpacing(obj.Spacing) : null;
 			this.Brd = (undefined != obj.Brd && null != obj.Brd) ? new asc_CParagraphBorders(obj.Brd) : null;
@@ -2747,6 +2748,7 @@ function (window, undefined) {
 			this.KeepNext = undefined;
 			this.WidowControl = undefined;
 			this.SnapToGrid = undefined;
+			this.DivId = undefined;
 			this.PageBreakBefore = undefined;
 			this.Spacing = new asc_CParagraphSpacing();
 			this.Brd = undefined;
@@ -2931,6 +2933,12 @@ function (window, undefined) {
 	asc_CParagraphProperty.prototype.asc_getSnapToGrid = function() {
 			return this.SnapToGrid;
 	};	
+	asc_CParagraphProperty.prototype.asc_getDivId = function() {
+		return this.DivId;
+	}
+	asc_CParagraphProperty.prototype.asc_putDivId = function(divId) {
+		this.DivId = divId;
+	}	
 	asc_CParagraphProperty.prototype.asc_getSuppressLineNumbers = function () {
 		return this.SuppressLineNumbers;
 	};
@@ -6366,6 +6374,8 @@ function (window, undefined) {
 	prot["put_SuppressLineNumbers"] = prot["asc_putSuppressLineNumbers"] = prot.asc_putSuppressLineNumbers;
 	prot["get_SnapToGrid"] = prot["asc_getSnapToGrid"]  = prot.asc_getSnapToGrid;
 	prot["put_SnapToGrid"] = prot["asc_putSnapToGrid"]  = prot.asc_putSnapToGrid;
+	prot["get_DivId"] = prot["asc_getDivId"] = prot.asc_getDivId;
+	prot["put_DivId"] = prot["asc_putDivId"] = prot.asc_putDivId;
 	prot["put_Bullet"] = prot["asc_putBullet"] = prot.asc_putBullet;
 	prot["get_Bullet"] = prot["asc_getBullet"] = prot.asc_getBullet;
 	prot["put_BulletSize"] = prot["asc_putBulletSize"] = prot.asc_putBulletSize;
