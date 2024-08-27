@@ -11712,6 +11712,22 @@ Paragraph.prototype.Set_DivId = function(Value)
 		this.private_UpdateTrackRevisionOnChangeParaPr(false);
 	}
 };
+Paragraph.prototype.SetParaId = function(Value)
+{
+	if (Value != this.ParaId)
+	{
+		AscCommon.History.Add(new CChangesParagraphParaId(this, this.ParaId, Value));
+		this.ParaId = Value;
+	}
+}
+Paragraph.prototype.SetTextId = function(Value)
+{
+	if (Value != this.TextId)
+	{
+		AscCommon.History.Add(new CChangesParagraphTextId(this, this.TextId, Value));
+		this.TextId = Value;
+	}
+}
 Paragraph.prototype.Set_Borders = function(Borders)
 {
 	if (undefined === Borders)

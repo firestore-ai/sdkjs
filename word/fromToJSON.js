@@ -3725,8 +3725,8 @@
 			"trPrChange":     this.SerTableRowPr(oPr.PrChange),
 			"wAfter":         this.SerTableMeasurement(oPr.WAfter),
 			"wBefore":        this.SerTableMeasurement(oPr.WBefore),
-			"type":           "tableRowPr",
 			"divId":          oPr.DivId,
+			"type":           "tableRowPr"			
 		}
 	};
 	WriterToJSON.prototype.SerDocBorder = function(oBorder)

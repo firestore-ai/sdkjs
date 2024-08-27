@@ -1842,6 +1842,8 @@
 	window['AscDFH'].historyitem_Paragraph_Shd_ThemeFill             = window['AscDFH'].historyitem_type_Paragraph | 41;
 	window['AscDFH'].historyitem_Paragraph_SnapToGrid                = window['AscDFH'].historyitem_type_Paragraph | 46;
 	window['AscDFH'].historyitem_Paragraph_DivId                     = window['AscDFH'].historyitem_type_Paragraph | 47;
+	window['AscDFH'].historyitem_Paragraph_ParaId                    = window['AscDFH'].historyitem_type_Paragraph | 48;
+	window['AscDFH'].historyitem_Paragraph_TextId                    = window['AscDFH'].historyitem_type_Paragraph | 49;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaTextPr
 	//------------------------------------------------------------------------------------------------------------------
@@ -1951,6 +1953,8 @@
 	window['AscDFH'].historyitem_TableRow_PrChange    = window['AscDFH'].historyitem_type_TableRow | 9;
 	window['AscDFH'].historyitem_TableRow_ReviewType  = window['AscDFH'].historyitem_type_TableRow | 10;
 	window['AscDFH'].historyitem_TableRow_DivId       = window['AscDFH'].historyitem_type_TableRow | 11;
+	window['AscDFH'].historyitem_TableRow_ParaId      = window['AscDFH'].historyitem_type_TableRow | 12;
+	window['AscDFH'].historyitem_TableRow_TextId      = window['AscDFH'].historyitem_type_TableRow | 13;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе CTableCell
 	//------------------------------------------------------------------------------------------------------------------

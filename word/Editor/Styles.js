@@ -11198,8 +11198,8 @@ CTableRowPr.prototype.Is_Equal = function(RowPr)
 		|| true !== IsEqualStyleObjects(this.Height, RowPr.Height)
 		|| true !== IsEqualStyleObjects(this.WAfter, RowPr.WAfter)
 		|| true !== IsEqualStyleObjects(this.WBefore, RowPr.WBefore)
-		|| this.TableHeader !== RowPr.TableHeader
-        || this.DivId !== RowPr.DivId)
+        || this.DivId !== RowPr.DivId
+		|| this.TableHeader !== RowPr.TableHeader)
 		return false;
 
 	return true;

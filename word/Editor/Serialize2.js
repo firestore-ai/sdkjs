@@ -500,7 +500,8 @@ var c_oSerDocTableType = {
 	MoveFromRangeStart: 14,
 	MoveFromRangeEnd: 15,
 	MoveToRangeStart: 16,
-	MoveToRangeEnd: 17
+	MoveToRangeEnd: 17,
+	Row_ParaId: 18,
 };
 var c_oSerRunType = {
     run:0,
@@ -5355,6 +5356,15 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 				}
 			}
         }
+		if (null != par.ParaId)
+		{
+		 	this.memory.WriteByte(c_oSerParType.ParaId);
+		 	this.bs.WriteItemWithLength(function(){
+		 		oThis.memory.WriteLong(par.ParaId);
+		 		oThis.memory.WriteLong(par.TextId || par.ParaId);
+		 	});
+		}
+
         //pPr
         var ParaStyle = par.Style_Get();
         var pPr = par.Pr;
@@ -6487,6 +6497,14 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
     this.WriteRow = function(Row, nRowIndex, oRowElem)
     {
         var oThis = this;
+		if (null != Row.ParaId)
+		{
+			this.memory.WriteByte(c_oSerDocTableType.Row_ParaId);
+			this.bs.WriteItemWithLength(function(){
+				oThis.memory.WriteLong(Row.ParaId);
+				oThis.memory.WriteLong(Row.TextId || Row.ParaId);
+			});
+		}
         //Pr
         if(null != Row.Pr)
         {
@@ -11476,11 +11494,9 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
 
 		if ( c_oSerParType.ParaId === type )
 		{			
-			paragraph.paraId = this.stream.GetLongLE();		
-		}
-		else if ( c_oSerParType.textId === type )
-		{
-			paragraph.textId = this.stream.GetLongLE();		
+			this.stream.Skip(4);
+			paragraph.ParaId = this.stream.GetLongLE();				
+			paragraph.TextId = this.stream.GetLongLE();		
 		}
         else if ( c_oSerParType.pPr === type )
         {
@@ -12888,6 +12904,11 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
                 return oThis.ReadRowContent(t, l, Row);
             });
         }
+		else if (c_oSerDocTableType.Row_ParaId === type) {
+			this.stream.Skip(4);
+			Row.ParaId = this.stream.GetLongLE();
+			Row.TextId = this.stream.GetLongLE();
+		}
         else
             res = c_oSerConstants.ReadUnknown;
         return res;

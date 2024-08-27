@@ -74,6 +74,9 @@ AscDFH.changesFactory[AscDFH.historyitem_Paragraph_DefaultTabSize]            = 
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_SuppressLineNumbers]       = CChangesParagraphSuppressLineNumbers;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_Fill]                  = CChangesParagraphShdFill;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_ThemeFill]             = CChangesParagraphShdThemeFill;
+AscDFH.changesFactory[AscDFH.historyitem_Paragraph_DivId]                     = CChangesParagraphDivId;
+AscDFH.changesFactory[AscDFH.historyitem_Paragraph_ParaId]                    = CChangesParagraphParaId;
+AscDFH.changesFactory[AscDFH.historyitem_Paragraph_TextId]                    = CChangesParagraphTextId;
 
 function private_ParagraphChangesOnLoadPr(oColor)
 {
@@ -1175,7 +1178,7 @@ function CChangesParagraphDivId(Class, Old, New, Color)
 }
 CChangesParagraphDivId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
 CChangesParagraphDivId.prototype.constructor = CChangesParagraphDivId;
-CChangesParagraphDivId.prototype.Type = AscDFH.historyitem_Paragraph_SnapToGrid;
+CChangesParagraphDivId.prototype.Type = AscDFH.historyitem_Paragraph_DivId;
 CChangesParagraphDivId.prototype.private_SetValue = function(Value)
 {
 	var oParagraph = this.Class;
@@ -1186,6 +1189,40 @@ CChangesParagraphDivId.prototype.private_SetValue = function(Value)
 CChangesParagraphDivId.prototype.Merge = private_ParagraphChangesOnMergePr;
 CChangesParagraphDivId.prototype.Load = private_ParagraphChangesOnLoadPr;
 CChangesParagraphDivId.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesParagraphParaId}
+ */
+function CChangesParagraphParaId(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseLongProperty.call(this, Class, Old, New, Color);
+}
+CChangesParagraphParaId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
+CChangesParagraphParaId.prototype.constructor = CChangesParagraphParaId;
+CChangesParagraphParaId.prototype.Type = AscDFH.historyitem_Paragraph_ParaId;
+CChangesParagraphParaId.prototype.private_SetValue = function(Value)
+{
+	var oParagraph = this.Class;
+	oParagraph.ParaId = Value;
+};
+CChangesParagraphParaId.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesParagraphTextId}
+ */
+function CChangesParagraphTextId(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseLongProperty.call(this, Class, Old, New, Color);
+}
+CChangesParagraphTextId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
+CChangesParagraphTextId.prototype.constructor = CChangesParagraphTextId;
+CChangesParagraphTextId.prototype.Type = AscDFH.historyitem_Paragraph_TextId;
+CChangesParagraphTextId.prototype.private_SetValue = function(Value)
+{
+	var oParagraph = this.Class;
+	oParagraph.TextId = Value;
+};
+CChangesParagraphTextId.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
 /**
  * @constructor
  * @extends {AscDFH.CChangesBaseObjectProperty}
