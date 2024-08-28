@@ -348,6 +348,7 @@
     {
         if (this.m_aChanges.length > 0)
         {
+            console.log("Apply_Changes cnt=", this.m_aChanges.length);
             this.GetEditorApi().sendEvent("asc_onBeforeApplyChanges");
             AscFonts.IsCheckSymbols = true;
             editor.WordControl.m_oLogicDocument.PauseRecalculate();

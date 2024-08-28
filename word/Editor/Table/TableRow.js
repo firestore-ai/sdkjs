@@ -1028,6 +1028,33 @@ CTableRow.prototype.SetHeader = function(isHeader)
 	this.Recalc_CompiledPr();
 	this.RecalcCopiledPrCells();
 };
+CTableRow.prototype.SetDivId = function(Value)
+{
+	if (Value === this.Pr.DivId) 
+		return;
+	
+	this.private_AddPrChange();
+	AscCommon.History.Add(new CChangesTableRowDivId(this, this.Pr.DivId, Value));
+	this.DivId = Value;	
+};
+CTableRow.prototype.SetParaId = function(Value)
+{
+	if (Value === this.ParaId) 
+		return;
+		
+	AscCommon.History.Add(new CChangesTableRowParaId(this, this.ParaId, Value));
+	this.ParaId = Value;	
+};
+CTableRow.prototype.SetTextId = function(Value)
+{
+	if (Value === this.TextId) 
+		return;
+	
+	AscCommon.History.Add(new CChangesTableRowTextId(this, this.TextId, Value));
+	this.TextId = Value;	
+};
+
+
 /**
  * Пересчитываем рассчитанные настройки для ячеек
  */

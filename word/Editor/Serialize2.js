@@ -282,7 +282,8 @@ var c_oSerProp_pPrType = {
 	SuppressLineNumbers: 44,
 	CnfStyle: 45,
 	SnapToGrid: 46,
-	Bidi: 47
+	Bidi: 47,
+	DivId: 48
 };
 var c_oSerProp_rPrType = {
     Bold:0,
@@ -458,7 +459,12 @@ var c_oSerParType = {
 	BookmarkEnd: 24,
 	MRun: 25,
 	AltChunk: 26,
-	DocParts: 27
+	DocParts: 27,
+	PermStart: 28,
+	PermEnd: 29,
+	JsaProjectExternal: 30,
+	ParaId: 31,
+	TextId: 32
 };
 var c_oSerGlossary = {
 	DocPart: 0,
@@ -494,7 +500,8 @@ var c_oSerDocTableType = {
 	MoveFromRangeStart: 14,
 	MoveFromRangeEnd: 15,
 	MoveToRangeStart: 16,
-	MoveToRangeEnd: 17
+	MoveToRangeEnd: 17,
+	Row_ParaId: 18,
 };
 var c_oSerRunType = {
     run:0,
@@ -2452,6 +2459,12 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 			this.memory.WriteByte(c_oSerProp_pPrType.outlineLvl);
 			this.memory.WriteByte(c_oSerPropLenType.Long);
 			this.memory.WriteLong(pPr.OutlineLvl);
+		}
+		if(null != pPr.DivId)
+		{
+			this.memory.WriteByte(c_oSerProp_pPrType.DivId);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(pPr.DivId);
 		}
 		if(null != pPr.SuppressLineNumbers)
 		{
@@ -4620,6 +4633,13 @@ Binary_tblPrWriter.prototype =
             this.memory.WriteByte(c_oSerPropLenType.Byte);
             this.memory.WriteBool(rowPr.CantSplit);
         }
+		//DivId
+		if(null != rowPr.DivId)
+		{
+			this.memory.WriteByte(c_oSerProp_rowPrType.DivId);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(rowPr.DivId);
+		}
         //After
         if(null != rowPr.GridAfter || null != rowPr.WAfter)
         {
@@ -5336,6 +5356,15 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 				}
 			}
         }
+		if (null != par.ParaId)
+		{
+		 	this.memory.WriteByte(c_oSerParType.ParaId);
+		 	this.bs.WriteItemWithLength(function(){
+		 		oThis.memory.WriteLong(par.ParaId);
+		 		oThis.memory.WriteLong(par.TextId || par.ParaId);
+		 	});
+		}
+
         //pPr
         var ParaStyle = par.Style_Get();
         var pPr = par.Pr;
@@ -6468,6 +6497,14 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
     this.WriteRow = function(Row, nRowIndex, oRowElem)
     {
         var oThis = this;
+		if (null != Row.ParaId)
+		{
+			this.memory.WriteByte(c_oSerDocTableType.Row_ParaId);
+			this.bs.WriteItemWithLength(function(){
+				oThis.memory.WriteLong(Row.ParaId);
+				oThis.memory.WriteLong(Row.TextId || Row.ParaId);
+			});
+		}
         //Pr
         if(null != Row.Pr)
         {
@@ -9230,12 +9267,15 @@ function Binary_pPrReader(doc, oReadResult, stream)
 			case c_oSerProp_pPrType.outlineLvl:
 				pPr.OutlineLvl = this.stream.GetLongLE();
 				break;
+			case c_oSerProp_pPrType.DivId:
+				pPr.DivId = this.stream.GetLongLE();
+				break;
 			case c_oSerProp_pPrType.SuppressLineNumbers:
 				pPr.SuppressLineNumbers = this.stream.GetBool();
 				break;
 			case c_oSerProp_pPrType.SnapToGrid:
 				pPr.SnapToGrid = this.stream.GetBool();
-				break;
+				break;			
             default:
                 res = c_oSerConstants.ReadUnknown;
                 break;
@@ -10561,6 +10601,10 @@ Binary_tblPrReader.prototype =
         {
             Pr.CantSplit = (this.stream.GetUChar() != 0);
         }
+		else if ( c_oSerProp_rowPrType.DivId === type )
+		{
+			Pr.DivId = this.stream.GetLongLE();
+		}
         else if( c_oSerProp_rowPrType.After === type )
         {
             res = this.bcr.Read2(length, function(t, l){
@@ -11447,7 +11491,14 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
     {
         var res = c_oSerConstants.ReadOk;
         var oThis = this;
-        if ( c_oSerParType.pPr === type )
+
+		if ( c_oSerParType.ParaId === type )
+		{			
+			this.stream.Skip(4);
+			paragraph.ParaId = this.stream.GetLongLE();				
+			paragraph.TextId = this.stream.GetLongLE();		
+		}
+        else if ( c_oSerParType.pPr === type )
         {
 			var paraPr = new CParaPr();
             res = this.bpPrr.Read(length, paraPr, paragraph);
@@ -12853,6 +12904,11 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
                 return oThis.ReadRowContent(t, l, Row);
             });
         }
+		else if (c_oSerDocTableType.Row_ParaId === type) {
+			this.stream.Skip(4);
+			Row.ParaId = this.stream.GetLongLE();
+			Row.TextId = this.stream.GetLongLE();
+		}
         else
             res = c_oSerConstants.ReadUnknown;
         return res;

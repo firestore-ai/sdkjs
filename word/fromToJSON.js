@@ -3725,7 +3725,8 @@
 			"trPrChange":     this.SerTableRowPr(oPr.PrChange),
 			"wAfter":         this.SerTableMeasurement(oPr.WAfter),
 			"wBefore":        this.SerTableMeasurement(oPr.WBefore),
-			"type":           "tableRowPr"
+			"divId":          oPr.DivId,
+			"type":           "tableRowPr"			
 		}
 	};
 	WriterToJSON.prototype.SerDocBorder = function(oBorder)
@@ -16536,6 +16537,8 @@
 				oResult["numPr"] = WriterToJSON.prototype.SerNumPr(this.NumPr);
 			if (this.OutlineLvl != null)
 				oResult["outlineLvl"] = this.OutlineLvl;
+			if (this.DivId != null) 
+				oResult["divId"] = this.DivId;
 			if (this.PageBreakBefore != null)
 				oResult["pageBreakBefore"] = this.PageBreakBefore;
 			if (this.SuppressLineNumbers != null)
@@ -16724,6 +16727,8 @@
 				this.KeepNext = oParsedJson["keepNext"];
 			if (oParsedJson["outlineLvl"] != null)
 				this.OutlineLvl = oParsedJson["outlineLvl"];
+			if (oParsedJson["divId"] != null)
+				this.DivId = oParsedJson["divId"];
 			if (oParsedJson["pBdr"])
 			{
 				if (oParsedJson["pBdr"]["between"] != null)

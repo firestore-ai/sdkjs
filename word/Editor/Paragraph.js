@@ -11701,6 +11701,33 @@ Paragraph.prototype.Set_SnapToGrid = function(Value)
 		this.private_UpdateTrackRevisionOnChangeParaPr(true);
 	}
 };
+Paragraph.prototype.Set_DivId = function(Value)
+{
+	if (Value != this.Pr.DivId)
+	{
+		this.private_AddPrChange();
+		AscCommon.History.Add(new CChangesParagraphDivId(this, this.Pr.DivId, Value));
+		this.Pr.DivId = Value;
+
+		this.private_UpdateTrackRevisionOnChangeParaPr(false);
+	}
+};
+Paragraph.prototype.SetParaId = function(Value)
+{
+	if (Value != this.ParaId)
+	{
+		AscCommon.History.Add(new CChangesParagraphParaId(this, this.ParaId, Value));
+		this.ParaId = Value;
+	}
+}
+Paragraph.prototype.SetTextId = function(Value)
+{
+	if (Value != this.TextId)
+	{
+		AscCommon.History.Add(new CChangesParagraphTextId(this, this.TextId, Value));
+		this.TextId = Value;
+	}
+}
 Paragraph.prototype.Set_Borders = function(Borders)
 {
 	if (undefined === Borders)
