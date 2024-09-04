@@ -7513,6 +7513,44 @@
 
 		return private_GetSupportedParaElement(this.Paragraph.Content[nPos]);
 	};
+	ApiParagraph.prototype.private_GetDataComment = function()
+	{
+		for (var i = 0; i < this.Paragraph.Content.length; i++)
+		{
+			var oElement = this.Paragraph.Content[i];
+			if (oElement.Type === para_Comment)
+			{
+				var oDocument = new ApiDocument(private_GetLogicDocument());				
+				var oComment = oDocument.GetCommentById(oElement.CommentId);
+				if (oComment && oComment.GetText() && oComment.GetText().startsWith("data:#"))
+				{
+					return oComment;					
+				}
+			}
+		}
+	}
+	ApiParagraph.prototype.GetDataComment = function()
+	{
+		var oComment = this.private_GetDataComment();
+		if (oComment)
+			return oComment.GetText().substr(6);
+		return null;
+	}
+
+	ApiParagraph.prototype.SetDataComment = function(id)
+	{
+		var oComment = this.private_GetDataComment();
+		if (oComment !== undefined)
+		{
+			oComment.SetText("data:#" + id);			
+			return;
+		}	
+
+		var oComment = this.AddComment("data:#" + id, "BIYUE", 1);		
+		oComment.SetSolved(true);
+		return oComment
+	}
+
 	/**
 	 * Removes an element using the position specified.
 	 * <note>If the element you remove is the last paragraph element (i.e. all the elements are removed from the paragraph),
@@ -20465,6 +20503,8 @@
 	ApiParagraph.prototype["AddInlineLvlSdt"]        = ApiParagraph.prototype.AddInlineLvlSdt;
 	ApiParagraph.prototype["Copy"]                   = ApiParagraph.prototype.Copy;
 	ApiParagraph.prototype["AddComment"]             = ApiParagraph.prototype.AddComment;
+	ApiParagraph.prototype["SetDataComment"]         = ApiParagraph.prototype.SetDataComment;
+	ApiParagraph.prototype["GetDataComment"]         = ApiParagraph.prototype.GetDataComment;
 	ApiParagraph.prototype["AddHyperlink"]           = ApiParagraph.prototype.AddHyperlink;
 	ApiParagraph.prototype["GetRange"]               = ApiParagraph.prototype.GetRange;
 	ApiParagraph.prototype["Push"]                   = ApiParagraph.prototype.Push;
