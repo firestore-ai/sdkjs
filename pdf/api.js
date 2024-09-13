@@ -471,8 +471,14 @@
 		let docContent = textController.GetDocContent();
 		let result = textController.EnterText(codePoints);
 		
-		if (null == drController.getTargetTextObject()) {
-			drController.selection.textSelection = textController;
+		if (null == drController.getTargetTextObject() && false == textController.IsForm()) {
+			if (textController.IsAnnot() && textController.IsFreeText()) {
+				drController.selection.groupSelection = textController;
+				textController.selection.textSelection = textController.GetTextBoxShape()
+			}
+			else {
+				drController.selection.textSelection = textController;
+			}
 		}
 
 		drDoc.showTarget(true);
@@ -499,6 +505,7 @@
 			return oSmartArt;
 		});
 	};
+	PDFEditorApi.prototype.asc_undoAllChanges = function() {};
 	PDFEditorApi.prototype.asc_addChartDrawingObject = function(chartBinary, Placeholder) {
 		let oDoc	= this.getPDFDoc();
 		let oViewer	= this.getDocumentRenderer();
@@ -568,7 +575,9 @@
 	PDFEditorApi.prototype.asc_GetSelectedText = function(bClearText, select_Pr) {
 		if (!this.DocumentRenderer)
 			return "";
-
+		
+		bClearText = (bClearText === true);
+		
 		let oDoc		= this.getPDFDoc();
 		let oTxObject	= oDoc.getTextController();
 		let textObj		= {Text : ""};
@@ -581,7 +590,7 @@
 			this.DocumentRenderer.Copy(textObj);
 		}
 		
-		if (textObj.Text.trim() === "")
+		if (!textObj.Text || textObj.Text.trim() === "")
 			return "";
 		
 		return textObj.Text;
@@ -1202,10 +1211,12 @@
 	};
 	PDFEditorApi.prototype.remTable = function() {
 		let oDoc = this.getPDFDoc();
-		let oGrFrame = oDoc.SelectTable(c_oAscTableSelectionType.Table);
+		let oObject = oDoc.GetActiveObject();
 		
-		if (oGrFrame) {
-			oDoc.RemoveDrawing(oGrFrame.GetId());
+		if (oObject && oObject.IsDrawing() && oObject.IsGraphicFrame()) {
+			oDoc.CreateNewHistoryPoint();
+			oDoc.RemoveDrawing(oObject.GetId());
+			oDoc.TurnOffHistory();
 			return true;
 		}
 
@@ -2374,6 +2385,7 @@
 	PDFEditorApi.prototype['asc_AddPage']                  = PDFEditorApi.prototype.asc_AddPage;
 	PDFEditorApi.prototype['asc_RemovePage']			   = PDFEditorApi.prototype.asc_RemovePage;
 	PDFEditorApi.prototype['asc_createSmartArt']		   = PDFEditorApi.prototype.asc_createSmartArt;
+	PDFEditorApi.prototype['asc_undoAllChanges']		   = PDFEditorApi.prototype.asc_undoAllChanges;
 
 	PDFEditorApi.prototype['asc_setSkin']                  = PDFEditorApi.prototype.asc_setSkin;
 	PDFEditorApi.prototype['asc_getAnchorPosition']        = PDFEditorApi.prototype.asc_getAnchorPosition;
@@ -2391,8 +2403,8 @@
 	PDFEditorApi.prototype['Paste']                        = PDFEditorApi.prototype.Paste;
 	PDFEditorApi.prototype['asc_PasteData']                = PDFEditorApi.prototype.asc_PasteData;
 
-	PDFEditorApi.prototype['getSelectionState']            = PDFEditorApi.prototype.Paste;
-	PDFEditorApi.prototype['getSpeechDescription']         = PDFEditorApi.prototype.asc_PasteData;
+	PDFEditorApi.prototype['getSelectionState']            = PDFEditorApi.prototype.getSelectionState;
+	PDFEditorApi.prototype['getSpeechDescription']         = PDFEditorApi.prototype.getSpeechDescription;
 
 	PDFEditorApi.prototype['asc_ShowDocumentOutline']      = PDFEditorApi.prototype.asc_ShowDocumentOutline;
 	PDFEditorApi.prototype['asc_HideDocumentOutline']      = PDFEditorApi.prototype.asc_HideDocumentOutline;

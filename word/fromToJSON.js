@@ -10423,7 +10423,7 @@
 		{
 			if (oParsedNumPr["numId"] === oPrevNumIdInfo.nNumId && oPrevNumIdInfo.sPrevCreatedNumId)
 			{
-				return new CNumPr(oPrevNumIdInfo.sPrevCreatedNumId, oParsedNumPr["ilvl"]);
+				return new AscWord.NumPr(oPrevNumIdInfo.sPrevCreatedNumId, oParsedNumPr["ilvl"]);
 			}
 		}
 		
@@ -10439,12 +10439,11 @@
 			oPrevNumIdInfo.sPrevCreatedNumId = sNumId;
 			oPrevNumIdInfo.nNumId = oParsedNumPr["numId"];
 		}
-
-		var oNumPr = new CNumPr(sNumId, nNumLvl);
+		
 		if (nNumLvl == null)
-			oNumPr.Lvl = undefined;
+			nNumLvl = undefined;
 
-		return oNumPr;
+		return new AscWord.NumPr(sNumId, nNumLvl);
 	};
 	ReaderFromJSON.prototype.ParaSpacingFromJSON = function(oParsedSpacing)
 	{

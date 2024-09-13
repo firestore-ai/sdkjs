@@ -1050,7 +1050,7 @@
 
 		if (AscCommon.AscBrowser.isChrome)
 		{
-			var rectObject = _elemSrc.getBoundingClientRect();
+			var rectObject = AscCommon.UI.getBoundingClientRect(_elemSrc);
 			this.FixedPosCheckElementX = rectObject.left;
 			this.FixedPosCheckElementY = rectObject.top;
 		}
@@ -1210,6 +1210,12 @@
 		{
 			if (this.Api.isRestrictionView() && !this.Api.isRestrictionForms() && !this.Api.isPdfEditor())
 			{
+				this.isDisableKeyboard = true;
+			}
+
+			if (this.Api.isPdfEditor() && this.Api.isMobileVersion)
+			{
+				// temporary
 				this.isDisableKeyboard = true;
 			}
 		}
