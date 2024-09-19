@@ -21,8 +21,6 @@ var g_oTextMeasurer = AscCommon.g_oTextMeasurer;
 var History = AscCommon.History;
 var c_oAscRevisionsChangeType = Asc.c_oAscRevisionsChangeType;
 
-const para_Ruby = 0x0000000A;
-
 /**
  * 创建一个新的 Ruby 属性对象
  * @constructor
@@ -91,10 +89,10 @@ CRubyPr.prototype.Read_FromBinary = function (Reader)
  * @constructor
  * @extends {CParagraphContentWithParagraphLikeContent}
  */
-function ParaRuby() {
-    CParagraphContentWithParagraphLikeContent.call(this);
+function ParaRuby(documentContent, Parent) {
+    AscWord.CRunElementBase.call(this);
 
-    this.Id                 = AscCommon.g_oIdCounter.GetNewId();
+    this.Id                 = AscCommon.g_oIdCounter.Get_NewId();
     this.Type               = para_Ruby;
 
     this.Pr                 = new CRubyPr();
@@ -105,7 +103,10 @@ function ParaRuby() {
     this.FirstPage          = -1;
     
     this.bSelectionUse      = false;
-    this.Paragraph          = null;
+    this.Paragraph          = Parent;
+    this.Run                = null;
+    this.DocumentContent    = documentContent;
+    this.Parent             = Parent;
 
     this.NearPosArray       = [];   
 
@@ -118,65 +119,137 @@ function ParaRuby() {
     this.RubyText           = null;
     this.RubyBase           = null;
 
-    AscCommon.g_oIdCounter.AddObject( this, this.Id );
+    AscCommon.g_oTableId.Add( this, this.Id );
+}
+
+ParaRuby.prototype = Object.create(AscWord.CRunElementBase.prototype);
+ParaRuby.prototype.constructor = ParaRuby;
+
+ParaRuby.prototype.Type = para_Ruby;
+
+ParaRuby.prototype.SetParent = function(oParent )
+{
+    if (!oParent)
+        return;
+
+    if (oParent instanceof ParaRun)
+        this.Parent = oParent.GetParagraph();
+    else if (oParent instanceof Paragraph)
+        this.Parent = oParent;
+};
+ParaRuby.prototype.GetParent = function()
+{
+    return this.Parent;
+};
+ParaRuby.prototype.Get_Type = function()
+{
+    return this.Type;
+};
+ParaRuby.prototype.Get_Paragraph = function()
+{
+    return this.Get_ParentParagraph();
+};
+ParaRuby.prototype.Get_Run = function()
+{
+    return this.Get_Run();
+}
+ParaRuby.prototype.GetDocumentContent = function()
+{
+    const oParagraph = this.GetParagraph();
+    let oDocumentContent = (oParagraph ? oParagraph.GetParent() : null);
+    if (oDocumentContent && oDocumentContent.IsBlockLevelSdtContent())
+    {
+        oDocumentContent = oDocumentContent.Parent.Parent;
+    }
+    return oDocumentContent;
+}
+ParaRuby.prototype.Get_Run = function()
+{
+    var oParagraph = this.Get_ParentParagraph();
+    // TODO: 这里需要修改
+    if (oParagraph)
+        return oParagraph.Get_DrawingObjectRun(this.Id);
+    return null;
+};
+ParaDrawing.prototype.GetParagraph = function()
+{
+	return this.Get_ParentParagraph();
+};
+ParaRuby.prototype.IsInline = function() {
+    return true;
+}
+// 测量, 计算元素的高和宽
+ParaRuby.prototype.Measure = function(textMeasurer, textPr, infoMathText, paraR)
+{
+    // 高度
+    var shaper =  AscWord.ParagraphTextShaper;
+    shaper.ShapeRun(this.RubyText);
+    shaper.ShapeRun(this.RubyBase);
+    
+
+    var baseMinMax = new CParagraphMinMaxContentWidth();
+    this.RubyBase.RecalcMeasure();
+    this.RubyBase.RecalculateMinMaxContentWidth(baseMinMax);
+    var rubyMinMax = new CParagraphMinMaxContentWidth();
+    this.RubyText.RecalcMeasure();
+    this.RubyText.RecalculateMinMaxContentWidth(rubyMinMax);
+    
+
+    // 宽度
+
+    this.Width = Math.max(baseMinMax.nCurMaxWidth, rubyMinMax.nCurMaxWidth);
+    this.Height = baseMinMax.nMaxHeight + rubyMinMax.nMaxHeight;
+    this.Ascent = 0;
+    this.Descent = 0;
+};
+ParaRuby.prototype.getHeight = function () {
+    return this.Height;
+};
+ParaRuby.prototype.GetWidth = function () {
+    return this.Width;
+};
+ParaRuby.prototype.Draw = function (x, y, pGraphics, PDSE) {
+    this.draw(x, y, pGraphics, PDSE);
+    pGraphics.End_Command();
 }
 
 ParaRuby.prototype.draw = function (x, y, pGraphics, PDSE)
-{
-    if (this.Paragraph) {
-        this.Paragraph.draw(context, scale, page);
-    }
+{    
+    this.Draw_Elements(PDSE);
+}
+ParaRuby.prototype.IsDrawing = function () {
+    return true;
+}
+
+ParaRuby.prototype.IsText = function () {
+    return false;
 }
 
 ParaRuby.prototype.Draw_Elements = function (PDSE)
 {
-    if (this.bOneLine)
-    {
-        var X = PDSE.X;
-
-        // Make_ShdColor
-
-        for(var i=0; i < this.nRow; i++)
-        {
-            for(var j = 0; j < this.nCol; j++)
-            {
-                if(this.elements[i][j].IsJustDraw())
-                {
-                    var ctrPrp = this.Get_TxtPrControlLetter();
-
-                    var Font = 
-                    {
-                        FontSize:   ctrPrp.FontSize,
-                        FontFamily: {Name: ctrPrp.FontFamily.Name, Index: ctrPrp.FontFamily.Index},
-                        Italic:     false,
-                        Bold:       false
-                    };
-
-                    PDSE.Graphics.SetFont(Font);
-                }
-                this.elements[i][j].Draw_Elements(PDSE);
-            }
-
-        }
-        PDSE.X = X + this.width;
-    }
-    else
-    {
-        var CurLine = PDSE.Line - this.StartLine;
-        var CurRange = (0 === CurLine ? PDSE.Range - this.StartRange : PDSE.Range);
-
-        var StartPos = this.protected_GetRangeStartPos(CurLine, CurRange); 
-        var EndPos = this.protected_GetRangeEndPos(CurLine, CurRange);
-
-        for (var CurPos = StartPos; CurPos <= EndPos; CurPos++)
-        {
-            this.Content[CurPos].Draw_Elements(PDSE);
-        }
-    }
+    this.RubyText.Draw_Elements(PDSE);
+    this.RubyBase.Draw_Elements(PDSE);    
 };
-
-
+ParaRuby.prototype.Write_ToBinary = function (Writer)
+{
+    Writer.WriteLong(this.Type);
+    Writer.WriteString2(this.Id);
+}
+ParaRuby.prototype.Write_ToBinary2 = function (Writer)
+{
+    Writer.WriteLong(AscDFH.historyitem_type_Ruby);
+    Writer.WriteString2(this.Id);    
+    this.Pr.Write_ToBinary(Writer);
+}
+ParaRuby.prototype.Read_FromBinary2 = function (Reader)
+{
+    this.Id = Reader.GetString2();
+    this.Pr.Read_FromBinary(Reader);
+    g_oTableId.Add(this, this.Id);
+}
 
 window['AscCommonWord'] = window['AscCommonWord'] || {};
 window['AscCommonWord'].ParaRuby = ParaRuby;
+
+window['AscWord'] = window['AscWord'] || {};
 window['AscWord'].ParaRuby = ParaRuby;

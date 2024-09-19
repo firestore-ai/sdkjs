@@ -79,6 +79,9 @@ var para_Bookmark                  = 0x0047;
 var para_RevisionMove              = 0x0048;
 var para_EndnoteReference          = 0x0049; // Ссылка на сноску
 var para_EndnoteRef                = 0x004a; // Номер сноски (должен быть только внутри сноски)
+var para_Ruby                      = 0x004b; // ruby 
+var para_RubyText                  = 0x004c; // ruby text
+var para_RubyBase                  = 0x004d; // ruby base
 
 (function(window)
 {

@@ -343,6 +343,18 @@ var c_oSerProp_rPrType = {
 	Props3d: 54,
 	Scene3d: 55
 };
+var c_oSerProp_rubyPrType = {
+	RubyAlign: 0,
+	Hps: 1,
+	HpsRaise: 2,
+	HpsBaseText: 3,
+	Lid: 4
+};
+var c_oSerRubyType = {
+	rubyPr: 0,
+	rubyBase: 1,
+	rubyText: 2
+};
 var c_oSerProp_rowPrType = {
     CantSplit:0,
     GridAfter:1,
@@ -538,7 +550,8 @@ var c_oSerRunType = {
 	delInstrText: 31,
 	linebreakClearAll: 32,
 	linebreakClearLeft: 33,
-	linebreakClearRight: 34
+	linebreakClearRight: 34,
+	ruby: 35	
 };
 var c_oSerImageType = {
     MediaId:0,
@@ -5900,6 +5913,67 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 			});
 		}
 	};
+	this.WriteRuby = function(ruby) {
+		var oThis = this;
+		if (null != ruby.rubyPr) {
+			this.bs.WriteItem(c_oSerRunType.rubyPr, function() {
+				oThis.WriteRubyPr(ruby.Pr);
+			});
+		}
+		if (null != ruby.rubyBase) {
+			this.bs.WriteItem(c_oSerRubyType.rubyBase, function () {
+				//rPr
+			if (null != oRun.Pr)
+				oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
+			//Content
+			oThis.bs.WriteItem(c_oSerRunType.Content, function () {
+				oThis.WriteRunContent(oRun, elem.nStart, elem.nEnd, delText);
+				});
+			});
+		}
+
+		if (null != ruby.rubyText) {
+			this.bs.WriteItem(c_oSerRubyType.rubyText, function () {
+				//rPr
+			if (null != oRun.Pr)
+				oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
+			//Content
+			oThis.bs.WriteItem(c_oSerRunType.Content, function () {
+				oThis.WriteRunContent(oRun, elem.nStart, elem.nEnd, delText);
+				});
+			});
+		}		
+	};
+	this.WriteRubyPr = function(rubyPr) {
+		var oThis = this;
+		if (null != rubyPr.rubyAlign) {
+			this.bs.WriteItem(c_oSerProp_rubyPrType.RubyAlign, function() {
+				oThis.memory.WriteByte(rubyPr.rubyAlign);
+			});
+		}
+		
+		if (null != rubyPr.hps) {
+			this.bs.WriteItem(c_oSerProp_rubyPrType.Hps, function() {
+				oThis.memory.WriteLong(rubyPr.hps);
+			});
+		}
+		if (null != rubyPr.hpsRaise) {
+			this.bs.WriteItem(c_oSerProp_rubyPrType.HpsRaise, function() {
+				oThis.memory.WriteLong(rubyPr.hpsRaise);
+			});
+		}
+		if (null != rubyPr.hpsBaseText) {
+			this.bs.WriteItem(c_oSerProp_rubyPrType.HpsBaseText, function() {
+				oThis.memory.WriteLong(rubyPr.hpsBaseText);
+			});
+		}
+		if (null != rubyPr.lid) {
+			this.bs.WriteItem(c_oSerProp_rubyPrType.Lid, function() {
+				oThis.memory.WriteString2(rubyPr.lid);
+			});
+		}
+	};
+	
 
     this.WriteRunContent = function (oRun, nStart, nEnd, delText)
     {
@@ -6019,6 +6093,9 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 						oThis.bs.WriteItem(c_oSerRunType.pptxDrawing, function () { oThis.WriteImage(item); });
 					}
                     break;
+				case para_Ruby:
+					oThis.bs.WriteItem(c_oSerRunType.ruby, function () { oThis.WriteRuby(item); });
+					break;
             }
         }
 		sCurText = this.WriteText(sCurText, textType);
@@ -11968,6 +12045,60 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
 			}
 		}
 	};
+	this.ReadRubyPr = function (type, length, rubyPr) {
+		var res = c_oSerConstants.ReadOk;
+		if (c_oSerProp_rubyPrType.Hps  === type) {
+			rubyPr.Hps = this.stream.GetLong();
+		} else if (c_oSerProp_rubyPrType.HpsRaise  === type) {
+			rubyPr.HpsRaise = this.stream.GetLong();
+		} else if (c_oSerProp_rubyPrType.HpsBaseText  === type) {
+			rubyPr.HpsBaseText = this.stream.GetLong();
+		} else if (c_oSerProp_rubyPrType.Align  === type) {
+			rubyPr.Align = this.stream.GetUChar();
+		} else if (c_oSerProp_rubyPrType.Lid  === type) {
+			rubyPr.Lid = this.stream.GetString2LE(length);
+		} else {
+			res = c_oSerConstants.ReadUnknown;
+		}
+		return res;
+	};
+	this.ReadRubyRun = function (type, length, rubyRun) {
+		var oThis = this;
+		var res = c_oSerConstants.ReadOk;
+		if (c_oSerParType.Run === type) {
+			this.bcr.Read1(length, function(t, l) {
+				return oThis.ReadRun(t, l, rubyRun);
+			});
+		}
+		else 
+			res = c_oSerConstants.ReadUnknown;
+		return res;
+	}
+	this.ReadRuby = function (type, length, ruby) {
+		var oThis = this;
+		var res = c_oSerConstants.ReadOk;
+		if (c_oSerRubyType.rubyPr === type) {
+			res = this.bcr.Read2(length, function(t, l) {
+				return oThis.ReadRubyPr(t, l, ruby.Pr);
+			});
+		}
+		else if (c_oSerRubyType.rubyText === type) {
+			// read run 
+			ruby.RubyText = new ParaRun(ruby.Paragraph);
+			this.bcr.Read1(length, function(t, l) {
+				return oThis.ReadRubyRun(t, l, ruby.RubyText);
+			});
+		}
+		else if (c_oSerRubyType.rubyBase === type) {
+			ruby.RubyBase = new ParaRun(ruby.Paragraph);
+			this.bcr.Read1(length, function(t, l) {
+				return oThis.ReadRubyRun(t, l, ruby.RubyBase);
+			});
+		}
+		else
+			res = c_oSerConstants.ReadUnknown;
+		return res;
+	}
 	this.ReadRunContent = function (type, length, run)
     {
         var res = c_oSerConstants.ReadOk;
@@ -12139,6 +12270,16 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
 				this.oReadResult.logicDocument.Endnotes.AddEndnote(endnote.content);
 				oNewElem = new AscWord.CRunEndnoteReference(endnote.content, ref.customMark);
 			}
+		}
+		else if (c_oSerRunType.ruby === type)
+		{
+			var doc = this.Document;
+			var ruby = new ParaRuby(doc, paragraph);
+			ruby.run = this;
+			this.bcr.Read1(length, function(t, l) {
+				return oThis.ReadRuby(t, l, ruby);
+			});
+			oNewElem = ruby;
 		}
         else
             res = c_oSerConstants.ReadUnknown;

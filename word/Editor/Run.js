@@ -469,6 +469,9 @@ ParaRun.prototype.Get_Text = function(Text)
 
 				break;
 			}
+			case para_Ruby:
+				Text.Text += Item.RubyBase.GetText();
+				break;
 			case para_End:
 			{
 				if (true === Text.BreakOnNonText)
@@ -2879,6 +2882,11 @@ ParaRun.prototype.Get_Layout = function(DrawingLayout, UseContentPos, ContentPos
 
                 break;
             }
+			case para_Ruby:
+			{
+				DrawingLayout.LastW = WidthVisible;
+				break;
+			}						
         }
 
         DrawingLayout.X += WidthVisible;
@@ -3062,6 +3070,12 @@ ParaRun.prototype.GetSelectedText = function(bAll, bClearText, oPr)
 
                 break;
             }
+
+			case para_Ruby:
+			{
+				Str += Item.RubyBase.GetText();
+				break;
+			}
 
             case para_Text :
             {
@@ -4331,6 +4345,42 @@ ParaRun.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
 
                     break;
                 }
+				case para_Ruby:
+				{
+					if (true === StartWord)
+						FirstItemOnLine = false;
+
+					Item.YOffset = this.getYOffset();
+
+					if (true === Word || WordLen > 0)
+					{
+						X += SpaceLen + WordLen;
+
+						Word = false;
+						EmptyLine = false; 
+						TextOnLine = true;
+						SpaceLen = 0;
+						WordLen = 0;
+					}
+
+					var DrawingWidth = Item.GetWidth();
+					if (X + SpaceLen + DrawingWidth > XEnd && ( false === FirstItemOnLine || false === Para.IsSingleRangeOnLine(ParaLine, ParaRange) ))
+					{
+						NewRange = true;
+						RangeEndPos = Pos;
+					}
+					else
+					{
+						X += SpaceLen + DrawingWidth;
+
+						FirstItemOnLine = false;
+						EmptyLine = false;
+					}
+
+					SpaceLen = 0;
+
+					break;
+				}
                 case para_PageCount:
                 case para_PageNum:
                 {
@@ -4932,6 +4982,25 @@ ParaRun.prototype.Recalculate_LineMetrics = function(PRS, ParaPr, _CurLine, _Cur
 				break;
 			}
 
+			case para_Ruby:
+			{
+				if (Asc.linerule_Exact === LineRule)
+				{
+					if (PRS.LineAscent < Item.getHeight())
+						PRS.LineAscent = item.getHeight();
+				}
+				else 
+				{
+					let yOffset = this.getYOffset();
+					if (PRS.LineAscent < Item.getHeight() + yOffset)
+						PRS.LineAscent = Item.getHeight() + yOffset;
+
+					if (PRS.LineDescent < -yOffset)
+						PRS.LineDescent = -yOffset;
+				}
+				break;
+			}
+
 			case para_End:
 			{
 				break;
@@ -5102,6 +5171,22 @@ ParaRun.prototype.Recalculate_Range_Width = function(PRSC, _CurLine, _CurRange)
 
                 break;
             }
+			case para_Ruby:
+				PRSC.Words++;
+				PRSC.Range.W += PRSC.SpaceLen;
+
+				if (PRSC.Words > 1)
+					PRSC.Spaces += PRSC.SpacesCount;
+				else
+					PRSC.SpacesSkip += PRSC.SpacesCount;
+
+				PRSC.Word = false;
+				PRSC.SpacesCount = 0;
+				PRSC.SpaceLen = 0;
+
+				PRSC.Range.W += Item.GetWidth();
+
+				break;
             case para_PageNum:
             case para_PageCount:
             {
@@ -6192,6 +6277,9 @@ ParaRun.prototype.Get_Range_VisibleWidth = function(RangeW, _CurLine, _CurRange)
 
                 break;
             }
+			case para_Ruby:
+				RangeW.W += Item.Width;
+				break;
             case para_PageNum:
             case para_PageCount:
             case para_Tab:
