@@ -470,7 +470,7 @@ ParaRun.prototype.Get_Text = function(Text)
 				break;
 			}
 			case para_Ruby:
-				Text.Text += Item.RubyBase.GetText();
+				Item.RubyBase.Get_Text(Text);
 				break;
 			case para_End:
 			{
@@ -4345,8 +4345,9 @@ ParaRun.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
 
                     break;
                 }
-				case para_Ruby:
+				case para_Ruby:					
 				{
+					Item.Recalculate_Range(PRS, ParaPr, 1);
 					if (true === StartWord)
 						FirstItemOnLine = false;
 

@@ -5914,14 +5914,16 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 		}
 	};
 	this.WriteRuby = function(ruby) {
+		var delText = false;
 		var oThis = this;
-		if (null != ruby.rubyPr) {
+		if (null != ruby.Pr) {
 			this.bs.WriteItem(c_oSerRunType.rubyPr, function() {
 				oThis.WriteRubyPr(ruby.Pr);
 			});
 		}
-		if (null != ruby.rubyBase) {
+		if (null != ruby.RubyBase) {
 			this.bs.WriteItem(c_oSerRubyType.rubyBase, function () {
+				var oRun = ruby.RubyBase;
 				//rPr
 			if (null != oRun.Pr)
 				oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
@@ -5932,8 +5934,9 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 			});
 		}
 
-		if (null != ruby.rubyText) {
+		if (null != ruby.RubyText) {
 			this.bs.WriteItem(c_oSerRubyType.rubyText, function () {
+				var oRun = ruby.RubyText;
 				//rPr
 			if (null != oRun.Pr)
 				oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
@@ -12275,7 +12278,7 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
 		{
 			var doc = this.Document;
 			var ruby = new ParaRuby(doc, paragraph);
-			ruby.run = this;
+			ruby.Run = run;
 			this.bcr.Read1(length, function(t, l) {
 				return oThis.ReadRuby(t, l, ruby);
 			});

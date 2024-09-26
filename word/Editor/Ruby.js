@@ -1,3 +1,35 @@
+/*
+ * (c) Copyright Ascensio System SIA 2010-2023
+ *
+ * This program is a free software product. You can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License (AGPL)
+ * version 3 as published by the Free Software Foundation. In accordance with
+ * Section 7(a) of the GNU AGPL its Section 15 shall be amended to the effect
+ * that Ascensio System SIA expressly excludes the warranty of non-infringement
+ * of any third-party rights.
+ *
+ * This program is distributed WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  PURPOSE. For
+ * details, see the GNU AGPL at: http://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * You can contact Ascensio System SIA at 20A-6 Ernesta Birznieka-Upish
+ * street, Riga, Latvia, EU, LV-1050.
+ *
+ * The  interactive user interfaces in modified source and object code versions
+ * of the Program must display Appropriate Legal Notices, as required under
+ * Section 5 of the GNU AGPL version 3.
+ *
+ * Pursuant to Section 7(b) of the License you must retain the original Product
+ * logo when distributing the program. Pursuant to Section 7(e) we decline to
+ * grant you any rights under trademark law for use of our trademarks.
+ *
+ * All the Product's GUI elements, including illustrations and icon sets, as
+ * well as technical writing content are licensed under the terms of the
+ * Creative Commons Attribution-ShareAlike 4.0 International. See the License
+ * terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
+ *
+ */
+
 "use strict";
 
 // RubyText 是一种文本格式，用于在文本中添加注音或解释。
@@ -66,8 +98,8 @@ CRubyPr.prototype.Copy = function (Obj)
 }
 
 CRubyPr.prototype.Write_ToBinary = function (Writer)
-{
-    Writer.WriteUInt8(this.Align);
+{    
+    Writer.WriteByte(this.Align);
     Writer.WriteLong(this.Hps);
     Writer.WriteLong(this.HpsRaise);
     Writer.WriteLong(this.HpsBaseText);
@@ -127,6 +159,19 @@ ParaRuby.prototype.constructor = ParaRuby;
 
 ParaRuby.prototype.Type = para_Ruby;
 
+ParaRuby.prototype.Copy = function(oPr)
+{
+    var newRuby = new ParaRuby(this.documentContent, this.Paragraph);
+
+    newRuby.Pr = this.Pr.Copy(oPr);
+
+    newRuby.RubyText = this.RubyText.Copy(oPr);
+    newRuby.RubyBase = this.RubyBase.Copy(oPr);    
+    
+    return newRuby;
+}
+
+
 ParaRuby.prototype.SetParent = function(oParent )
 {
     if (!oParent)
@@ -178,6 +223,26 @@ ParaDrawing.prototype.GetParagraph = function()
 ParaRuby.prototype.IsInline = function() {
     return true;
 }
+ParaRuby.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
+{
+    this.Recalculate_Reset(this.Run.StartRange, this.Run.StartLine);
+    var X = PRS.X;
+    var Y = PRS.Y;
+    var XEnd = PRS.XEnd;
+    var YEnd = PRS.YEnd;
+
+    this.RubyText.Recalculate_Range(PRS, ParaPr, Depth);
+    var rubyX = PRS.X;
+    PRS.X = X;
+    this.RubyBase.Recalculate_Range(PRS, ParaPr, Depth);
+    PRS.X = Math.max(rubyX, PRS.X);
+}
+ParaRuby.prototype.Recalculate_Reset = function(StartRange, StartLine)
+{
+    this.RubyText.Recalculate_Reset(StartRange, StartLine);
+    this.RubyBase.Recalculate_Reset(StartRange, StartLine);
+
+}
 // 测量, 计算元素的高和宽
 ParaRuby.prototype.Measure = function(textMeasurer, textPr, infoMathText, paraR)
 {
@@ -197,17 +262,16 @@ ParaRuby.prototype.Measure = function(textMeasurer, textPr, infoMathText, paraR)
 
     // 宽度
 
-    this.Width = Math.max(baseMinMax.nCurMaxWidth, rubyMinMax.nCurMaxWidth);
+    this.SetWidth(Math.max(baseMinMax.nCurMaxWidth, rubyMinMax.nCurMaxWidth));
     this.Height = baseMinMax.nMaxHeight + rubyMinMax.nMaxHeight;
     this.Ascent = 0;
     this.Descent = 0;
+    this.SetWidthVisible(this.GetWidth());
 };
 ParaRuby.prototype.getHeight = function () {
     return this.Height;
 };
-ParaRuby.prototype.GetWidth = function () {
-    return this.Width;
-};
+
 ParaRuby.prototype.Draw = function (x, y, pGraphics, PDSE) {
     this.draw(x, y, pGraphics, PDSE);
     pGraphics.End_Command();
@@ -218,33 +282,58 @@ ParaRuby.prototype.draw = function (x, y, pGraphics, PDSE)
     this.Draw_Elements(PDSE);
 }
 ParaRuby.prototype.IsDrawing = function () {
-    return true;
+    return false;
 }
-
 ParaRuby.prototype.IsText = function () {
     return false;
 }
-
 ParaRuby.prototype.Draw_Elements = function (PDSE)
 {
+    // 保存当前的 X 和 Y 坐标
+    var X = PDSE.X;
+    var Y = PDSE.Y;
+
+    // 获取 Ruby 属性
+    var pr = this.Pr;
+    // 计算 Ruby 文本的垂直偏移量（将 Twips 转换为毫米）
+    var yOffset = AscCommon.TwipsToMM(pr.HpsRaise*10);
+
+    // 调整 Y 坐标以绘制 Ruby 文本（向上偏移）
+    PDSE.Y = Y - yOffset;
+    // 绘制 Ruby 文本
     this.RubyText.Draw_Elements(PDSE);
+    
+    // 重置 X 坐标到原始位置
+    PDSE.X = X;
+    // 重置 Y 坐标到原始位置，准备绘制基础文本
+    PDSE.Y = Y;    
+    // 绘制基础文本
     this.RubyBase.Draw_Elements(PDSE);    
+
+    // 最后，将 X 坐标重置到原始位置
+    // 这确保了后续绘制操作从正确的位置开始
+    PDSE.X = X;
 };
 ParaRuby.prototype.Write_ToBinary = function (Writer)
 {
-    Writer.WriteLong(this.Type);
-    Writer.WriteString2(this.Id);
+    this.Write_ToBinary2(Writer);
 }
 ParaRuby.prototype.Write_ToBinary2 = function (Writer)
 {
     Writer.WriteLong(AscDFH.historyitem_type_Ruby);
     Writer.WriteString2(this.Id);    
     this.Pr.Write_ToBinary(Writer);
+    this.RubyBase.Write_ToBinary2(Writer);
+    this.RubyText.Write_ToBinary2(Writer);
 }
 ParaRuby.prototype.Read_FromBinary2 = function (Reader)
 {
     this.Id = Reader.GetString2();
     this.Pr.Read_FromBinary(Reader);
+    this.RubyBase = new ParaRun();
+    this.RubyBase.Read_FromBinary2(Reader);
+    this.RubyText = new ParaRun();
+    this.RubyText.Read_FromBinary2(Reader);    
     g_oTableId.Add(this, this.Id);
 }
 
