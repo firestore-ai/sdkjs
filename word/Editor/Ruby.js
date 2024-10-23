@@ -72,11 +72,13 @@ function CRubyPr() {
     
     // 语言标识符
     this.Lid = 0;
-}
 
+    this.Type               = para_RubyPr;
+}
+ParaRuby.prototype.Type = para_RubyPr;
 CRubyPr.prototype.Set_FromObject = function ( Obj )
 {
-    if (undefined !== Obj.type && null !== Obj.type) 
+    if (undefined !== Obj.Type && null !== Obj.Type) 
     {
         this.Align = Obj.Align;
         this.Hps = Obj.Hps;
@@ -89,11 +91,11 @@ CRubyPr.prototype.Set_FromObject = function ( Obj )
 CRubyPr.prototype.Copy = function (Obj) 
 {
     var NewPr = new CRubyPr();
-    NewPr.Align = Obj.Align;
-    NewPr.Hps = Obj.Hps;
-    NewPr.HpsRaise = Obj.HpsRaise;
-    NewPr.HpsBaseText = Obj.HpsBaseText;
-    NewPr.Lid = Obj.Lid;
+    NewPr.Align = this.Align;
+    NewPr.Hps = this.Hps;
+    NewPr.HpsRaise = this.HpsRaise;
+    NewPr.HpsBaseText = this.HpsBaseText;
+    NewPr.Lid = this.Lid;
     return NewPr;
 }
 
@@ -149,16 +151,15 @@ function ParaRuby(documentContent, Parent) {
     this.Descent            = 0;
 
     this.RubyText           = null;
-    this.RubyBase           = null;
-
-    AscCommon.g_oTableId.Add( this, this.Id );
-}
-
+    this.RubyBase           = null;    
+};
 ParaRuby.prototype = Object.create(AscWord.CRunElementBase.prototype);
 ParaRuby.prototype.constructor = ParaRuby;
-
 ParaRuby.prototype.Type = para_Ruby;
-
+ParaRuby.prototype.AddToTable = function()
+{
+    AscCommon.g_oTableId.Add( this, this.Id );
+};
 ParaRuby.prototype.Copy = function(oPr)
 {
     var newRuby = new ParaRuby(this.documentContent, this.Paragraph);
@@ -167,21 +168,32 @@ ParaRuby.prototype.Copy = function(oPr)
 
     newRuby.RubyText = this.RubyText.Copy(oPr);
     newRuby.RubyBase = this.RubyBase.Copy(oPr);    
-    
+
+    newRuby.AddToTable();
+
     return newRuby;
-}
-
-
+};
 ParaRuby.prototype.SetParent = function(oParent )
 {
     if (!oParent)
         return;
 
     if (oParent instanceof ParaRun)
-        this.Parent = oParent.GetParagraph();
+    {
+        this.Run = oParent;
+        this.Parent = oParent.GetParagraph();        
+    }
     else if (oParent instanceof Paragraph)
         this.Parent = oParent;
 };
+ParaRuby.prototype.SetParagraph = function(oParagarph)
+{
+    this.Paragraph = oParagarph;
+    if (this.RubyText)
+        this.RubyText.Paragraph = this.Paragraph;
+    if (this.RubyBase)
+        this.RubyBase.Paragraph = this.Paragraph;        
+}
 ParaRuby.prototype.GetParent = function()
 {
     return this.Parent;
@@ -194,10 +206,6 @@ ParaRuby.prototype.Get_Paragraph = function()
 {
     return this.Get_ParentParagraph();
 };
-ParaRuby.prototype.Get_Run = function()
-{
-    return this.Get_Run();
-}
 ParaRuby.prototype.GetDocumentContent = function()
 {
     const oParagraph = this.GetParagraph();
@@ -236,21 +244,41 @@ ParaRuby.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
     PRS.X = X;
     this.RubyBase.Recalculate_Range(PRS, ParaPr, Depth);
     PRS.X = Math.max(rubyX, PRS.X);
-}
+};
 ParaRuby.prototype.Recalculate_Reset = function(StartRange, StartLine)
 {
     this.RubyText.Recalculate_Reset(StartRange, StartLine);
     this.RubyBase.Recalculate_Reset(StartRange, StartLine);
 
+};
+ParaRuby.prototype.GetAllFontNames = function(AllFonts)
+{
+    if (this.RubyText)
+        this.RubyText.Get_AllFontNames(AllFonts);    
+    if (this.RubyBase)
+        this.RubyBase.Get_AllFontNames(AllFonts);
+};
+ParaRuby.prototype.CreateDocumentFontMap = function(Map) 
+{
+    if (this.RubyText)
+        this.RubyText.Create_FontMap(Map);    
+    if (this.RubyBase)
+        this.RubyBase.Create_FontMap(Map);
+};
+ParaRuby.prototype.GetFontSlot = function(oTextPr)
+{
+    return this.RubyBase.GetFontSlotInRange(0, this.RubyBase.Content.length) |
+        this.RubyText.GetFontSlotInRange(0, this.RubyText.Content.length);	
 }
 // 测量, 计算元素的高和宽
 ParaRuby.prototype.Measure = function(textMeasurer, textPr, infoMathText, paraR)
 {
-    // 高度
-    var shaper =  AscWord.ParagraphTextShaper;
-    shaper.ShapeRun(this.RubyText);
-    shaper.ShapeRun(this.RubyBase);
+    this.RubyText.Paragraph = this.Paragraph;
+    this.RubyBase.Paragraph = this.Paragraph;        
     
+    // 高度
+    AscWord.ParagraphTextShaper.ShapeRun(this.RubyText);
+    AscWord.ParagraphTextShaper.ShapeRun(this.RubyBase);
 
     var baseMinMax = new CParagraphMinMaxContentWidth();
     this.RubyBase.RecalcMeasure();
@@ -261,6 +289,8 @@ ParaRuby.prototype.Measure = function(textMeasurer, textPr, infoMathText, paraR)
     
 
     // 宽度
+    this.rubyWidth = rubyMinMax.nCurMaxWidth;
+    this.baseWidth = baseMinMax.nCurMaxWidth;
 
     this.SetWidth(Math.max(baseMinMax.nCurMaxWidth, rubyMinMax.nCurMaxWidth));
     this.Height = baseMinMax.nMaxHeight + rubyMinMax.nMaxHeight;
@@ -300,6 +330,21 @@ ParaRuby.prototype.Draw_Elements = function (PDSE)
 
     // 调整 Y 坐标以绘制 Ruby 文本（向上偏移）
     PDSE.Y = Y - yOffset;
+
+    var width = this.GetWidth();
+    switch (this.Pr.Align)
+    {
+    case AscCommon.ruby_align_Center:
+    default:
+        PDSE.X += (width - this.rubyWidth)/2;
+        break;
+    case AscCommon.ruby_align_Left:
+        break;
+    case AscCommon.ruby_align_Right:
+        PDSE.X += (width - this.rubyWidth);
+        break;
+    }
+    
     // 绘制 Ruby 文本
     this.RubyText.Draw_Elements(PDSE);
     
@@ -316,14 +361,15 @@ ParaRuby.prototype.Draw_Elements = function (PDSE)
 };
 ParaRuby.prototype.Write_ToBinary = function (Writer)
 {
-    this.Write_ToBinary2(Writer);
+    Writer.WriteLong(this.Type);
+    Writer.WriteString2(this.Id);
 }
 ParaRuby.prototype.Write_ToBinary2 = function (Writer)
 {
     Writer.WriteLong(AscDFH.historyitem_type_Ruby);
     Writer.WriteString2(this.Id);    
     this.Pr.Write_ToBinary(Writer);
-    this.RubyBase.Write_ToBinary2(Writer);
+    this.RubyBase.Write_ToBinary2(Writer);    
     this.RubyText.Write_ToBinary2(Writer);
 }
 ParaRuby.prototype.Read_FromBinary2 = function (Reader)

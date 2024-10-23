@@ -642,6 +642,25 @@ CopyProcessor.prototype =
 					}
 				}
 				break;
+			case para_Ruby:
+
+				
+				if (ParaItem.RubyBase !== null)
+				{
+					let oRuby = new CopyElement("ruby");
+					let sBase = ParaItem.RubyBase.GetText();				
+					oRuby.addChild(new CopyElement(CopyPasteCorrectString(sBase), true));
+
+					if (ParaItem.RubyText !== null)
+					{
+						let sRuby = ParaItem.RubyText.GetText();
+						let oRt = new CopyElement("rt");
+						oRt.addChild(new CopyElement(CopyPasteCorrectString(sRuby), true))
+						oRuby.addChild(oRt);
+					}
+					oTarget.addChild(oRuby);
+				}
+				break;
         }
     },
     CopyRun: function (Item, oTarget) {

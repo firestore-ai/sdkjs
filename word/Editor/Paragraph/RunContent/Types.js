@@ -82,6 +82,7 @@ var para_EndnoteRef                = 0x004a; // Номер сноски (дол�
 var para_Ruby                      = 0x004b; // ruby 
 var para_RubyText                  = 0x004c; // ruby text
 var para_RubyBase                  = 0x004d; // ruby base
+var para_RubyPr                    = 0x004e; // ruby pr
 
 (function(window)
 {

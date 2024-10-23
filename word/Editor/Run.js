@@ -182,6 +182,8 @@ ParaRun.prototype.SetParagraph = function(oParagraph)
 		let oItem = this.Content[nPos];
 		if (oItem.IsDrawing())
 			oItem.SetParent(oParagraph);
+		if (oItem.Type == para_Ruby)
+			oItem.SetParagraph(oParagraph);
 	}
 };
 //-----------------------------------------------------------------------------------
@@ -2091,6 +2093,41 @@ ParaRun.prototype.AddInstrText = function(sString, nPos)
 		this.AddToContent(nCharPos++, new ParaInstrText(oIterator.value()));
 	}
 };
+/**
+ * 设置汉语拼音
+ * 一般情况下每一个汉字用一个ParaRun包含一个ParaRuby来表示
+ */
+ParaRun.prototype.AddRuby = function(RubyText, RubyBase, Prop)
+{
+	var oRuby = new ParaRuby(this.Document, this.Paragraph);
+	oRuby.Run = this;
+
+	oRuby.RubyText = new ParaRun(this.Paragraph);
+	oRuby.RubyText.AddText(RubyText);
+	oRuby.RubyText.Pr.FontSize = Prop.Hps/2;
+	oRuby.RubyText.Pr.FontSizeCS = Prop.HpsBaseText/2;
+
+
+	oRuby.RubyBase = new ParaRun(this.Paragraph);	
+	oRuby.RubyBase.AddText(RubyBase);
+	oRuby.RubyBase.Pr.FontSize = Prop.HpsBaseText/2;
+	oRuby.RubyBase.Pr.FontSizeCS = Prop.HpsBaseText/2;
+	if (Prop.FontName)
+	{
+		var RFonts = new CRFonts();
+		RFonts.SetAll(Prop.FontName, -1);	
+		oRuby.RubyBase.Set_RFonts2(RFonts);
+	}
+
+		
+
+	oRuby.Pr.Set_FromObject(Prop);
+
+	
+	//this.Set_RFonts2(RFonts);
+
+	this.AddToContentToEnd(oRuby);	
+}
 
 // Определим строку и отрезок текущей позиции
 ParaRun.prototype.GetCurrentParaPos = function(align)
@@ -2999,7 +3036,7 @@ ParaRun.prototype.Create_FontMap = function(Map)
 
 			if (para_Drawing === Item.Type)
 				Item.documentCreateFontMap(Map);
-			else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type)
+			else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type || para_Ruby === Item.Type)
 				Item.CreateDocumentFontMap(Map);
         }
 
@@ -3022,7 +3059,7 @@ ParaRun.prototype.Get_AllFontNames = function(AllFonts)
 
 		if (para_Drawing === Item.Type)
 			Item.documentGetAllFontNames(AllFonts);
-		else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type)
+		else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type || para_Ruby === Item.Type)
 			Item.GetAllFontNames(AllFonts);
 	}
 };

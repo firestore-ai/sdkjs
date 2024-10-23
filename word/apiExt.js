@@ -622,6 +622,20 @@
         SectPr.SetDocGridLinePitch(linePitch);
     }
 
+    asc_docs_api.prototype.asc_ReplaceWithRuby = function(range, ruby)
+    {
+        range.Select();
+        range.Delete();
+        asc_InsertRuby(ruby);
+    }
+
+    asc_docs_api.prototype.asc_InsertRuby = function(ruby)
+    {
+
+    }
+
+    
+
 
     asc_docs_api.prototype["asc_GetParagraphBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphBoundingRect;
     asc_docs_api.prototype["asc_GetParagraphNumberingBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphNumberingBoundingRect;

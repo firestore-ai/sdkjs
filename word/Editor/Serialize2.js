@@ -5913,8 +5913,19 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 			});
 		}
 	};
-	this.WriteRuby = function(ruby) {
+	this.WriteRubyRun = function(oRun) {
 		var delText = false;
+		var oThis = this;
+		//rPr
+		if (null != oRun.Pr)
+			oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
+		//Content
+		oThis.bs.WriteItem(c_oSerRunType.Content, function () {
+			oThis.WriteRunContent(oRun, 0, oRun.Content.length, delText);
+		});
+	};
+	this.WriteRuby = function(ruby) {
+		
 		var oThis = this;
 		if (null != ruby.Pr) {
 			this.bs.WriteItem(c_oSerRunType.rubyPr, function() {
@@ -5924,56 +5935,48 @@ function BinaryDocumentTableWriter(memory, doc, oMapCommentId, oNumIdMap, copyPa
 		if (null != ruby.RubyBase) {
 			this.bs.WriteItem(c_oSerRubyType.rubyBase, function () {
 				var oRun = ruby.RubyBase;
-				//rPr
-			if (null != oRun.Pr)
-				oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
-			//Content
-			oThis.bs.WriteItem(c_oSerRunType.Content, function () {
-				oThis.WriteRunContent(oRun, elem.nStart, elem.nEnd, delText);
-				});
+				oThis.bs.WriteItem(c_oSerParType.Run, function() { 
+					oThis.WriteRubyRun(oRun);
+				});			
 			});
 		}
 
 		if (null != ruby.RubyText) {
 			this.bs.WriteItem(c_oSerRubyType.rubyText, function () {
 				var oRun = ruby.RubyText;
-				//rPr
-			if (null != oRun.Pr)
-				oThis.bs.WriteItem(c_oSerRunType.rPr, function () { oThis.brPrs.Write_rPr(oRun.Pr, oRun.Pr, null); });
-			//Content
-			oThis.bs.WriteItem(c_oSerRunType.Content, function () {
-				oThis.WriteRunContent(oRun, elem.nStart, elem.nEnd, delText);
-				});
+				oThis.bs.WriteItem(c_oSerParType.Run, function() { 
+					oThis.WriteRubyRun(oRun);
+				});			
 			});
 		}		
 	};
 	this.WriteRubyPr = function(rubyPr) {
 		var oThis = this;
-		if (null != rubyPr.rubyAlign) {
-			this.bs.WriteItem(c_oSerProp_rubyPrType.RubyAlign, function() {
-				oThis.memory.WriteByte(rubyPr.rubyAlign);
-			});
+		if (null != rubyPr.Align) {
+			this.memory.WriteByte(c_oSerProp_rubyPrType.RubyAlign);
+			this.memory.WriteByte(c_oSerPropLenType.Byte);
+			this.memory.WriteByte(rubyPr.Align);
 		}
 		
-		if (null != rubyPr.hps) {
-			this.bs.WriteItem(c_oSerProp_rubyPrType.Hps, function() {
-				oThis.memory.WriteLong(rubyPr.hps);
-			});
+		if (null != rubyPr.Hps) {
+			this.memory.WriteByte(c_oSerProp_rubyPrType.Hps);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(rubyPr.Hps);
 		}
-		if (null != rubyPr.hpsRaise) {
-			this.bs.WriteItem(c_oSerProp_rubyPrType.HpsRaise, function() {
-				oThis.memory.WriteLong(rubyPr.hpsRaise);
-			});
+		if (null != rubyPr.HpsRaise) {			
+			this.memory.WriteByte(c_oSerProp_rubyPrType.HpsRaise);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(rubyPr.HpsRaise);
 		}
-		if (null != rubyPr.hpsBaseText) {
-			this.bs.WriteItem(c_oSerProp_rubyPrType.HpsBaseText, function() {
-				oThis.memory.WriteLong(rubyPr.hpsBaseText);
-			});
+		if (null != rubyPr.HpsBaseText) {
+			this.memory.WriteByte(c_oSerProp_rubyPrType.HpsBaseText);
+			this.memory.WriteByte(c_oSerPropLenType.Long);
+			this.memory.WriteLong(rubyPr.HpsBaseText);
 		}
-		if (null != rubyPr.lid) {
-			this.bs.WriteItem(c_oSerProp_rubyPrType.Lid, function() {
-				oThis.memory.WriteString2(rubyPr.lid);
-			});
+		if (null != rubyPr.Lid) {
+			this.memory.WriteByte(c_oSerProp_rubyPrType.Lid);
+			this.memory.WriteByte(c_oSerPropLenType.Variable);
+			oThis.memory.WriteString2(rubyPr.Lid);
 		}
 	};
 	
@@ -12056,7 +12059,7 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
 			rubyPr.HpsRaise = this.stream.GetLong();
 		} else if (c_oSerProp_rubyPrType.HpsBaseText  === type) {
 			rubyPr.HpsBaseText = this.stream.GetLong();
-		} else if (c_oSerProp_rubyPrType.Align  === type) {
+		} else if (c_oSerProp_rubyPrType.RubyAlign  === type) {
 			rubyPr.Align = this.stream.GetUChar();
 		} else if (c_oSerProp_rubyPrType.Lid  === type) {
 			rubyPr.Lid = this.stream.GetString2LE(length);
@@ -12283,6 +12286,7 @@ function Binary_DocumentTableReader(doc, oReadResult, openParams, stream, curNot
 				return oThis.ReadRuby(t, l, ruby);
 			});
 			oNewElem = ruby;
+			ruby.AddToTable();
 		}
         else
             res = c_oSerConstants.ReadUnknown;
