@@ -74,10 +74,6 @@ AscDFH.changesFactory[AscDFH.historyitem_Paragraph_DefaultTabSize]            = 
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_SuppressLineNumbers]       = CChangesParagraphSuppressLineNumbers;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_Fill]                  = CChangesParagraphShdFill;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_ThemeFill]             = CChangesParagraphShdThemeFill;
-AscDFH.changesFactory[AscDFH.historyitem_Paragraph_DivId]                     = CChangesParagraphDivId;
-AscDFH.changesFactory[AscDFH.historyitem_Paragraph_ParaId]                    = CChangesParagraphParaId;
-AscDFH.changesFactory[AscDFH.historyitem_Paragraph_TextId]                    = CChangesParagraphTextId;
-
 function private_ParagraphChangesOnLoadPr(oColor)
 {
 	this.Redo();

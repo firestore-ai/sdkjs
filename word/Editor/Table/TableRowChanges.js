@@ -42,9 +42,6 @@ AscDFH.changesFactory[AscDFH.historyitem_TableRow_TableHeader] = CChangesTableRo
 AscDFH.changesFactory[AscDFH.historyitem_TableRow_Pr]          = CChangesTableRowPr;
 AscDFH.changesFactory[AscDFH.historyitem_TableRow_PrChange]    = CChangesTableRowPrChange;
 AscDFH.changesFactory[AscDFH.historyitem_TableRow_ReviewType]  = CChangesTableRowReviewType;
-AscDFH.changesFactory[AscDFH.historyitem_TableRow_DivId]       = CChangesTableRowDivId;
-AscDFH.changesFactory[AscDFH.historyitem_TableRow_ParaId]      = CChangesTableRowParaId;
-AscDFH.changesFactory[AscDFH.historyitem_TableRow_TextId]      = CChangesTableRowTextId;
 //----------------------------------------------------------------------------------------------------------------------
 // Карта зависимости изменений
 //----------------------------------------------------------------------------------------------------------------------
@@ -82,7 +79,6 @@ AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_Pr]          = [
 	AscDFH.historyitem_TableRow_CellSpacing,
 	AscDFH.historyitem_TableRow_Height,
 	AscDFH.historyitem_TableRow_TableHeader,
-	AscDFH.historyitem_TableRow_DivId,
 	AscDFH.historyitem_TableRow_Pr,
 	AscDFH.historyitem_TableRow_PrChange
 ];
@@ -92,16 +88,6 @@ AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_PrChange] = [
 ];
 AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_ReviewType] = [
 	AscDFH.historyitem_TableRow_ReviewType
-];
-AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_DivId] = [
-	AscDFH.historyitem_TableRow_DivId,
-	AscDFH.historyitem_TableRow_Pr
-];
-AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_ParaId] = [
-	AscDFH.historyitem_TableRow_ParaId
-];
-AscDFH.changesRelationMap[AscDFH.historyitem_TableRow_TextId] = [
-	AscDFH.historyitem_TableRow_TextId
 ];
 /**
  * Общая функция объединения изменений, которые зависят только от себя и AscDFH.historyitem_TableRow_Pr
@@ -878,57 +864,3 @@ CChangesTableRowReviewType.prototype.private_SetValue = function(Value)
 	oTableRow.updateTrackRevisions();
 };
 CChangesTableRowReviewType.prototype.CheckLock = private_TableChangesCheckLock;
-/**
- * @constructor
- * @extends {AscDFH.CChangesTableRowDivId}
- */
-function CChangesTableRowDivId(Class, Old, New, Color)
-{
-	AscDFH.CChangesBaseLongProperty.call(this, Class, Old, New, Color);
-}
-CChangesTableRowDivId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
-CChangesTableRowDivId.prototype.constructor = CChangesTableRowDivId;
-CChangesTableRowDivId.prototype.Type = AscDFH.historyitem_TableRow_DivId;
-CChangesTableRowDivId.prototype.private_SetValue = function(Value)
-{
-	var oTableRow = this.Class;
-	oTableRow.Pr.DivId = Value;
-
-	oTableRow.updateTrackRevisions();
-};
-CChangesTableRowDivId.prototype.CheckLock = private_TableChangesCheckLock;
-
-/**
- * @constructor
- * @extends {AscDFH.CChangesTableRowParaId}
- */
-function CChangesTableRowParaId(Class, Old, New, Color)
-{
-	AscDFH.CChangesBaseLongProperty.call(this, Class, Old, New, Color);
-}
-CChangesTableRowParaId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
-CChangesTableRowParaId.prototype.constructor = CChangesTableRowParaId;
-CChangesTableRowParaId.prototype.Type = AscDFH.historyitem_TableRow_ParaId;
-CChangesTableRowParaId.prototype.private_SetValue = function(Value)
-{
-	var oTableRow = this.Class;
-	oTableRow.ParaId = Value;	
-};
-CChangesTableRowDivId.prototype.CheckLock = private_TableChangesCheckLock;
-/**
- * @constructor
- * @extends {AscDFH.CChangesTableRowTextId}
- */
-function CChangesTableRowTextId(Class, Old, New, Color)
-{
-	AscDFH.CChangesBaseLongProperty.call(this, Class, Old, New, Color);
-}
-CChangesTableRowTextId.prototype = Object.create(AscDFH.CChangesBaseLongProperty.prototype);
-CChangesTableRowTextId.prototype.constructor = CChangesTableRowTextId;
-CChangesTableRowTextId.prototype.Type = AscDFH.historyitem_TableRow_TextId;
-CChangesTableRowTextId.prototype.private_SetValue = function(Value)
-{
-	var oTableRow = this.Class;
-	oTableRow.TextId = Value;	
-};
-CChangesTableRowDivId.prototype.CheckLock = private_TableChangesCheckLock;
