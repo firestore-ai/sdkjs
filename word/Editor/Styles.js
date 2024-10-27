@@ -11123,7 +11123,6 @@ function CTableRowPr()
     this.TableHeader      = undefined;
     this.PrChange         = undefined;
     this.ReviewInfo       = undefined;
-    this.DivId            = undefined;
 }
 
 CTableRowPr.prototype.Copy = function(bCopyPrChange)
@@ -11135,7 +11134,6 @@ CTableRowPr.prototype.Copy = function(bCopyPrChange)
 	RowPr.GridBefore       = this.GridBefore;
 	RowPr.Jc               = this.Jc;
 	RowPr.TableCellSpacing = this.TableCellSpacing;
-    RowPr.DivId            = this.DivId;
 
 	if (undefined != this.Height)
 		RowPr.Height = this.Height.Copy();
@@ -11185,8 +11183,6 @@ CTableRowPr.prototype.Merge = function(RowPr)
 	if (undefined !== RowPr.TableHeader)
 		this.TableHeader = RowPr.TableHeader;
 
-    if (undefined !== RowPr.DivId)
-        this.DivId = RowPr.DivId;
 };
 CTableRowPr.prototype.Is_Equal = function(RowPr)
 {
@@ -11198,7 +11194,6 @@ CTableRowPr.prototype.Is_Equal = function(RowPr)
 		|| true !== IsEqualStyleObjects(this.Height, RowPr.Height)
 		|| true !== IsEqualStyleObjects(this.WAfter, RowPr.WAfter)
 		|| true !== IsEqualStyleObjects(this.WBefore, RowPr.WBefore)
-        || this.DivId !== RowPr.DivId
 		|| this.TableHeader !== RowPr.TableHeader)
 		return false;
 
@@ -11217,7 +11212,6 @@ CTableRowPr.prototype.InitDefault = function(nCompatibilityMode)
 	this.TableHeader      = false;
 	this.PrChange         = undefined;
 	this.ReviewInfo       = undefined;
-    this.DivId            = undefined;
 };
 CTableRowPr.prototype.Set_FromObject = function(RowPr)
 {
@@ -11244,8 +11238,6 @@ CTableRowPr.prototype.Set_FromObject = function(RowPr)
 
 	this.TableHeader = RowPr.TableHeader;
 
-    if (undefined !== RowPr.DivId)
-        this.DivId = RowPr.DivId;
 };
 CTableRowPr.prototype.Write_ToBinary = function(Writer)
 {
@@ -11321,12 +11313,6 @@ CTableRowPr.prototype.Write_ToBinary = function(Writer)
 		Flags |= 512;
 	}
 
-    if (undefined !== this.DivId)
-    {
-        Writer.WriteLong(this.DivId);
-        Flags |= 1024;
-    }
-
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
@@ -11384,12 +11370,7 @@ CTableRowPr.prototype.Read_FromBinary = function(Reader)
 
 		this.PrChange.ReadFromBinary(Reader);
 		this.ReviewInfo.ReadFromBinary(Reader);
-	}
-
-    if (1024 & Flags)
-    {
-        this.DivId = Reader.GetLong();
-    }
+	}    
 };
 CTableRowPr.prototype.WriteToBinary = function(oWriter)
 {
@@ -11422,14 +11403,6 @@ CTableRowPr.prototype.RemovePrChange = function()
 	delete this.PrChange;
 	delete this.ReviewInfo;
 };
-CTableRowPr.prototype.GetDivId = function()
-{
-    return this.DivId;
-};
-CTableRowPr.prototype.SetDivId = function(nDivId)
-{
-    this.DivId = nDivId;
-}
 
 function CTableCellPr()
 {
@@ -15975,7 +15948,6 @@ function CParaPr()
 	this.PrChange          = undefined;
 	this.ReviewInfo        = undefined;
     this.SnapToGrid        = undefined;
-    this.DivId             = undefined;
 
 	this.SuppressLineNumbers = undefined;
     
@@ -16089,9 +16061,6 @@ CParaPr.prototype.Copy = function(bCopyPrChange, oPr)
 
     if (undefined !== this.SnapToGrid)
         ParaPr.SnapToGrid = this.SnapToGrid;
-
-    if (undefined !== this.DivId)
-        ParaPr.DivId = this.DivId;
 
 	return ParaPr;
 };
@@ -16271,8 +16240,6 @@ CParaPr.prototype.Merge = function(ParaPr)
     if (undefined !== ParaPr.SnapToGrid)    
         this.SnapToGrid = ParaPr.SnapToGrid;
 
-    if (undefined !== ParaPr.DivId)
-        this.DivId = ParaPr.DivId;
 };
 CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 {
@@ -16310,7 +16277,6 @@ CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 	this.SuppressLineNumbers       = false;
     this.SnapToGrid                = true;
 
-    this.DivId          = undefined;
 	this.DefaultRunPr   = undefined;
 	this.Bullet         = undefined;
 	this.DefaultTab     = undefined;
@@ -16446,9 +16412,6 @@ CParaPr.prototype.Set_FromObject = function(ParaPr)
 
     if (undefined !== ParaPr.SnapToGrid)
         this.SnapToGrid = ParaPr.SnapToGrid;
-
-    if (undefined !== ParaPr.DivId)
-        this.DivId = ParaPr.DivId;
 };
 CParaPr.prototype.SetFromObject = function(oPr)
 {
@@ -16586,9 +16549,6 @@ CParaPr.prototype.Compare = function(ParaPr)
 
     if (this.SnapToGrid === ParaPr.SnapToGrid)
         Result_ParaPr.SnapToGrid = this.SnapToGrid;
-
-    if (undefined != this.DivId && undefined != ParaPr.DivId && this.DivId === ParaPr.DivId)
-        Result_ParaPr.DivId = this.DivId;
 
 	return Result_ParaPr;
 };
@@ -16761,12 +16721,6 @@ CParaPr.prototype.Write_ToBinary = function(Writer)
         Flags |= (1 << 26);        
     }
 
-    if (undefined !== this.DivId)
-    {
-        Writer.WriteLong(this.DivId);
-        Flags |= (1 << 27);
-    }
-
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
@@ -16905,9 +16859,6 @@ CParaPr.prototype.Read_FromBinary = function(Reader)
 	if (Flags & (1 << 26))
         this.SnapToGrid = Reader.GetBool();
 
-    if (Flags & (1 << 27))
-        this.DivId = Reader.GetLong();
-
 };
 CParaPr.prototype.isEqual = function(ParaPrUOld,ParaPrNew)
 {
@@ -16950,7 +16901,6 @@ CParaPr.prototype.Is_Equal = function(ParaPr)
 		|| true !== IsEqualStyleObjects(this.Brd.Top, ParaPr.Brd.Top)
 		|| this.WidowControl !== ParaPr.WidowControl
         || this.SnapToGrid !== ParaPr.SnapToGrid
-        || this.DivId !== ParaPr.DivId
 		|| true !== IsEqualStyleObjects(this.Tabs, ParaPr.Tabs)
 		|| true !== IsEqualStyleObjects(this.NumPr, ParaPr.NumPr)
 		|| this.PStyle !== ParaPr.PStyle
@@ -17175,7 +17125,6 @@ CParaPr.prototype.Is_Empty = function(oPr)
 		|| undefined !== this.SuppressLineNumbers
         || undefined !== this.SnapToGrid
 		|| undefined !== this.Bidi
-        || undefined !== this.DivId
 	);
 };
 CParaPr.prototype.IsEmpty = function()
@@ -17229,9 +17178,6 @@ CParaPr.prototype.GetDiffPrChange = function()
 
     if (this.SnapToGrid !== PrChange.SnapToGrid)
         ParaPr.SnapToGrid = this.SnapToGrid;
-
-    if (this.DivId !== PrChange.DivId)
-        ParaPr.DivId = this.DivId;
 
 	if (this.Tabs !== PrChange.Tabs)
 		ParaPr.Tabs = this.Tabs;
@@ -17444,14 +17390,6 @@ CParaPr.prototype.SetSnapToGrid = function(snapToGrid)
 {
     this.SnapToGrid = snapToGrid;
 };
-CParaPr.prototype.GetDivId = function()
-{
-    return this.DivId;
-}
-CParaPr.prototype.SetDivId = function(divId)
-{
-    this.DivId = divId;
-}
 CParaPr.prototype.WriteToBinary = function(oWriter)
 {
 	return this.Write_ToBinary(oWriter);
@@ -17526,8 +17464,6 @@ CParaPr.prototype['get_SuppressLineNumbers']      = CParaPr.prototype.get_Suppre
 CParaPr.prototype['put_SuppressLineNumbers']      = CParaPr.prototype.put_SuppressLineNumbers      = CParaPr.prototype.SetSuppressLineNumbers;
 CParaPr.prototype['get_SnapToGrid']               = CParaPr.prototype.get_SnapToGrid               = CParaPr.prototype['Get_SnapToGrid']               = CParaPr.prototype.GetSnapToGrid;
 CParaPr.prototype['put_SnapToGrid']               = CParaPr.prototype.put_SnapToGrid               = CParaPr.prototype.SnapToGrid;
-CParaPr.prototype['get_DivId']                    = CParaPr.prototype.get_DivId                    = CParaPr.prototype['Get_DivId']                    = CParaPr.prototype.GetDivId;
-CParaPr.prototype['put_DivId']                    = CParaPr.prototype.put_DivId                    = CParaPr.prototype.SetDivId;
 
 //----------------------------------------------------------------------------------------------------------------------
 
