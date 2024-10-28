@@ -9275,7 +9275,7 @@
         oPr.HpsRaise = rubyPr.HpsRaise;
         oPr.HpsBaseText = rubyPr.HpsBaseText;
         oPr.FontName = rubyPr.FontName;            
-        this.Run.AddRuby(range.Ruby.Ruby, range.Ruby.RubyBase, oPr);
+        this.Run.AddRuby(sRubyText, sRubyBase, oPr);
 	};
 	/**
 	 * Adds a page break and starts the next element from a new page.
