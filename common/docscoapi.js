@@ -1306,7 +1306,7 @@
   };
 
   DocsCoApi.prototype._updateChanges = function(allServerChanges, changesIndex, syncChangesIndex, bFirstLoad) {
-    if (this.donSaveChanges) {
+    if (this.onSaveChanges) {
       this.changesIndex = changesIndex;
       if (undefined !== syncChangesIndex && -1 !== syncChangesIndex) {
         this.syncChangesIndex = syncChangesIndex;
