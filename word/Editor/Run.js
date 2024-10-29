@@ -2099,6 +2099,7 @@ ParaRun.prototype.AddInstrText = function(sString, nPos)
  */
 ParaRun.prototype.AddRuby = function(RubyText, RubyBase, Prop)
 {
+	AscCommon.History.TurnOffChanges();
 	var oRuby = new ParaRuby(this.Document, this.Paragraph);
 	oRuby.Run = this;
 
@@ -2122,10 +2123,10 @@ ParaRun.prototype.AddRuby = function(RubyText, RubyBase, Prop)
 		
 
 	oRuby.Pr.Set_FromObject(Prop);
-
 	
 	//this.Set_RFonts2(RFonts);
-
+	AscCommon.History.TurnOnChanges();
+	oRuby.AddToTable();
 	this.AddToContentToEnd(oRuby);	
 }
 
@@ -2469,7 +2470,8 @@ ParaRun.prototype.IsParagraphSimpleChanges = function(arrChanges)
 					|| para_FootnoteReference === oItem.Type
 					|| para_FieldChar === oItem.Type
 					|| para_InstrText === oItem.Type
-					|| para_EndnoteReference === oItem.Type)
+					|| para_EndnoteReference === oItem.Type
+					|| para_Ruby == oItem.Type)
 					return false;
 			}
         }

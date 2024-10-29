@@ -96,6 +96,7 @@ var para_RubyPr                    = 0x004e; // ruby pr
 			case para_HyperlinkStart:
 			case para_InlineLevelSdt:
 			case para_Bookmark:
+			case para_Ruby:
 			{
 				var ElementId = oReader.GetString2();
 				oElement       = g_oTableId.Get_ById(ElementId);

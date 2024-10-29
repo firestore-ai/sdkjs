@@ -110,11 +110,11 @@ CRubyPr.prototype.Write_ToBinary = function (Writer)
 
 CRubyPr.prototype.Read_FromBinary = function (Reader)
 {
-    this.Align = Reader.ReadUInt8();
-    this.Hps = Reader.ReadLong();
-    this.HpsRaise = Reader.ReadLong();
-    this.HpsBaseText = Reader.ReadLong();
-    this.Lid = Reader.ReadLong();    
+    this.Align = Reader.GetByte();
+    this.Hps = Reader.GetLong();
+    this.HpsRaise = Reader.GetLong();
+    this.HpsBaseText = Reader.GetLong();
+    this.Lid = Reader.GetLong();    
 }
 
 
@@ -376,8 +376,10 @@ ParaRuby.prototype.Read_FromBinary2 = function (Reader)
 {
     this.Id = Reader.GetString2();
     this.Pr.Read_FromBinary(Reader);
+    Reader.GetLong(); // bypass type
     this.RubyBase = new ParaRun();
     this.RubyBase.Read_FromBinary2(Reader);
+    Reader.GetLong(); // bypass type
     this.RubyText = new ParaRun();
     this.RubyText.Read_FromBinary2(Reader);    
     g_oTableId.Add(this, this.Id);
