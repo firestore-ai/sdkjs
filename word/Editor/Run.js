@@ -182,6 +182,8 @@ ParaRun.prototype.SetParagraph = function(oParagraph)
 		let oItem = this.Content[nPos];
 		if (oItem.IsDrawing())
 			oItem.SetParent(oParagraph);
+		if (oItem.Type == para_Ruby)
+			oItem.SetParagraph(oParagraph);
 	}
 };
 //-----------------------------------------------------------------------------------
@@ -469,6 +471,9 @@ ParaRun.prototype.Get_Text = function(Text)
 
 				break;
 			}
+			case para_Ruby:
+				Item.RubyBase.Get_Text(Text);
+				break;
 			case para_End:
 			{
 				if (true === Text.BreakOnNonText)
@@ -2088,6 +2093,42 @@ ParaRun.prototype.AddInstrText = function(sString, nPos)
 		this.AddToContent(nCharPos++, new ParaInstrText(oIterator.value()));
 	}
 };
+/**
+ * 设置汉语拼音
+ * 一般情况下每一个汉字用一个ParaRun包含一个ParaRuby来表示
+ */
+ParaRun.prototype.AddRuby = function(RubyText, RubyBase, Prop)
+{
+	AscCommon.History.TurnOffChanges();
+	var oRuby = new ParaRuby(this.Document, this.Paragraph);
+	oRuby.Run = this;
+
+	oRuby.RubyText = new ParaRun(this.Paragraph);
+	oRuby.RubyText.AddText(RubyText);
+	oRuby.RubyText.Pr.FontSize = Prop.Hps/2;
+	oRuby.RubyText.Pr.FontSizeCS = Prop.HpsBaseText/2;
+
+
+	oRuby.RubyBase = new ParaRun(this.Paragraph);	
+	oRuby.RubyBase.AddText(RubyBase);
+	oRuby.RubyBase.Pr.FontSize = Prop.HpsBaseText/2;
+	oRuby.RubyBase.Pr.FontSizeCS = Prop.HpsBaseText/2;
+	if (Prop.FontName)
+	{
+		var RFonts = new CRFonts();
+		RFonts.SetAll(Prop.FontName, -1);	
+		oRuby.RubyBase.Set_RFonts2(RFonts);
+	}
+
+		
+
+	oRuby.Pr.Set_FromObject(Prop);
+	
+	//this.Set_RFonts2(RFonts);
+	AscCommon.History.TurnOnChanges();
+	oRuby.AddToTable();
+	this.AddToContentToEnd(oRuby);	
+}
 
 // Определим строку и отрезок текущей позиции
 ParaRun.prototype.GetCurrentParaPos = function(align)
@@ -2429,7 +2470,8 @@ ParaRun.prototype.IsParagraphSimpleChanges = function(arrChanges)
 					|| para_FootnoteReference === oItem.Type
 					|| para_FieldChar === oItem.Type
 					|| para_InstrText === oItem.Type
-					|| para_EndnoteReference === oItem.Type)
+					|| para_EndnoteReference === oItem.Type
+					|| para_Ruby == oItem.Type)
 					return false;
 			}
         }
@@ -2879,6 +2921,11 @@ ParaRun.prototype.Get_Layout = function(DrawingLayout, UseContentPos, ContentPos
 
                 break;
             }
+			case para_Ruby:
+			{
+				DrawingLayout.LastW = WidthVisible;
+				break;
+			}						
         }
 
         DrawingLayout.X += WidthVisible;
@@ -2991,7 +3038,7 @@ ParaRun.prototype.Create_FontMap = function(Map)
 
 			if (para_Drawing === Item.Type)
 				Item.documentCreateFontMap(Map);
-			else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type)
+			else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type || para_Ruby === Item.Type)
 				Item.CreateDocumentFontMap(Map);
         }
 
@@ -3014,7 +3061,7 @@ ParaRun.prototype.Get_AllFontNames = function(AllFonts)
 
 		if (para_Drawing === Item.Type)
 			Item.documentGetAllFontNames(AllFonts);
-		else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type)
+		else if (para_FootnoteReference === Item.Type || para_EndnoteReference === Item.Type || para_Ruby === Item.Type)
 			Item.GetAllFontNames(AllFonts);
 	}
 };
@@ -3062,6 +3109,12 @@ ParaRun.prototype.GetSelectedText = function(bAll, bClearText, oPr)
 
                 break;
             }
+
+			case para_Ruby:
+			{
+				Str += Item.RubyBase.GetText();
+				break;
+			}
 
             case para_Text :
             {
@@ -4331,6 +4384,43 @@ ParaRun.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
 
                     break;
                 }
+				case para_Ruby:					
+				{
+					Item.Recalculate_Range(PRS, ParaPr, 1);
+					if (true === StartWord)
+						FirstItemOnLine = false;
+
+					Item.YOffset = this.getYOffset();
+
+					if (true === Word || WordLen > 0)
+					{
+						X += SpaceLen + WordLen;
+
+						Word = false;
+						EmptyLine = false; 
+						TextOnLine = true;
+						SpaceLen = 0;
+						WordLen = 0;
+					}
+
+					var DrawingWidth = Item.GetWidth();
+					if (X + SpaceLen + DrawingWidth > XEnd && ( false === FirstItemOnLine || false === Para.IsSingleRangeOnLine(ParaLine, ParaRange) ))
+					{
+						NewRange = true;
+						RangeEndPos = Pos;
+					}
+					else
+					{
+						X += SpaceLen + DrawingWidth;
+
+						FirstItemOnLine = false;
+						EmptyLine = false;
+					}
+
+					SpaceLen = 0;
+
+					break;
+				}
                 case para_PageCount:
                 case para_PageNum:
                 {
@@ -4932,6 +5022,25 @@ ParaRun.prototype.Recalculate_LineMetrics = function(PRS, ParaPr, _CurLine, _Cur
 				break;
 			}
 
+			case para_Ruby:
+			{
+				if (Asc.linerule_Exact === LineRule)
+				{
+					if (PRS.LineAscent < Item.getHeight())
+						PRS.LineAscent = item.getHeight();
+				}
+				else 
+				{
+					let yOffset = this.getYOffset();
+					if (PRS.LineAscent < Item.getHeight() + yOffset)
+						PRS.LineAscent = Item.getHeight() + yOffset;
+
+					if (PRS.LineDescent < -yOffset)
+						PRS.LineDescent = -yOffset;
+				}
+				break;
+			}
+
 			case para_End:
 			{
 				break;
@@ -5102,6 +5211,22 @@ ParaRun.prototype.Recalculate_Range_Width = function(PRSC, _CurLine, _CurRange)
 
                 break;
             }
+			case para_Ruby:
+				PRSC.Words++;
+				PRSC.Range.W += PRSC.SpaceLen;
+
+				if (PRSC.Words > 1)
+					PRSC.Spaces += PRSC.SpacesCount;
+				else
+					PRSC.SpacesSkip += PRSC.SpacesCount;
+
+				PRSC.Word = false;
+				PRSC.SpacesCount = 0;
+				PRSC.SpaceLen = 0;
+
+				PRSC.Range.W += Item.GetWidth();
+
+				break;
             case para_PageNum:
             case para_PageCount:
             {
@@ -6192,6 +6317,9 @@ ParaRun.prototype.Get_Range_VisibleWidth = function(RangeW, _CurLine, _CurRange)
 
                 break;
             }
+			case para_Ruby:
+				RangeW.W += Item.Width;
+				break;
             case para_PageNum:
             case para_PageCount:
             case para_Tab:

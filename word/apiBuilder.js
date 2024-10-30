@@ -9261,6 +9261,23 @@
 		this.Run.AddText(sText);
 	};
 	/**
+	 * Add ruby to the current run
+	 */
+	ApiRun.prototype.AddRuby = function(sRubyText, sRubyBase, rubyPr)
+	{
+		if (!sRubyText || !sRubyText.length)
+			return;
+		if (!sRubyBase || !sRubyBase.length)
+			return;
+		
+		var oPr = new CRubyPr();            
+        oPr.Hps = rubyPr.Hps;
+        oPr.HpsRaise = rubyPr.HpsRaise;
+        oPr.HpsBaseText = rubyPr.HpsBaseText;
+        oPr.FontName = rubyPr.FontName;            
+        this.Run.AddRuby(sRubyText, sRubyBase, oPr);
+	};
+	/**
 	 * Adds a page break and starts the next element from a new page.
 	 * @memberof ApiRun
 	 * @typeofeditors ["CDE"]
@@ -20573,6 +20590,7 @@
 	ApiRun.prototype["GetClassType"]                 = ApiRun.prototype.GetClassType;
 	ApiRun.prototype["GetTextPr"]                    = ApiRun.prototype.GetTextPr;
 	ApiRun.prototype["ClearContent"]                 = ApiRun.prototype.ClearContent;
+	ApiRun.prototype["AddRuby"]                      = ApiRun.prototype.AddRuby;
 	ApiRun.prototype["AddText"]                      = ApiRun.prototype.AddText;
 	ApiRun.prototype["AddPageBreak"]                 = ApiRun.prototype.AddPageBreak;
 	ApiRun.prototype["AddLineBreak"]                 = ApiRun.prototype.AddLineBreak;
