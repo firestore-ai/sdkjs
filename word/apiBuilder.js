@@ -14904,6 +14904,41 @@
 		this.Drawing.spPr.setLn(oStroke.Ln);
 		return true;
 	};
+	/*
+	 * nSize参数是一个百分比值
+	 * editor.GetDocument().GetAllDrawingObjects()[0].SetShadow("ctr", null, 102, null, null, "FF0000")
+	 */
+	ApiDrawing.prototype.SetShadow = function(sAlgn, nTransparent, nSize, nAngle, nDistance, color) 
+	{
+		if(this.Drawing)
+		{
+			var Document = private_GetLogicDocument();
+			var oSpPr = new Asc.asc_CShapeProperty();
+			var oShadow = new Asc.asc_CShadowProperty();
+			if (sAlgn != null) oShadow.putPreset(sAlgn);
+			if (nTransparent != null) oShadow.putTransparency(nTransparent);
+			if (nSize != null) oShadow.putSize(nSize);
+			if (nAngle != null) oShadow.putAngle(nAngle);
+			if (nDistance != null) oShadow.putDistance(nDistance);
+			if (color) oShadow.putColor(Common.Utils.ThemeColor.getRgbColor(color));
+			oSpPr.put_Shadow(oShadow);
+				
+			this.getParaDrawing().SelectAsDrawing();
+			editor.ImgApply(new asc_CImgProperty({ShapeProperties : oSpPr}));			
+		}		
+	}
+	ApiDrawing.prototype.ClearShadow = function()
+	{
+		if(this.Drawing)
+		{
+			var Document = private_GetLogicDocument();
+			var oSpPr = new Asc.asc_CShapeProperty();
+			oSpPr.asc_putShadow(null);
+			//this.Drawing.changeShadow(oShadow);			
+			this.getParaDrawing().SelectAsDrawing();
+			editor.ImgApply(new asc_CImgProperty({ShapeProperties : oSpPr}));						
+		}
+	}
 	/**
 	 * Returns the next inline drawing object if exists. 
 	 *  @memberof ApiDrawing
@@ -15350,7 +15385,6 @@
 
 		return null;
 	};
-
 	//------------------------------------------------------------------------------------------------------------------
 	//
 	// ApiChart
@@ -20933,6 +20967,7 @@
 	ApiDrawing.prototype["GetLockValue"]             = ApiDrawing.prototype.GetLockValue;
 	ApiDrawing.prototype["SetLockValue"]             = ApiDrawing.prototype.SetLockValue;
 	ApiDrawing.prototype["SetDrawingPrFromDrawing"]  = ApiDrawing.prototype.SetDrawingPrFromDrawing;
+	ApiDrawing.prototype["SetShadow"]				 = ApiDrawing.prototype.SetShadow;
 
 	ApiDrawing.prototype["ToJSON"]                   = ApiDrawing.prototype.ToJSON;
 
