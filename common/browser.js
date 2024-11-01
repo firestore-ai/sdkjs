@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -63,7 +63,9 @@ var AscBrowser = {
     chromeVersion : 70,
     iosVersion : 13,
     isAndroidNativeApp : false,
-	safariVersion : 17004001
+	safariVersion : 17004001,
+	isTelegramWebView : false,
+	maxTouchPoints : 0
 };
 
 // user agent lower case
@@ -144,6 +146,8 @@ if (AscBrowser.isAppleDevices)
 	AscBrowser.iosVersion = iosversion;
 }
 
+if (navigator.maxTouchPoints) AscBrowser.maxTouchPoints = navigator.maxTouchPoints;
+
 // android devices detect
 AscBrowser.isAndroid = (AscBrowser.userAgent.indexOf("android") > -1);
 
@@ -176,6 +180,8 @@ AscBrowser.isEmulateDevicePixelRatio = (AscBrowser.userAgent.indexOf("emulatedev
 AscBrowser.isNeedEmulateUpload = (AscBrowser.userAgent.indexOf("needemulateupload") > -1);
 
 AscBrowser.isAndroidNativeApp = (AscBrowser.userAgent.indexOf("ascandroidwebview") > -1);
+
+AscBrowser.isTelegramWebView = (typeof TelegramWebviewProxy === "object") ? true : false;
 
 AscBrowser.zoom = 1;
 

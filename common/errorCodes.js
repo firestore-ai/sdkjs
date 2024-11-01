@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -167,6 +167,8 @@
 			PivotGroup					: -315,
 			PivotWithoutUnderlyingData	: -316,
 
+			CircularReference			: -320,
+
 			ForceSaveButton: -331,
 			ForceSaveTimeout: -332,
 			Submit: -333,
@@ -246,7 +248,9 @@
 			TraceDependentsNoFormulas: 1060,
 			TracePrecedentsNoValidReference: 1061,
 
-			MustIntegerOrDecimalNumber: 1070
+			MustIntegerOrDecimalNumber: 1070,
+
+			DocumentAndChangeMismatch: 1080
 		}
 	};
 
@@ -358,6 +362,7 @@
 	prot['PivotOverlap']                     = prot.PivotOverlap;
 	prot['PivotGroup']                       = prot.PivotGroup;
 	prot['PivotWithoutUnderlyingData']       = prot.PivotWithoutUnderlyingData;
+	prot['CircularReference']                = prot.CircularReference;
 	prot['ForceSaveButton']                  = prot.ForceSaveButton;
 	prot['ForceSaveTimeout']                 = prot.ForceSaveTimeout;
 	prot['Submit']                           = prot.Submit;
@@ -413,6 +418,7 @@
 	prot['TraceDependentsNoFormulas']        = prot.TraceDependentsNoFormulas;
 	prot['TracePrecedentsNoValidReference']  = prot.TracePrecedentsNoValidReference;
 	prot['MustIntegerOrDecimalNumber']       = prot.MustIntegerOrDecimalNumber;
+	prot['DocumentAndChangeMismatch']        = prot.DocumentAndChangeMismatch;
 
 
 

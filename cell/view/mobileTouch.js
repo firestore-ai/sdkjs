@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -60,9 +60,10 @@ function (window, undefined)
 	CMobileDelegateEditorCell.prototype.constructor = CMobileDelegateEditorCell;
 	CMobileDelegateEditorCell.prototype.Resize = function()
 	{
-		var _element = document.getElementById("editor_sdk");
-		this.Offset.X = _element.offsetLeft;
-		this.Offset.Y = _element.offsetTop;
+		let _element = document.getElementById("editor_sdk");
+		let pos = AscCommon.UI.getBoundingClientRect(_element);
+		this.Offset.X = pos.x || pos.left;
+		this.Offset.Y = pos.y || pos.top;
 
 		this.Size.W = _element.offsetWidth;
 		this.Size.H = _element.offsetHeight;
@@ -161,7 +162,7 @@ function (window, undefined)
 	};
 	CMobileDelegateEditorCell.prototype.GetSelectionRectsBounds = function()
 	{
-		var _selection = this.WB.GetSelectionRectsBounds();
+		var _selection = this.WB.GetSelectionRectsBounds(true);
 
 		if (_selection)
 		{
@@ -201,31 +202,41 @@ function (window, undefined)
 		var pos;
 		var _api = this.WB;
 
+		let needInit = false;
+		let isSmoothScrolling = _api.getSmoothScrolling();
 		if ('v' === _scroll.directionLocked)
 		{
 			pos = -_scroll.y / _api.controller.settings.hscrollStep;
-			if (-_scroll.y >= -_scroll.maxScrollY)
+			if (-_scroll.y >= -_scroll.maxScrollY) {
+				needInit = isSmoothScrolling;
 				pos += 1;
-			_api._onScrollY(pos);
+			}
+			_api._onScrollY(pos, needInit);
 		}
 		else if ('h' === _scroll.directionLocked)
 		{
 			pos = -_scroll.x / _api.controller.settings.vscrollStep;
-			if (-_scroll.x >= -_scroll.maxScrollX)
+			if (-_scroll.x >= -_scroll.maxScrollX) {
+				needInit = isSmoothScrolling;
 				pos += 1;
-			_api._onScrollX(pos);
+			}
+			_api._onScrollX(pos, needInit);
 		}
 		else if ('n' === _scroll.directionLocked)
 		{
 			pos = -_scroll.y / _api.controller.settings.hscrollStep;
-			if (-_scroll.y >= -_scroll.maxScrollY)
+			if (-_scroll.y >= -_scroll.maxScrollY) {
+				needInit = isSmoothScrolling;
 				pos += 1;
-			_api._onScrollY(pos);
+			}
+			_api._onScrollY(pos, needInit);
 
 			pos = -_scroll.x / _api.controller.settings.vscrollStep;
-			if (-_scroll.x >= -_scroll.maxScrollX)
+			if (-_scroll.x >= -_scroll.maxScrollX) {
+				needInit = isSmoothScrolling;
 				pos += 1;
-			_api._onScrollX(pos);
+			}
+			_api._onScrollX(pos, needInit);
 		}
 	};
 	CMobileDelegateEditorCell.prototype.GetContextMenuType = function()
@@ -519,7 +530,7 @@ function (window, undefined)
 
 		this.iScroll = new window.IScrollMobile(_element, {
 			scrollbars: true,
-			mouseWheel: true,
+			mouseWheel: !this.isDesktopMode,
 			interactiveScrollbars: true,
 			shrinkScrollbars: 'scale',
 			fadeScrollbars: true,
@@ -527,7 +538,8 @@ function (window, undefined)
 			scroller_id : this.iScrollElement,
 			bounce : false,
 			eventsElement : this.eventsElement,
-			click : false
+			click : false,
+			transparentIndicators : this.isDesktopMode
 		});
 
 		this.delegate.Init();
@@ -581,12 +593,27 @@ function (window, undefined)
 		if (_matrix && global_MatrixTransformer.IsIdentity(_matrix))
 			_matrix = null;
 
-		if (!this.CheckSelectTrack())
+		let touchesCount = e.touches ? e.touches.length : this.getPointerCount();
+		let isLockedTouch = false;
+
+		if (touchesCount > 1)
 		{
-			bIsKoefPixToMM = this.CheckObjectTrack();
+			if (AscCommon.MobileTouchMode.None !== this.Mode &&
+				AscCommon.MobileTouchMode.Scroll !== this.Mode)
+			{
+				isLockedTouch = true;
+			}
 		}
 
-		if ((e.touches && 2 == e.touches.length) || (2 == this.getPointerCount()))
+		if (!isLockedTouch)
+		{
+			if (!this.CheckSelectTrack())
+			{
+				bIsKoefPixToMM = this.CheckObjectTrack();
+			}
+		}
+
+		if (!isLockedTouch && (2 === touchesCount))
 		{
 			this.Mode = AscCommon.MobileTouchMode.Zoom;
 		}
@@ -1001,12 +1028,17 @@ function (window, undefined)
 	};
 	CMobileTouchManager.prototype.mainOnTouchEnd = function(e)
 	{
-		return this.onTouchEnd(e);
+		let res = this.onTouchEnd(e);
+		this.checkDesktopModeContextMenuEnd(e);
+		return res;
 	};
 
 	// отрисовка текстового селекта
 	CMobileTouchManager.prototype.CheckSelect = function(overlay, color, drDocument)
 	{
+		if (!this.desktopTouchState)
+			return;
+
 		if (!this.SelectEnabled)
 			return;
 

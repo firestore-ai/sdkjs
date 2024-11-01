@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -2256,6 +2256,9 @@ function CDrawingDocument()
 		}
 
 		this.MoveTargetInInputContext();
+
+		if (this.m_oWordControl.MobileTouchManager)
+			this.m_oWordControl.MobileTouchManager.CheckGlassUpdate();
 	};
 
 	this.MoveTargetInInputContext = function ()
@@ -2547,6 +2550,23 @@ function CDrawingDocument()
 		}
 	};
 
+	this.isDrawTargetGlass = function()
+	{
+		let isActive = true;
+		let api = oThis.m_oWordControl.m_oApi;
+
+		if (!oThis.m_oWordControl.IsFocus)
+			isActive = false;
+		else if (oThis.m_oWordControl.m_oApi.isBlurEditor)
+			isActive = false;
+		else if (api.isViewMode || (api.isRestrictionView() && !api.isRestrictionForms()))
+			isActive = false;
+		if (-1 === this.m_lTimerTargetId)
+			isActive = false;
+
+		return isActive;
+	};
+
 	this.TargetShow = function ()
 	{
 		this.TargetShowNeedFlag = true;
@@ -2689,15 +2709,7 @@ function CDrawingDocument()
 
 		// regenerate styles
 		if (null == this.m_oWordControl.m_oApi._gui_styles)
-		{
-			if (window["NATIVE_EDITOR_ENJINE"] === true)
-			{
-				if (!this.m_oWordControl.m_oApi.asc_checkNeedCallback("asc_onInitEditorStyles"))
-					return;
-			}
-			var StylesPainter = new CStylesPainter();
-			StylesPainter.GenerateStyles(this.m_oWordControl.m_oApi, this.m_oWordControl.m_oLogicDocument.Get_Styles().Style);
-		}
+			this.m_oWordControl.m_oApi.GenerateStyles();
 	};
 
 	this.DrawImageTextureFillShape = function (url)
@@ -6638,6 +6650,9 @@ function CDrawingDocument()
 			this.m_oWordControl.m_oApi.ShowParaMarks = this.m_bOldShowMarks;
 			this.printedDocument = null;
 		}
+		
+		// TODO: Когда в интерфейсе появится флаг как писать заголовки послать его вторым параметром
+		renderer.AddHeadings(_this.m_oLogicDocument, true);
 
 		if (noBase64) {
 			return renderer.Memory.GetData();

@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -495,43 +495,6 @@ function CEditorPage(api)
 			AscCommon.stopEvent(e);
 			return false;
 		};
-
-		this.initEventsMobileAdvances();
-	};
-
-	this.initEventsMobileAdvances = function()
-	{
-		this.m_oTopRuler_horRuler.HtmlElement["ontouchstart"] = function(e)
-		{
-			oThis.horRulerMouseDown(e.touches[0]);
-			return false;
-		};
-		this.m_oTopRuler_horRuler.HtmlElement["ontouchmove"] = function(e)
-		{
-			oThis.horRulerMouseMove(e.touches[0]);
-			return false;
-		};
-		this.m_oTopRuler_horRuler.HtmlElement["ontouchend"] = function(e)
-		{
-			oThis.horRulerMouseUp(e.changedTouches[0]);
-			return false;
-		};
-
-		this.m_oLeftRuler_vertRuler.HtmlElement["ontouchstart"] = function(e)
-		{
-			oThis.verRulerMouseDown(e.touches[0]);
-			return false;
-		};
-		this.m_oLeftRuler_vertRuler.HtmlElement["ontouchmove"] = function(e)
-		{
-			oThis.verRulerMouseMove(e.touches[0]);
-			return false;
-		};
-		this.m_oLeftRuler_vertRuler.HtmlElement["ontouchend"] = function(e)
-		{
-			oThis.verRulerMouseUp(e.changedTouches[0]);
-			return false;
-		};
 	};
 
 	this.initEventsMobile = function()
@@ -570,6 +533,12 @@ function CEditorPage(api)
 					return false;
 				};
 			}
+		}
+		else
+		{
+			this.MobileTouchManager = new AscCommon.CMobileTouchManager( { eventsElement : "word_mobile_element", desktopMode : true } );
+			this.MobileTouchManager.Init(this.m_oApi);
+			this.MobileTouchManager.Resize();
 		}
 	};
 
@@ -1754,6 +1723,14 @@ function CEditorPage(api)
 	// events ---
 	this.onMouseDown = function(e, isTouch)
 	{
+		if (oThis.MobileTouchManager && oThis.MobileTouchManager.checkTouchEvent(e))
+		{
+			oThis.MobileTouchManager.startTouchingInProcess();
+			let res = oThis.MobileTouchManager.mainOnTouchStart(e);
+			oThis.MobileTouchManager.stopTouchingInProcess();
+			return res;
+		}
+
 		oThis.m_oApi.checkInterfaceElementBlur();
 		oThis.m_oApi.checkLastWork();
 
@@ -1894,6 +1871,14 @@ function CEditorPage(api)
 
 	this.onMouseMove  = function(e, isTouch)
 	{
+		if (oThis.MobileTouchManager && oThis.MobileTouchManager.checkTouchEvent(e))
+		{
+			oThis.MobileTouchManager.startTouchingInProcess();
+			let res = oThis.MobileTouchManager.mainOnTouchMove(e);
+			oThis.MobileTouchManager.stopTouchingInProcess();
+			return res;
+		}
+
 		oThis.m_oApi.checkLastWork();
 
 		if (false === oThis.m_oApi.bInit_word_control || (AscCommon.isTouch && undefined === isTouch) || oThis.m_oApi.isLongAction())
@@ -1941,6 +1926,7 @@ function CEditorPage(api)
 
 					oWordControl.m_oLogicDocument && oWordControl.m_oLogicDocument.UpdateCursorType();
 					oWordControl.StartUpdateOverlay();
+					oWordControl.m_oDrawingDocument.contentControls.onPointerLeave();
 					oWordControl.OnUpdateOverlay();
 					oWordControl.EndUpdateOverlay();
 					return;
@@ -2053,6 +2039,14 @@ function CEditorPage(api)
 
 	this.onMouseUp    = function(e, bIsWindow, isTouch)
 	{
+		if (oThis.MobileTouchManager && oThis.MobileTouchManager.checkTouchEvent(e))
+		{
+			oThis.MobileTouchManager.startTouchingInProcess();
+			let res = oThis.MobileTouchManager.mainOnTouchEnd(e);
+			oThis.MobileTouchManager.stopTouchingInProcess();
+			return res;
+		}
+
 		oThis.m_oApi.checkLastWork();
 
 		//console.log("up: " + isTouch + ", " + AscCommon.isTouch);
@@ -3513,6 +3507,12 @@ function CEditorPage(api)
 		{
 			drDoc.m_oDocumentRenderer.onUpdateOverlay();
 		}
+
+		if (this.MobileTouchManager)
+		{
+			let targetElement = (this.m_oDrawingDocument && this.m_oDrawingDocument.isDrawTargetGlass()) ? this.m_oDrawingDocument.TargetHtmlElement : null;
+			this.MobileTouchManager.CheckGlass(overlay, this.m_oEditor.HtmlElement, targetElement);
+		}
 	};
 
 	this.OnScroll       = function(isFromLA)
@@ -3722,8 +3722,7 @@ function CEditorPage(api)
             if (AscCommon.g_inputContext)
                 AscCommon.g_inputContext.onResize("id_main_view");
 
-            if (this.m_oApi.isMobileVersion)
-                this.initEventsMobile();
+            this.initEventsMobile();
         }
 
 		if (undefined !== this.m_oApi.startMobileOffset)

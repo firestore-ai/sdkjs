@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -545,7 +545,7 @@ function CPresentation(DrawingDocument) {
 			this.History.Set_LogicDocument(this);
 
 		if (this.CollaborativeEditing)
-			this.CollaborativeEditing.m_oLogicDocument = this;
+			this.CollaborativeEditing.SetLogicDocument(this);
 	}
 
 	//------------------------------------------------------------------------
@@ -557,7 +557,7 @@ function CPresentation(DrawingDocument) {
 	//Props
 	this.App = null;
 	this.Core = null;
-	this.CustomProperties = null;
+	this.CustomProperties = new AscCommon.CCustomProperties();;
 
 	this.StartPage = 0; // Для совместимости с CDocumentContent
 	this.CurPage = 0;
@@ -639,7 +639,7 @@ function CPresentation(DrawingDocument) {
 	this.CompositeInput = null;
 
 
-	this.Spelling = new AscCommonWord.CDocumentSpellChecker();
+	this.Spelling = new AscWord.CDocumentSpellChecker();
 
 	this.Sections = [];//array of CPrSection
 
@@ -2078,6 +2078,13 @@ CPresentation.prototype.GetSlideIndex = function (oSlide) {
 	}
 	return -1;
 };
+CPresentation.prototype.GetThumbnailsCount = function() {
+	
+	if (this.Api.WordControl.Thumbnails) {
+		return this.Api.WordControl.Thumbnails.m_arrPages.length;
+	}
+	return this.GetSlidesCount();
+};
 CPresentation.prototype.GetSlideNumber = function (nIdx) {
 	if(!this.IsMasterMode()) {
 		return nIdx + this.getFirstSlideNumber();
@@ -2483,12 +2490,14 @@ CPresentation.prototype.AddNewMasterSlide = function () {
 };
 CPresentation.prototype.AddNewLayout = function () {
 	if(!this.IsMasterMode) return;
+	this.StartAction(0);
 	let oMaster = this.GetCurrentMaster();
 	if(oMaster) {
 		let oLayout = oMaster.addNewLayout();
 		this.Recalculate();
 		this.DrawingDocument.m_oWordControl.GoToPage(this.GetSlideIndex(oLayout));
 	}
+	this.FinalizeAction(true);
 };
 
 CPresentation.prototype.LoadEmptyDocument = function () {
@@ -2788,6 +2797,7 @@ CPresentation.prototype.Recalculate = function (RecalcData) {
 							b_check_layout = true;
 							bAttack = true;
 							isUpdateThemes = true;
+							bRedrawAllSlides = true;
 							if(oDrawingObject.needRecalc()) {
 								for (let nIdx = 0; nIdx < this.Slides.length; ++nIdx) {
 									let oCalcSlide = this.Slides[nIdx];
@@ -2968,7 +2978,8 @@ CPresentation.prototype.Recalculate = function (RecalcData) {
 				this.DrawingDocument.Notes_OnRecalculate(this.CurPage, oCurSlide.NotesWidth, oCurSlide.getNotesHeight());
 			}
 		}
-		if (bEndRecalc || this.GetSlidesCount() === 0) {
+		let nSlidesCount = this.GetSlidesCount();
+		if (bEndRecalc || nSlidesCount === 0 || nSlidesCount !== this.GetThumbnailsCount()) {
 			this.DrawingDocument.OnEndRecalculate();
 		}
 	}
@@ -3341,7 +3352,6 @@ CPresentation.prototype.GetTargetPosition = function () {
 	}
 	return oPosition;
 };
-
 
 // Отрисовка содержимого Документа
 CPresentation.prototype.Draw = function (nPageIndex, pGraphics) {
@@ -8342,6 +8352,7 @@ CPresentation.prototype.InsertContent = function (Content) {
 							let oSlidePh, oLayoutPlaceholder;
 
 							let nType, nIdx;
+							oSp.generateSmartArtDrawingPart();
 							if (oSp.isPlaceholder() && !this.IsMasterMode()) {
 								let oInfo = {};
 								nType = oSp.getPlaceholderType();
@@ -9989,6 +10000,17 @@ CPresentation.prototype.Document_Is_SelectionLocked = function (CheckType, Addit
 				});
 		}
 	}
+	if (CheckType === AscCommon.changestype_CustomPr) {
+		if (this.CustomProperties) {
+			this.CustomProperties.Lock.Check(
+				{
+					"type": c_oAscLockTypeElemPresentation.Object,
+					"val": this.CustomProperties.Get_Id(),
+					"guid": this.CustomProperties.Get_Id(),
+					"objId": this.CustomProperties.Get_Id()
+				});
+		}
+	}
 
 	if (CheckType === AscCommon.changestype_SlideTransition) {
 
@@ -11223,6 +11245,30 @@ CPresentation.prototype.getLockApplyBackgroundToAll = function() {
 		}
 	}
 	return false;
+};
+
+CPresentation.prototype.AddCustomProperty = function(name, type, value) {
+	if(this.Document_Is_SelectionLocked(AscCommon.changestype_CustomPr, null))
+		return;
+	this.StartAction(AscDFH.historydescription_CustomProperties_Add);
+	this.CustomProperties.AddProperty(name, type, value);
+	this.FinalizeAction(true);
+};
+
+CPresentation.prototype.ModifyCustomProperty = function(idx, name, type, value) {
+	if(this.Document_Is_SelectionLocked(AscCommon.changestype_CustomPr, null))
+		return;
+	this.StartAction(AscDFH.historydescription_CustomProperties_Modify);
+	this.CustomProperties.ModifyProperty(idx, name, type, value);
+	this.FinalizeAction(true);
+};
+
+CPresentation.prototype.RemoveCustomProperty = function(idx) {
+	if(this.Document_Is_SelectionLocked(AscCommon.changestype_CustomPr, null))
+		return;
+	this.StartAction(AscDFH.historydescription_CustomProperties_Remove);
+	this.CustomProperties.RemoveProperty(idx);
+	this.FinalizeAction(true);
 };
 
 function collectSelectedObjects(aSpTree, aCollectArray, bRecursive, oIdMap, bSourceFormatting) {

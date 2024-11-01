@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -50,12 +50,12 @@ $(function () {
 
         window["Asc"]["editor"] = api;
 
+        AscCommon.g_oTableId.init();
         wb = new AscCommonExcel.Workbook(new AscCommonExcel.asc_CHandlersList(), api);
         AscCommon.History.init(wb);
         wb.maxDigitWidth = 7;
         wb.paddingPlusBorder = 5;
 
-        AscCommon.g_oTableId.init();
         if (this.User) {
             g_oIdCounter.Set_UserId(this.User.asc_getId());
         }

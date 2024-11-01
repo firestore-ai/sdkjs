@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -173,6 +173,7 @@ function BinaryPPTYLoader()
 	this.oConnectedObjects = {};
 	this.map_shapes_by_id = {};
 	this.fields = [];
+	this.smartarts = [];
 
 
 	this.ClearConnectedObjects = function(){
@@ -312,6 +313,15 @@ function BinaryPPTYLoader()
 
         this.ImageMapChecker = null;
     };
+		this.GenerateSmartArts = function () {
+			while (this.smartarts.length) {
+				const smartart = this.smartarts.pop();
+				smartart.generateDrawingPart();
+			}
+		};
+	this.ClearSmartArts = function () {
+		this.smartarts.length = 0;
+	};
 
     this.LoadDocument = function()
     {
@@ -385,7 +395,6 @@ function BinaryPPTYLoader()
                 // CustomProperties
                 s.Seek2(_main_tables["48"]);
 
-                this.presentation.CustomProperties = new AscCommon.CCustomProperties();
                 this.presentation.CustomProperties.fromStream(s);
             }
         }
@@ -691,6 +700,11 @@ function BinaryPPTYLoader()
 				}
 			}
         }
+				if (this.IsThemeLoader) {
+					this.ClearSmartArts();
+				} else {
+					this.GenerateSmartArts();
+				}
 
         if (this.Api != null && !this.IsThemeLoader)
         {
@@ -6367,7 +6381,7 @@ function BinaryPPTYLoader()
             {
                 case 0:
                 {
-                    shape.attrUseBgFill = s.GetBool();
+                    shape.setUseBgFill(s.GetBool());
                     break;
                 }
                 default:
@@ -6858,7 +6872,7 @@ function BinaryPPTYLoader()
     {
         var s = this.stream;
 
-        var shape = new AscFormat.CConnectionShape();
+        var shape = false == Asc.editor.isPdfEditor() ? new AscFormat.CConnectionShape() : new AscPDF.CPdfConnectionShape();
         shape.setBDeleted(false);
 
         var _rec_start = s.cur;
@@ -7115,9 +7129,37 @@ function BinaryPPTYLoader()
                     }
                     break;
                 }
+                case 7: // chartEx
+                {
+                    var _length = s.GetLong();
+                    var _pos = s.cur;
+
+                    if(typeof AscFormat.CChartSpace !== "undefined" && _length)
+                    {
+                        var _stream = new AscCommon.FT_Stream2();
+                        _stream.data = s.data;
+                        _stream.pos = s.pos;
+                        _stream.cur = s.cur;
+                        _stream.size = s.size;
+                        _chart = new AscFormat.CChartSpace();
+                        _chart.setBDeleted(false);
+                        AscCommon.pptx_content_loader.ImageMapChecker = this.ImageMapChecker;
+                        AscCommon.pptx_content_loader.Reader.ImageMapChecker = this.ImageMapChecker;
+                        var oBinaryChartReader = new AscCommon.BinaryChartReader(_stream);
+                        oBinaryChartReader.ExternalReadCT_ChartExSpace(_length, _chart, this.presentation);
+                        if(!_chart.hasCharts())
+                        {
+                            _chart = null;
+                        }
+                    }
+
+                    s.Seek2(_pos + _length);
+                    break;
+                }
                 case 8://smartArt
                 {
                     _smartArt = this.ReadSmartArt();
+										this.smartarts.push(_smartArt);
                     break;
                 }
                 case 9:
@@ -7238,6 +7280,7 @@ function BinaryPPTYLoader()
             _smartArt = new AscFormat.SmartArt();
             _smartArt.fromPPTY(this);
             _smartArt.setBDeleted(false);
+						_smartArt.generateDefaultStructures();
             _smartArt.checkNodePointsAfterRead();
         }
         else
@@ -10542,7 +10585,7 @@ function BinaryPPTYLoader()
                 {
                     case 0:
                     {
-                        shape.attrUseBgFill = s.GetBool();
+                        shape.setUseBgFill(s.GetBool());
                         break;
                     }
                     default:
@@ -10785,7 +10828,19 @@ function BinaryPPTYLoader()
             var s = this.stream;
 
             var isOle = (type === 6);
-            var pic = isOle ? new AscFormat.COleObject() : new AscFormat.CImageShape();
+            var pic;
+            if (isOle)
+            {
+                pic = new AscFormat.COleObject(this.TempMainObject)
+            }
+            else
+            {
+                if (Asc.editor.isPdfEditor())
+                    pic = new AscPDF.CPdfImage();
+                else
+                    pic = new AscFormat.CImageShape(this.TempMainObject);
+            }
+
             pic.setBDeleted(false);
             pic.setParent(this.TempMainObject == null ? this.ParaDrawing : null);
 
@@ -11305,6 +11360,7 @@ function BinaryPPTYLoader()
             this.BaseReader = null;
             if(!bClearStreamOnly)
                 this.ImageMapChecker = {};
+	        this.Reader.ClearSmartArts();
         };
     }
 

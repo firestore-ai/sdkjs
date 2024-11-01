@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -55,6 +55,7 @@
 	AscDFH.changesFactory[AscDFH.historyitem_AutoShapes_SetDrawingBaseExt] = AscDFH.CChangesDrawingsObjectNoId;
 	AscDFH.changesFactory[AscDFH.historyitem_AutoShapes_SetDrawingBaseCoors] = AscDFH.CChangesDrawingsObjectNoId;
 	AscDFH.changesFactory[AscDFH.historyitem_ShapeSetClientData] = AscDFH.CChangesDrawingsObjectNoId;
+	AscDFH.changesFactory[AscDFH.historyitem_ShapeSetUseBgFill] = AscDFH.CChangesDrawingsBool;
 
 
 	var drawingsChangesMap = window['AscDFH'].drawingsChangesMap;
@@ -132,6 +133,9 @@
 	};
 	drawingsChangesMap[AscDFH.historyitem_ShapeSetClientData] = function (oClass, value) {
 		oClass.clientData = value;
+	};
+	drawingsChangesMap[AscDFH.historyitem_ShapeSetUseBgFill] = function (oClass, value) {
+		oClass.useBgFill = value;
 	};
 
 
@@ -750,19 +754,19 @@
 		}
 	};
 	CGraphicObjectBase.prototype.setMacro = function (sMacroName) {
-		History.Add(new AscDFH.CChangesDrawingsString(this, AscDFH.historyitem_ShapeSetMacro, this.macro, sMacroName));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsString(this, AscDFH.historyitem_ShapeSetMacro, this.macro, sMacroName));
 		this.macro = sMacroName;
 	};
 	CGraphicObjectBase.prototype.setModelId = function (sModelId) {
-		History.Add(new AscDFH.CChangesDrawingsString(this, AscDFH.historyitem_ShapeSetModelId, this.modelId, sModelId));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsString(this, AscDFH.historyitem_ShapeSetModelId, this.modelId, sModelId));
 		this.modelId = sModelId;
 	};
 	CGraphicObjectBase.prototype.setFLocksText = function (bLock) {
-		History.Add(new AscDFH.CChangesDrawingsBool(this, AscDFH.historyitem_ShapeSetFLocksText, this.fLocksText, bLock));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsBool(this, AscDFH.historyitem_ShapeSetFLocksText, this.fLocksText, bLock));
 		this.fLocksText = bLock;
 	};
 	CGraphicObjectBase.prototype.setClientData = function (oClientData) {
-		History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_ShapeSetClientData, this.clientData, oClientData));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_ShapeSetClientData, this.clientData, oClientData));
 		this.clientData = oClientData;
 	};
 	CGraphicObjectBase.prototype.checkClientData = function () {
@@ -847,7 +851,7 @@
 		}
 	};
 	CGraphicObjectBase.prototype.setTextLink = function (sLink) {
-		History.Add(new AscDFH.CChangesDrawingsString(this, AscDFH.historyitem_ShapeSetTextLink, this.textLink, sLink));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsString(this, AscDFH.historyitem_ShapeSetTextLink, this.textLink, sLink));
 		this.textLink = sLink;
 	};
 	CGraphicObjectBase.prototype.hasMacro = function () {
@@ -969,6 +973,12 @@
 			return false;
 		}
 		return this.getNoRot() === false;
+	};
+	CGraphicObjectBase.prototype.canResize = function () {
+		if (!this.canEdit()) {
+			return false;
+		}
+		return this.getNoResize() === false;
 	};
 	CGraphicObjectBase.prototype.canSelect = function () {
 		return this.getNoSelect() === false;
@@ -1187,7 +1197,7 @@
 	};
 	CGraphicObjectBase.prototype.isGroupObject = function () {
 		var nType = this.getObjectType();
-		return nType === AscDFH.historyitem_type_GroupShape || nType === AscDFH.historyitem_type_LockedCanvas || this.isSmartArtObject();
+		return nType === AscDFH.historyitem_type_GroupShape || nType === AscDFH.historyitem_type_LockedCanvas || this.isSmartArtObject() || nType === AscDFH.historyitem_type_Pdf_Annot_FreeText;
 	};
 	CGraphicObjectBase.prototype.isSmartArtObject = function () {
 		var nType = this.getObjectType();
@@ -1312,21 +1322,21 @@
 	};
 	CGraphicObjectBase.prototype.setDrawingBaseType = function (nType) {
 		if (this.drawingBase) {
-			History.Add(new AscDFH.CChangesDrawingsLong(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseType, this.drawingBase.Type, nType));
+			AscCommon.History.Add(new AscDFH.CChangesDrawingsLong(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseType, this.drawingBase.Type, nType));
 			this.drawingBase.Type = nType;
 			this.handleUpdateExtents();
 		}
 	};
 	CGraphicObjectBase.prototype.setDrawingBaseEditAs = function (nType) {
 		if (this.drawingBase) {
-			History.Add(new AscDFH.CChangesDrawingsLong(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseEditAs, this.drawingBase.editAs, nType));
+			AscCommon.History.Add(new AscDFH.CChangesDrawingsLong(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseEditAs, this.drawingBase.editAs, nType));
 			this.drawingBase.editAs = nType;
 			this.handleUpdateExtents();
 		}
 	};
 	CGraphicObjectBase.prototype.setDrawingBasePos = function (fPosX, fPosY) {
 		if (this.drawingBase && this.drawingBase.Pos) {
-			History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBasePos, new CDrawingBaseCoordsWritable(this.drawingBase.Pos.X, this.drawingBase.Pos.Y), new CDrawingBaseCoordsWritable(fPosX, fPosY)));
+			AscCommon.History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBasePos, new CDrawingBaseCoordsWritable(this.drawingBase.Pos.X, this.drawingBase.Pos.Y), new CDrawingBaseCoordsWritable(fPosX, fPosY)));
 			this.drawingBase.Pos.X = fPosX;
 			this.drawingBase.Pos.Y = fPosY;
 			this.handleUpdatePosition();
@@ -1334,7 +1344,7 @@
 	};
 	CGraphicObjectBase.prototype.setDrawingBaseExt = function (fExtX, fExtY) {
 		if (this.drawingBase && this.drawingBase.ext) {
-			History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseExt, new CDrawingBaseCoordsWritable(this.drawingBase.ext.cx, this.drawingBase.ext.cy), new CDrawingBaseCoordsWritable(fExtX, fExtY)));
+			AscCommon.History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseExt, new CDrawingBaseCoordsWritable(this.drawingBase.ext.cx, this.drawingBase.ext.cy), new CDrawingBaseCoordsWritable(fExtX, fExtY)));
 			this.drawingBase.ext.cx = fExtX;
 			this.drawingBase.ext.cy = fExtY;
 			this.handleUpdateExtents();
@@ -1514,7 +1524,7 @@
 			this.extY = oldExtY;
 			this.rot = oldRot;
 			var from = this.drawingBase.from, to = this.drawingBase.to;
-			History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseCoors,
+			AscCommon.History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseCoors,
 				new CDrawingBasePosWritable({
 					fromCol: oldFromCol,
 					fromColOff: oldFromColOff,
@@ -1548,7 +1558,7 @@
 	};
 	CGraphicObjectBase.prototype.setDrawingBaseCoords = function (fromCol, fromColOff, fromRow, fromRowOff, toCol, toColOff, toRow, toRowOff, posX, posY, extX, extY) {
 		if (this.drawingBase) {
-			History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseCoors, new CDrawingBasePosWritable({
+			AscCommon.History.Add(new AscDFH.CChangesDrawingsObjectNoId(this, AscDFH.historyitem_AutoShapes_SetDrawingBaseCoors, new CDrawingBasePosWritable({
 					fromCol: this.drawingBase.from.col,
 					fromColOff: this.drawingBase.from.colOff,
 					fromRow: this.drawingBase.from.row,
@@ -1618,6 +1628,11 @@
 	};
 	CGraphicObjectBase.prototype.getWorksheet = function () {
 		return this.worksheet;
+	};
+	CGraphicObjectBase.prototype.getWorksheetView = function () {
+		let oWS = this.getWorksheet();
+		if(!oWS) return null;
+		
 	};
 	CGraphicObjectBase.prototype.getWorkbook = function () {
 		var oWorksheet = this.getWorksheet();
@@ -1709,7 +1724,7 @@
 		return undefined;
 	};
 	CGraphicObjectBase.prototype.setBDeleted = function (pr) {
-		History.Add(new AscDFH.CChangesDrawingsBool(this, AscDFH.historyitem_ShapeSetBDeleted, this.bDeleted, pr));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsBool(this, AscDFH.historyitem_ShapeSetBDeleted, this.bDeleted, pr));
 		this.bDeleted = pr;
 	};
 	CGraphicObjectBase.prototype.getEditorType = function () {
@@ -3013,6 +3028,12 @@
 		return this;
 	};
 
+	CGraphicObjectBase.prototype.getDrawingObjectsController = function() {
+		if(AscFormat.CShape.prototype.getDrawingObjectsController) {
+			return AscFormat.CShape.prototype.getDrawingObjectsController.call(this);
+		}
+		return null;
+	};
 
 
 	//TODO: refactor this methods: don't call functions from AscFormat.CShape.prototype
@@ -3672,8 +3693,8 @@
 
 	CGraphicObjectBase.prototype.applyDrawingSize = function(props) {
 		let oSpParent = this.parent;
-		let oXfrm = this.spPr.xfrm;
 		AscFormat.CheckSpPrXfrm3(this);
+		let oXfrm = this.spPr.xfrm;
 		let scaleX = 1.0;
 		let scaleY = 1.0;
 		let oldExtX = oXfrm.extX;
@@ -3723,8 +3744,8 @@
 	CGraphicObjectBase.prototype.checkPlaceholders = function(oPlaceholders) {
 		if(this.isDependentPlaceholder(oPlaceholders)) {
 			this.setRecalculateInfo();
-			this.recalculate();
 			this.handleUpdateTheme();
+			this.recalculate();
 			return true;
 		}
 		return false;
@@ -3755,6 +3776,9 @@
 		}
 		return false;
 	};
+	CGraphicObjectBase.prototype.generateLocalDrawingPart = function () {};
+	CGraphicObjectBase.prototype.generateSmartArtDrawingPart = function () {};
+	CGraphicObjectBase.prototype.checkDrawingPartWithHistory = function () {};
 	var ANIM_LABEL_WIDTH_PIX = 22;
 	var ANIM_LABEL_HEIGHT_PIX = 17;
 
@@ -3782,24 +3806,24 @@
 		return AscDFH.historyitem_type_RelSizeAnchor;
 	};
 	CRelSizeAnchor.prototype.setFromTo = function (fromX, fromY, toX, toY) {
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorFromX, this.fromX, fromX));
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorFromY, this.fromY, fromY));
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorToX, this.toX, toX));
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorToY, this.toY, toY));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorFromX, this.fromX, fromX));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorFromY, this.fromY, fromY));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorToX, this.toX, toX));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_RelSizeAnchorToY, this.toY, toY));
 		this.fromX = fromX;
 		this.fromY = fromY;
 		this.toX = toX;
 		this.toY = toY;
 	};
 	CRelSizeAnchor.prototype.setObject = function (object) {
-		History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_RelSizeAnchorObject, this.object, object));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_RelSizeAnchorObject, this.object, object));
 		this.object = object;
 		if (object) {
 			object.setParent(this);
 		}
 	};
 	CRelSizeAnchor.prototype.setParent = function (object) {
-		History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_RelSizeAnchorParent, this.parent, object));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_RelSizeAnchorParent, this.parent, object));
 		this.parent = object;
 	};
 	CRelSizeAnchor.prototype.copy = function (oPr) {
@@ -3869,24 +3893,24 @@
 		return AscDFH.historyitem_type_AbsSizeAnchor;
 	};
 	CAbsSizeAnchor.prototype.setFromTo = function (fromX, fromY, extX, extY) {
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorFromX, this.fromX, fromX));
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorFromY, this.fromY, fromY));
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorExtX, this.toX, extX));
-		History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorExtY, this.toY, extY));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorFromX, this.fromX, fromX));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorFromY, this.fromY, fromY));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorExtX, this.toX, extX));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsDouble(this, AscDFH.historyitem_AbsSizeAnchorExtY, this.toY, extY));
 		this.fromX = fromX;
 		this.fromY = fromY;
 		this.toX = extX;
 		this.toY = extY;
 	};
 	CAbsSizeAnchor.prototype.setObject = function (object) {
-		History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_AbsSizeAnchorObject, this.object, object));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_AbsSizeAnchorObject, this.object, object));
 		this.object = object;
 		if (object) {
 			object.setParent(this);
 		}
 	};
 	CAbsSizeAnchor.prototype.setParent = function (object) {
-		History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_AbsSizeAnchorParent, this.parent, object));
+		AscCommon.History.Add(new AscDFH.CChangesDrawingsObject(this, AscDFH.historyitem_AbsSizeAnchorParent, this.parent, object));
 		this.parent = object;
 	};
 	CAbsSizeAnchor.prototype.copy = function (oPr) {

@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -1101,6 +1101,45 @@ AscFormat.InitClass(Slide, AscFormat.CBaseFormatObject, AscDFH.historyitem_type_
 		this.cSld.forEachSp(function(oSp) {
 			oSp.getAllRasterImages(images);
 		});
+    };
+
+
+    Slide.prototype.getAllRasterImagesForDraw = function(images) {
+        let aImages = images;
+        if(!aImages) {
+            aImages = [];
+        }
+        this.recalculate();
+        if(this.backgroundFill) {
+            let sImageId = this.backgroundFill.checkRasterImageId();
+            if(sImageId) {
+                aImages.push(sImageId);
+            }
+        }
+        this.cSld.forEachSp(function(oSp) {
+            oSp.getAllRasterImages(aImages);
+        });
+        if(this.Layout) {
+            if(this.needLayoutSpDraw()) {
+                this.Layout.getAllRasterImagesForDraw(aImages);
+            }
+            if(this.Layout.Master) {
+                if(this.needMasterSpDraw()) {
+                    this.Layout.Master.getAllRasterImagesForDraw(aImages);
+                }
+            }
+        }
+        return aImages;
+    };
+    Slide.prototype.checkImageDraw = function(sImageSrc) {
+        const aImages = this.getAllRasterImagesForDraw();
+        for(let nIdx = 0; nIdx < aImages.length; ++nIdx) {
+            let sImage = aImages[nIdx];
+            if(AscCommon.getFullImageSrc2(sImage) === sImageSrc) {
+                return true;
+            }
+        }
+        return false;
     };
 
     Slide.prototype.changeSize = function(width, height)

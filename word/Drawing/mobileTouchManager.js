@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -62,7 +62,7 @@
 
 		this.iScroll = new window.IScrollMobile(_element, {
 			scrollbars: true,
-			mouseWheel: true,
+			mouseWheel: !this.isDesktopMode,
 			interactiveScrollbars: true,
 			shrinkScrollbars: 'scale',
 			fadeScrollbars: true,
@@ -71,7 +71,8 @@
 			bounce : false,
 			eventsElement : this.eventsElement,
 			click : false,
-			useLongTap : true
+			useLongTap : true,
+			transparentIndicators : this.isDesktopMode
 		});
 
 		this.delegate.Init();
@@ -129,15 +130,30 @@
 		if (_matrix && global_MatrixTransformer.IsIdentity(_matrix))
 			_matrix = null;
 
-		if (!this.CheckSelectTrack())
+		let touchesCount = e.touches ? e.touches.length : this.getPointerCount();
+		let isLockedTouch = false;
+
+		if (touchesCount > 1)
 		{
-			if (!this.CheckTableTrack())
+			if (AscCommon.MobileTouchMode.None !== this.Mode &&
+				AscCommon.MobileTouchMode.Scroll !== this.Mode)
 			{
-				bIsKoefPixToMM = this.CheckObjectTrack();
+				isLockedTouch = true;
 			}
 		}
 
-		if ((e.touches && 2 == e.touches.length) || (2 == this.getPointerCount()))
+		if (!isLockedTouch)
+		{
+			if (!this.CheckSelectTrack())
+			{
+				if (!this.CheckTableTrack())
+				{
+					bIsKoefPixToMM = this.CheckObjectTrack();
+				}
+			}
+		}
+
+		if (!isLockedTouch && (2 === touchesCount))
 		{
 			this.Mode = AscCommon.MobileTouchMode.Zoom;
 		}
@@ -529,10 +545,13 @@
 			{
 				if (!this.MoveAfterDown)
 				{
-					global_mouseEvent.Button = 0;
-					this.delegate.Drawing_OnMouseDown(_e);
-					this.delegate.Drawing_OnMouseUp(_e);
-					this.Api.sendEvent("asc_onTapEvent", e);
+					if (!this.checkDesktopModeContextMenuEnd())
+					{
+						global_mouseEvent.Button = 0;
+						this.delegate.Drawing_OnMouseDown(_e);
+						this.delegate.Drawing_OnMouseUp(_e);
+						this.Api.sendEvent("asc_onTapEvent", e);
+					}
 
 					var typeMenu = this.delegate.GetContextMenuType();
 					if (typeMenu == AscCommon.MobileTouchContextMenuType.Target ||
@@ -555,7 +574,11 @@
 				// здесь нужно запускать отрисовку, если есть анимация зума
 				this.delegate.HtmlPage.NoneRepaintPages = false;
 				this.delegate.HtmlPage.m_bIsFullRepaint = true;
-				this.delegate.HtmlPage.OnScroll();
+
+				if (!this.Api.isPdfEditor())
+					this.delegate.HtmlPage.OnScroll();
+				else
+					this.Api.getDocumentRenderer().scheduleRepaint();
 
 				this.Mode = AscCommon.MobileTouchMode.None;
 				isCheckContextMenuMode = false;
@@ -738,8 +761,15 @@
 		oWordControl.IsUpdateOverlayOnlyEndReturn = true;
 		oWordControl.StartUpdateOverlay();
 		var ret = this.onTouchEnd(e);
+
+		if (this.isGlassDrawed)
+			oWordControl.OnUpdateOverlay();
+
 		oWordControl.IsUpdateOverlayOnlyEndReturn = false;
 		oWordControl.EndUpdateOverlay();
+
+		this.checkDesktopModeContextMenuEnd(e);
+
 		return ret;
 	};
 
@@ -795,7 +825,7 @@
 
 		this.iScroll = new window.IScrollMobile(this.delegate.GetScrollerParent(), {
 			scrollbars: true,
-			mouseWheel: true,
+			mouseWheel: !this.isDesktopMode,
 			interactiveScrollbars: true,
 			shrinkScrollbars: 'scale',
 			fadeScrollbars: true,

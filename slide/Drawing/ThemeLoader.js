@@ -1,5 +1,5 @@
 /*
- * (c) Copyright Ascensio System SIA 2010-2023
+ * (c) Copyright Ascensio System SIA 2010-2024
  *
  * This program is a free software product. You can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License (AGPL)
@@ -255,7 +255,7 @@ function CThemeLoader()
         this.Api.ImageLoader.LoadDocumentImages(this.themes_info_editor[this.CurrentLoadThemeIndex].ImageMap);
     };
 
-    this.asyncImagesStartLoaded = function()
+    this.asyncImagesStartLoaded = function(aImages)
     {
         // началась загрузка картинок
     };
