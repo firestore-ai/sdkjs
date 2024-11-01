@@ -5091,7 +5091,54 @@
 		oReader.AssignConnectedObjects();
 		return oResult;
 	};
+	
+	/**
+	 * 解析 JSON 字符串为对象
+	 * @memberof Api
+	 * @typeofeditors ["CDE"]
+	 * @param {string} sText - 要解析的 JSON 字符串
+	 * @returns {Object} 解析后的对象,解析失败则返回空对象
+	 */
+	Api.prototype.ParseJSON = function(sText) {
+		// 参数校验
+		if (!sText || typeof sText !== 'string') {
+			return {};
+		}
 
+		try {
+			// 去除首尾空格后再解析
+			return JSON.parse(sText.trim());
+		} catch (error) {
+			console.error('JSON parse error:', error.message);
+			return {};
+		}
+	};
+
+	/**
+	 * 获取格式类型的字符串表示
+	 * @memberof Api
+	 * @typeofeditors ["CDE"]
+	 * @param {number} nFormat - 格式类型的数字代码
+	 * @returns {string} 格式类型的字符串表示
+	 */
+	Api.prototype.GetFormatTypeString = function(nFormat) {
+		// 定义格式类型映射
+		const FORMAT_TYPES = {
+			8:  'chineseCounting',
+			9:  'chineseCountingThousand', 
+			10: 'chineseLegalSimplified',
+			14: 'decimalEnclosedCircle',
+			15: 'decimalEnclosedCircleChinese',
+			21: 'decimalZero',
+			46: 'lowerLetter',
+			47: 'lowerRoman',
+			60: 'upperLetter',
+			61: 'upperRoman'
+		};
+
+		// 返回映射的格式类型,如果没有对应的映射则返回默认值 'decimal'
+		return FORMAT_TYPES[nFormat] || 'decimal';
+	};
 	//------------------------------------------------------------------------------------------------------------------
 	//
 	// ApiUnsupported
@@ -20416,6 +20463,8 @@
 	
 	Api.prototype["Px2Emu"]                          = Px2Emu;
 	Api.prototype["LookupObject"]                    = Api.prototype.LookupObject;
+	Api.prototype["ParseJSON"]              	 = Api.prototype.ParseJSON;
+	Api.prototype["GetFormatTypeString"]             = Api.prototype.GetFormatTypeString;
 
 	ApiUnsupported.prototype["GetClassType"]         = ApiUnsupported.prototype.GetClassType;
 
