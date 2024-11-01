@@ -16075,7 +16075,7 @@
 			this.getParaDrawing().SelectAsDrawing();
 			editor.ImgApply(new asc_CImgProperty({ShapeProperties : oSpPr}));			
 		}		
-	}
+	};
 	ApiDrawing.prototype.ClearShadow = function()
 	{
 		if(this.Drawing)
@@ -16087,7 +16087,17 @@
 			this.getParaDrawing().SelectAsDrawing();
 			editor.ImgApply(new asc_CImgProperty({ShapeProperties : oSpPr}));						
 		}
-	}
+	};
+	ApiDrawing.prototype.SetTitle = function(sTitle)
+	{
+		this.getParaDrawing().Set_Props({ title: sTitle})
+	};
+	ApiDrawing.prototype.GetTitle = function() 
+	{
+		var paraDrawing = this.getParaDrawing()
+		var title =paraDrawing &&  paraDrawing.docPr ? (paraDrawing.docPr.title || '{}') : ''
+		return title;		
+	};
 	/**
 	 * Returns the next inline drawing object if exists. 
 	 *  @memberof ApiDrawing
@@ -22416,7 +22426,9 @@
 	ApiDrawing.prototype["GetLockValue"]             = ApiDrawing.prototype.GetLockValue;
 	ApiDrawing.prototype["SetLockValue"]             = ApiDrawing.prototype.SetLockValue;
 	ApiDrawing.prototype["SetDrawingPrFromDrawing"]  = ApiDrawing.prototype.SetDrawingPrFromDrawing;
-	ApiDrawing.prototype["SetShadow"]				 = ApiDrawing.prototype.SetShadow;
+	ApiDrawing.prototype["SetShadow"]		 = ApiDrawing.prototype.SetShadow;
+	ApiDrawing.prototype["SetTitle"]		 = ApiDrawing.prototype.SetTitle;
+	ApiDrawing.prototype["GetTitle"]		 = ApiDrawing.prototype.GetTitle;
 
 	ApiDrawing.prototype["ToJSON"]                   = ApiDrawing.prototype.ToJSON;
 
