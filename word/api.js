@@ -2311,7 +2311,7 @@ background-repeat: no-repeat;\
 		if (!oLogicDocument)
 			return;
 
-		oLogicDocument.Document_Undo();
+		oLogicDocument.Document_Undo();		
 	};
 	asc_docs_api.prototype.Redo           = function()
 	{
