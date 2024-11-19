@@ -2003,5 +2003,10 @@
         		document.body.removeChild(_elem);
             _elem = null;
         });
+
+		var oThis = this;
+		api.asc_registerCallback('asc_onUndoRedo', function() {
+			oThis.onPluginEvent("onUndoRedo");
+		});
 	}
 })(window, undefined);
