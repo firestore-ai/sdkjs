@@ -5491,6 +5491,7 @@ ParaRun.prototype.Recalculate_Range_Spaces = function(PRSA, _CurLine, _CurRange,
 			case para_EndnoteRef:
             case para_Separator:
             case para_ContinuationSeparator:
+			case para_Ruby:
             {
                 let WidthVisible = 0;
 
@@ -5514,7 +5515,7 @@ ParaRun.prototype.Recalculate_Range_Spaces = function(PRSA, _CurLine, _CurRange,
                 PRSA.LastW = WidthVisible;
 
                 break;
-            }
+			}			
             case para_Math_Text:
             case para_Math_Placeholder:
             case para_Math_BreakOperator:
