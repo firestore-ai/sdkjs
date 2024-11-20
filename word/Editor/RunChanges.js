@@ -580,13 +580,13 @@ CChangesRunStrikeout.prototype.Merge = private_ParaRunChangesOnMergeTextPr;
 CChangesRunStrikeout.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
 /**
  * @constructor
- * @extends {AscDFH.CChangesBaseBoolProperty}
+ * @extends {AscDFH.CChangesBaseByteProperty}
  */
 function CChangesRunUnderline(Class, Old, New, Color)
 {
-	AscDFH.CChangesBaseBoolProperty.call(this, Class, Old, New, Color);
+	AscDFH.CChangesBaseByteProperty.call(this, Class, Old, New, Color);
 }
-CChangesRunUnderline.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
+CChangesRunUnderline.prototype = Object.create(AscDFH.CChangesBaseByteProperty.prototype);
 CChangesRunUnderline.prototype.constructor = CChangesRunUnderline;
 CChangesRunUnderline.prototype.Type = AscDFH.historyitem_ParaRun_Underline;
 CChangesRunUnderline.prototype.private_SetValue = function(Value)
@@ -594,7 +594,7 @@ CChangesRunUnderline.prototype.private_SetValue = function(Value)
 	var oRun = this.Class;
 	oRun.Pr.Underline = Value;
 
-	oRun.Recalc_CompiledPr(false);
+	oRun.Recalc_CompiledPr(true);
 	oRun.private_UpdateTrackRevisionOnChangeTextPr(false);
 };
 CChangesRunUnderline.prototype.Load = private_ParaRunChangesLoadTextPr;

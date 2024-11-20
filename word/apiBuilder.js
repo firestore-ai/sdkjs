@@ -1107,7 +1107,7 @@
 							sOutputText = this.WrapInSymbol(sOutputText, this.MdSymbols.Italic, 'close');
 					}
 				}
-				if (oTextPr.Underline && !this.isQuoteLine)
+				if (oTextPr.HasUnderline() && !this.isQuoteLine)
 				{
 					if (sType === 'html' || this.Config.htmlHeadings)
 					{
@@ -13225,7 +13225,7 @@
 	 */
 	ApiTextPr.prototype.SetUnderline = function(isUnderline)
 	{
-		this.TextPr.Underline = isUnderline;
+		this.TextPr.SetUnderline(isUnderline);
 		this.private_OnChange();
 		return this;
 	};

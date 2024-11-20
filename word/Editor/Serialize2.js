@@ -340,7 +340,9 @@ var c_oSerProp_rPrType = {
 	Reflection: 52,
 	Glow: 53,
 	Props3d: 54,
-	Scene3d: 55
+	Scene3d: 55,
+	Kern: 56,
+	Em : 57
 };
 var c_oSerProp_rubyPrType = {
 	RubyAlign: 0,
@@ -3070,16 +3072,21 @@ function Binary_rPrWriter(memory, saveParams)
             this.memory.WriteBool(italic);
         }
         //Underline
-        if(null != rPr.Underline)
+        if(null != rPr.Underline || rPr.Underline == Asc.UnderlineType.None)
         {
             this.memory.WriteByte(c_oSerProp_rPrType.Underline);
             this.memory.WriteByte(c_oSerPropLenType.Byte);
-
-			if (rPr.Underline)
-				this.memory.WriteByte(Asc.UnderlineType.Single);
-			else
-				this.memory.WriteByte(Asc.UnderlineType.None);
+			
+			this.memory.WriteByte(rPr.Underline);
         }
+		// Em 
+		if(null != rPr.Em || rPr.Em == Asc.EmType.None)
+			{
+				this.memory.WriteByte(c_oSerProp_rPrType.Em);
+				this.memory.WriteByte(c_oSerPropLenType.Byte);
+				
+				this.memory.WriteByte(rPr.Em);
+			}
         //Strikeout
         if(null != rPr.Strikeout)
         {
@@ -10115,7 +10122,10 @@ function Binary_rPrReader(doc, oReadResult, stream)
                 rPr.Italic = (this.stream.GetUChar() != 0);
                 break;
             case c_oSerProp_rPrType.Underline:
-                rPr.Underline = (this.stream.GetUChar() !== Asc.UnderlineType.None);
+                rPr.Underline = this.stream.GetUChar();
+                break;
+			case c_oSerProp_rPrType.Em:
+				rPr.Em = this.stream.GetUChar();
                 break;
             case c_oSerProp_rPrType.Strikeout:
                 rPr.Strikeout = (this.stream.GetUChar() != 0);

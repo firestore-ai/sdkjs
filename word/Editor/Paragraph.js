@@ -3402,8 +3402,9 @@ Paragraph.prototype.drawRunContentLines = function(CurPage, pGraphics, drawState
 			{
 				pGraphics.SetAdditionalProps(Element.Additional2);
 			}
-			pGraphics.p_color(Element.r, Element.g, Element.b, 255);
-			pGraphics.drawHorLine(0, Element.y0, Element.x0, Element.x1, Element.w);
+			pGraphics.p_color(Element.r, Element.g, Element.b, 255);			
+			var lineType = Element.Additional !== undefined ? Element.Additional : Asc.UnderlineType.Single;
+			pGraphics.drawSpecHorLine(0, Element.y0, Element.x0, Element.x1, Element.w, lineType);
 			Element = aUnderline.Get_Next();
 		}
 
@@ -7943,14 +7944,14 @@ Paragraph.prototype.AddHyperlink = function(HyperProps)
 		// Выставляем специальную текстовую настройку
 		var TextPr       = new CTextPr();
 		TextPr.Color     = null;
-		TextPr.Underline = null;
+		TextPr.SetUnderline(null);
 		TextPr.RStyle    = editor && editor.isDocumentEditor ? editor.WordControl.m_oLogicDocument.Get_Styles().GetDefaultHyperlink() : null;
 		if (!this.bFromDocument)
 		{
 			if (editor && editor.isPdfEditor())
 				TextPr.Unifill = AscFormat.CreateUniFillSchemeColorWidthTint(11, 0);
 			
-			TextPr.Underline = true;
+			TextPr.SetUnderline(true);
 		}
 		Hyperlink.Apply_TextPr(TextPr, undefined, false);
 

@@ -2049,6 +2049,200 @@
 			this.drawHorLine(0, y0, x0, x1, w );
 	};
 
+	CGraphics.prototype.private_drawSpecHorLine = function(ctx, y, x, r, penW, lineType)
+	{
+		switch(lineType)
+		{
+		case Asc.UnderlineType.None:			
+			break;
+		case Asc.UnderlineType.Single:		
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.lineTo(r, y);
+			ctx.stroke();
+			break;
+		case Asc.UnderlineType.Double:
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.lineTo(r, y);
+			var y1 = y + penW*2
+			ctx.moveTo(x, y1);
+			ctx.lineTo(r, y1);
+			ctx.stroke();
+			break;
+		case Asc.UnderlineType.Thick:
+			ctx.lineWidth = penW*2;    
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.lineTo(r, y);
+			ctx.stroke();
+			break;			
+		case Asc.UnderlineType.Dotted:
+			ctx.setLineDash([5, 5]);
+        	ctx.beginPath();
+        	ctx.moveTo(x, y);
+        	ctx.lineTo(r, y);
+        	ctx.stroke();
+        	ctx.setLineDash([]);
+			break;
+		case Asc.UnderlineType.Dash:
+			ctx.setLineDash([15, 5]);
+        	ctx.beginPath();
+        	ctx.moveTo(x, y);
+        	ctx.lineTo(r, y);
+        	ctx.stroke();
+        	ctx.setLineDash([]);
+			break;
+		case Asc.UnderlineType.DotDash:
+			ctx.setLineDash([15, 5, 5, 5]);
+        	ctx.beginPath();
+        	ctx.moveTo(x, y);
+        	ctx.lineTo(r, y);
+        	ctx.stroke();
+        	ctx.setLineDash([]);
+			break;
+		case Asc.UnderlineType.DotDotDash:
+			ctx.setLineDash([15, 5, 5, 5, 5, 5]);
+        	ctx.beginPath();
+        	ctx.moveTo(x, y);
+        	ctx.lineTo(r, y);
+        	ctx.stroke();
+        	ctx.setLineDash([]);
+			break;		
+		case Asc.UnderlineType.Wave:			
+			{
+				let amplitude = 3;
+				let frequency = 0.4;
+			
+				// Draw first wave
+				ctx.beginPath();
+				var x0 = x;		
+				var y0 = y;
+				for(let x = x0; x <= r; x++) {
+					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
+					if(x === x0) {
+						ctx.moveTo(x, y); 
+					} else {
+						ctx.lineTo(x, y);
+					}
+				}
+				ctx.stroke();
+			}
+			break;
+		case Asc.UnderlineType.WavyDouble:
+			{
+				let amplitude = 2;
+				let frequency = 0.4;
+				let offset = 4;
+				
+				// Draw first wave
+				ctx.beginPath();
+				var x0 = x;		
+				var y0 = y;	
+				for(let x = x0; x <= r; x++) {
+					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
+					if(x === x0) {
+						ctx.moveTo(x, y); 
+					} else {
+						ctx.lineTo(x, y);
+					}
+				}
+				ctx.stroke();
+
+				// Draw second wave
+				ctx.beginPath(); 
+				for(let x = x0; x <= r; x++) {
+					let y = y0 + offset + amplitude * Math.sin(frequency * (x - x0));
+					if(x === x0) {
+						ctx.moveTo(x, y);
+					} else {
+						ctx.lineTo(x, y);
+					}
+				}
+				ctx.stroke();
+			}
+			break;
+		default:		
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.lineTo(r, y);
+			ctx.stroke();
+		}
+	}
+
+	CGraphics.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
+	{
+		var _check_transform = global_MatrixTransformer.IsIdentity2(this.m_oTransform);
+		if (!this.m_bIntegerGrid || !_check_transform)
+		{
+			if (_check_transform)
+			{
+				this.SetIntegerGrid(true);
+				this.drawHorLine(align, y, x, r, penW);
+				this.SetIntegerGrid(false);
+				return;
+			}
+
+			this.p_width(penW * 1000);
+			this._s();
+			this._m(x, y);
+			this._l(r, y);
+			this.ds();
+			this._s();
+			return;
+		}
+
+		var pen_w = ((this.m_dDpiX * penW / g_dKoef_in_to_mm) + 0.5) >> 0;
+		if (0 == pen_w)
+			pen_w = 1;
+
+		var _x = (this.m_oFullTransform.TransformPointX(x,y) >> 0) + 0.5 - 0.5;
+		var _r = (this.m_oFullTransform.TransformPointX(r,y) >> 0) + 0.5 + 0.5;
+
+		var ctx = this.m_oContext;
+
+		ctx.setTransform(1,0,0,1,0,0);
+
+		ctx.lineWidth = pen_w;
+
+		switch (align)
+		{
+			case 0:
+			{
+				// top
+				var _top = (this.m_oFullTransform.TransformPointY(x,y) >> 0) + 0.5;
+				
+				this.private_drawSpecHorLine(ctx, _top + pen_w / 2 - 0.5, _x, _r, pen_w, lineType);
+
+				break;
+			}
+			case 1:
+			{
+				// center
+				var _center = (this.m_oFullTransform.TransformPointY(x,y) >> 0) + 0.5;
+
+				if (0 == (pen_w % 2))
+				{
+					this.private_drawSpecHorLine(ctx, _center - 0.5, _x, _r, pen_w, lineType);
+				}
+				else
+				{
+					this.private_drawSpecHorLine(ctx, _center, _x, _r, pen_w, lineType);
+				}
+				break;
+			}
+			case 2:
+			{
+				// bottom
+				var _bottom = (this.m_oFullTransform.TransformPointY(x,y) >> 0) + 0.5;
+				this.private_drawSpecHorLine(ctx, _bottom - pen_w / 2 + 0.5, _x, _r, penW, lineType);
+				break;
+			}
+		}
+
+		ctx.beginPath();
+	};
+
 	// smart methods for horizontal / vertical lines
 	CGraphics.prototype.drawHorLine = function(align, y, x, r, penW)
 	{

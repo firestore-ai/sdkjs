@@ -1161,7 +1161,7 @@ ParaMath.prototype.Apply_TextPr = function(TextPr, IncFontSize, ApplyToAll)
 
         if(IncFontSize == undefined)
         {
-            if(TextPr.Underline !== undefined)
+            if(TextPr.GetUnderline() !== undefined)
             {
 
                 NewTextPr.Underline   = TextPr.Underline;

@@ -539,7 +539,7 @@ CGraphicObjects.prototype =
             oTextPr.Bold = oTextPropMenu.get_Bold();
             oTextPr.HighLight = oTextPropMenu.get_HighLight();
             oTextPr.Italic = oTextPropMenu.get_Italic();
-            oTextPr.Underline = oTextPropMenu.get_Underline();
+            oTextPr.SetUnderline(oTextPropMenu.get_Underline());
             oTextPr.Strikeout = oTextPropMenu.get_Strikeout();
             oTextPr.TextFill = AscFormat.CreateUnifillFromAscColor(oTextPropMenu.get_Color(), 1);
             let nOpacity = oProps.get_Opacity();

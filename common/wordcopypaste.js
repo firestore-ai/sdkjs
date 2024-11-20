@@ -12024,7 +12024,7 @@ PasteProcessor.prototype =
 						if (oThis.pasteInPresentationShape) {
 							var TextPr = new CTextPr();
 							TextPr.Unifill = AscFormat.CreateUniFillSchemeColorWidthTint(11, 0);
-							TextPr.Underline = true;
+							TextPr.SetUnderline(true);
 							oHyperlink.Apply_TextPr(TextPr, undefined, true);
 						}
 

@@ -13365,7 +13365,7 @@ CDocument.prototype.RemoveHyperlink = function(oHyperProps)
 
 		var oTextPr       = new CTextPr();
 		oTextPr.RStyle    = null;
-		oTextPr.Underline = null;
+		oTextPr.SetUnderline(null);
 		oTextPr.Color     = null;
 		oTextPr.Unifill   = null;
 

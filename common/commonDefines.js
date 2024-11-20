@@ -3756,6 +3756,14 @@ window.AscCommon.g_cIsBeta = "false";
 		Words           : 17
 	};
 
+	const EmType = {
+		Circle : 0,
+		Comma : 1,
+		Dot :  2,
+		None : 3,
+		UnderDot : 4
+	}
+
 	const DocumentView = {
 		MasterPages : 0,
 		None        : 1,
@@ -5918,6 +5926,13 @@ window.AscCommon.g_cIsBeta = "false";
 	prot['WavyDouble']      = prot.WavyDouble;
 	prot['WavyHeavy']       = prot.WavyHeavy;
 	prot['Words']           = prot.Words;
+
+	prot = window['Asc']['EmType'] = window['Asc'].EmType = EmType;
+	prot['Circle'] 		= prot.Circle;
+	prot['Comma']  		= prot.Comma;
+	prot['Dot']    		= prot.Dot;
+	prot['None']   		= prot.None;
+	prot['UnderDot']   	= prot.UnderDot;
 
 	prot = window['Asc']['DocumentView'] = window['Asc'].DocumentView = DocumentView;
 	prot['MasterPages'] = prot.MasterPages;

@@ -85,7 +85,7 @@
 		
 		this.paraLineRange = null;
 		
-		this.isUnderline  = false;
+		this.UnderlineType = Asc.UnderlineType.None;
 		this.isStrikeout  = false;
 		this.isDStrikeout = false;
 		
@@ -233,7 +233,7 @@
 					this.addLines(startX, endX, false);
 				break;
 			case para_End:
-				this.isUnderline  = false;
+				this.UnderlineType = Asc.UnderlineType.None;
 				this.isStrikeout  = false;
 				this.isDStrikeout = false;
 				this.addLines(startX, endX);
@@ -332,13 +332,13 @@
 		this.updateColor(textPr);
 		this.updateReviewState(run);
 		
-		this.isUnderline  = textPr.Underline;
+		this.UnderlineType  = textPr.Underline;
 		this.isStrikeout  = textPr.Strikeout;
 		this.isDStrikeout = textPr.DStrikeout;
 		
 		if (run.IsMathRun() && run.IsPlaceholder())
 		{
-			this.isUnderline = false;
+			this.UnderlineType = Asc.UnderlineType.None;
 			
 			let ctrPrp = run.Parent.GetCtrPrp();
 			this.isStrikeout  = ctrPrp.Strikeout;
@@ -552,11 +552,16 @@
 			else
 				this.Underline.Add(startX, endX, this.reviewColor);
 		}
-		else if (this.isUnderline)
+		else if (this.isUnderline())
 		{
-			this.Underline.Add(startX, endX, this.color, undefined, this.textPr);
+			this.Underline.Add(startX, endX, this.color, this.UnderlineType, this.textPr);
 		}
 	};
+	ParagraphLineDrawState.prototype.isUnderline = function()
+	{
+		return this.UnderlineType !== undefined && this.UnderlineType !== Asc.UnderlineType.None;
+	}
+	
 	ParagraphLineDrawState.prototype.addCompositeInputLine = function(element, run, inRunPos)
 	{
 		if (para_Text !== element.Type || !run.CompositeInput || !run.CompositeInput.isInside(inRunPos))

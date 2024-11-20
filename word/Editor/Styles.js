@@ -6867,7 +6867,7 @@ CStyle.prototype.CreateTOC = function(nLvl, nType)
 
 		ParaPr.Ind = {};
 
-		TextPr.Underline = true;
+		TextPr.Underline = Asc.UnderlineType.None;
 		TextPr.Color     = {r : 0x00, g : 0xC8, b : 0xC3};
 		TextPr.Unifill   = AscCommonWord.CreateThemeUnifill(EThemeColor.themecolorHyperlink, null, null);
 
@@ -12752,6 +12752,7 @@ function CTextPr()
     this.Italic     = undefined; // Наклонный текст
     this.Strikeout  = undefined; // Зачеркивание
     this.Underline  = undefined;
+    this.Em         = undefined;
     this.FontFamily = undefined;
     this.FontSize   = undefined;
     this.Color      = undefined;
@@ -12795,6 +12796,7 @@ CTextPr.prototype.Clear = function()
 	this.Italic     = undefined;
 	this.Strikeout  = undefined;
 	this.Underline  = undefined;
+    this.Em         = undefined;
 	this.FontFamily = undefined;
 	this.FontSize   = undefined;
 	this.Color      = undefined;
@@ -12839,6 +12841,7 @@ CTextPr.prototype.Copy = function(bCopyPrChange, oPr)
 	TextPr.Italic    = this.Italic;
 	TextPr.Strikeout = this.Strikeout;
 	TextPr.Underline = this.Underline;
+    TextPr.Em        = this.Em;
 
 	if (undefined != this.FontFamily)
 	{
@@ -12916,7 +12919,8 @@ CTextPr.prototype.createDuplicateForSmartArt = function(oPr)
 	TextPr.Caps       = this.Caps;
 	TextPr.SmallCaps  = this.SmallCaps;
 
-	TextPr.Underline = this.Underline;
+	TextPr.Underline  = this.Underline;
+    TextPr.Em         = this.Em;
 	TextPr.Lang       = this.Lang.Copy();
 	TextPr.Spacing    = this.Spacing;
 	TextPr.RFonts     = this.RFonts.Copy()
@@ -12991,6 +12995,9 @@ CTextPr.prototype.Merge = function(TextPr)
 
 	if (undefined != TextPr.Underline)
 		this.Underline = TextPr.Underline;
+
+    if (undefined != TextPr.Em)
+        this.Em = TextPr.Em;
 
 	if (undefined != TextPr.FontFamily)
 	{
@@ -13128,6 +13135,11 @@ CTextPr.prototype.Apply = function(textPr)
 	else if (undefined !== textPr.Underline)
 		this.Underline = textPr.Underline;
 
+    if (null === textPr.Em)
+        this.Em = undefined;
+    else if (undefined !== textPr.Em)
+        this.Em = textPr.Em;
+
 	if (null === textPr.FontFamily)
 	{
 		this.FontFamily = undefined;
@@ -13264,7 +13276,9 @@ CTextPr.prototype.InitDefault = function(nCompatibilityMode)
 {
 	this.Bold       = false;
 	this.Italic     = false;
-	this.Underline  = false;
+	this.Underline  = Asc.UnderlineType.None;
+    this.Em         = Asc.EmType.None;
+
 	this.Strikeout  = false;
 	this.FontFamily = {
 		Name  : "Times New Roman",
@@ -13308,7 +13322,10 @@ CTextPr.prototype.Set_FromObject = function(TextPr, isUndefinedToNull)
 	this.Bold      = CheckUndefinedToNull(isUndefinedToNull, TextPr.Bold);
 	this.Italic    = CheckUndefinedToNull(isUndefinedToNull, TextPr.Italic);
 	this.Strikeout = CheckUndefinedToNull(isUndefinedToNull, TextPr.Strikeout);
-	this.Underline = CheckUndefinedToNull(isUndefinedToNull, TextPr.Underline);
+
+	
+    this.SetUnderline(TextPr.Underline);
+    this.Em        = CheckUndefinedToNull(isUndefinedToNull, TextPr.Em);
 
 	if (undefined !== TextPr.FontFamily)
 	{
@@ -13409,6 +13426,10 @@ CTextPr.prototype.Compare = function(TextPr)
 	// Underline
 	if (undefined !== this.Underline && this.Underline !== TextPr.Underline)
 		this.Underline = undefined;
+
+    // Em
+    if (undefined !== this.Em && this.Em !== TextPr.Em)
+        this.Em = undefined;
 
 	// FontFamily
 	if (undefined !== this.FontFamily && ( undefined === TextPr.FontFamily || this.FontFamily.Name !== TextPr.FontFamily.Name ))
@@ -13685,7 +13706,7 @@ CTextPr.prototype.Write_ToBinary = function(Writer)
 
 	if (undefined != this.Underline)
 	{
-		Writer.WriteBool(this.Underline);
+		Writer.WriteByte(this.Underline);
 		Flags |= 4;
 	}
 
@@ -13871,6 +13892,12 @@ CTextPr.prototype.Write_ToBinary = function(Writer)
 		Flags |= (1 << 31);
 	}
 
+    if (undefined !== this.Em)
+    {
+        Writer.WriteByte(this.Em);
+        Flags |= (1 << 32);
+    }
+
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
@@ -13890,7 +13917,7 @@ CTextPr.prototype.Read_FromBinary = function(Reader)
 
 	// Underline
 	if (Flags & 4)
-		this.Underline = Reader.GetBool();
+		this.Underline = Reader.GetByte();
 
 	// Strikeout
 	if (Flags & 8)
@@ -14038,6 +14065,9 @@ CTextPr.prototype.Read_FromBinary = function(Reader)
 
 	if (Flags & (1 << 31))
 		this.Ligatures = Reader.GetByte();
+
+    if (Flags & (1 << 32))
+        this.Em = Reader.GetByte();
 };
 CTextPr.prototype.Check_NeedRecalc = function()
 {
@@ -14222,6 +14252,9 @@ CTextPr.prototype.Is_Equal = function(TextPr)
 	if (this.Underline !== TextPr.Underline)
 		return false;
 
+    if (this.Em !== TextPr.Em)
+        return false;
+
 	if ((undefined === this.FontFamily && undefined !== TextPr.FontFamily) || (undefined !== this.FontFamily && (undefined === TextPr.FontFamily || this.FontFamily.Name !== TextPr.FontFamily.Name)))
 		return false;
 
@@ -14329,6 +14362,7 @@ CTextPr.prototype.Is_Empty = function()
 		|| undefined !== this.Italic
 		|| undefined !== this.Strikeout
 		|| undefined !== this.Underline
+        || undefined !== this.Em
 		|| undefined !== this.FontFamily
 		|| undefined !== this.FontSize
 		|| undefined !== this.Color
@@ -14383,6 +14417,9 @@ CTextPr.prototype.GetDiff = function(oTextPr)
 
 	if (this.Underline !== oTextPr.Underline)
 		oResultTextPr.Underline = this.Underline;
+
+    if (this.Em !== oTextPr.Em)
+        oResultTextPr.Em = this.Em;
 
 	if (undefined !== this.FontSize && !IsEqualNullableFloatNumbers(this.FontSize, oTextPr.FontSize))
 		oResultTextPr.FontSize = this.FontSize;
@@ -14500,7 +14537,26 @@ CTextPr.prototype.GetUnderline = function()
 };
 CTextPr.prototype.SetUnderline = function(isUnderling)
 {
+    if (isUnderling === true) {
+        this.Underline = Asc.UnderlineType.Single;    
+    } 
+    else if (isUnderling === false || isUnderling === undefined || isUnderling === null)
+    {
+        this.Underline = Asc.UnderlineType.None;
+    }
 	this.Underline = isUnderling;
+};
+CTextPr.prototype.HasUnderline = function()
+{
+    return this.Underline !== undefined && this.Underline !== Asc.UnderlineType.None;
+}
+CTextPr.prototype.GetEm = function()
+{
+    return this.Em;
+};
+CTextPr.prototype.SetEm = function(em)
+{
+    this.Em = em;
 };
 CTextPr.prototype.GetColor = function()
 {
@@ -14582,8 +14638,8 @@ CTextPr.prototype.FillFromExcelFont = function(oFont)
 	this.SetFontSize(oFont.getSize());
 	this.SetBold(oFont.getBold());
 	this.SetItalic(oFont.getItalic());
-	let bUnderline = (oFont.getUnderline() !== Asc.EUnderline.underlineNone);
-	this.SetUnderline(bUnderline);
+	if (oFont.getUnderline() !== Asc.EUnderline.underlineNone)
+	    this.SetUnderline(oFont.getUnderline());
 	var oColor = oFont.getColor();
 	this.SetUnifill(AscFormat.CreateSolidFillRGBA(oColor.getR(), oColor.getG(), oColor.getB(), 255));
 };
@@ -14758,6 +14814,9 @@ CTextPr.prototype.GetDiffPrChange = function()
 
 	if (this.Underline !== PrChange.Underline)
 		TextPr.Underline = this.Underline;
+
+    if (this.Em !== PrChange.Em)
+        TextPr.Em = this.Em;
 
 	if (undefined !== this.FontFamily && (undefined === PrChange.FontFamily || this.FontFamily.Name !== PrChange.FontFamily.Name))
 		TextPr.FontFamily = {Name : this.FontFamily.Name, Index : -1};
@@ -15030,6 +15089,8 @@ CTextPr.prototype['get_Strikeout']  = CTextPr.prototype.get_Strikeout  = CTextPr
 CTextPr.prototype['put_Strikeout']  = CTextPr.prototype.put_Strikeout  = CTextPr.prototype.SetStrikeout;
 CTextPr.prototype['get_Underline']  = CTextPr.prototype.get_Underline  = CTextPr.prototype['Get_Underline']  = CTextPr.prototype.GetUnderline;
 CTextPr.prototype['put_Underline']  = CTextPr.prototype.put_Underline  = CTextPr.prototype.SetUnderline;
+CTextPr.prototype['get_Em']         = CTextPr.prototype.get_Em         = CTextPr.prototype['Get_Em']         = CTextPr.prototype.GetEm;
+CTextPr.prototype['put_Em']         = CTextPr.prototype.put_Em         = CTextPr.prototype.SetEm;
 CTextPr.prototype['get_Color']      = CTextPr.prototype.get_Color      = CTextPr.prototype['Get_Color']      = CTextPr.prototype.GetAscColor;
 CTextPr.prototype['put_Color']      = CTextPr.prototype.put_Color      = CTextPr.prototype.SetAscColor;
 CTextPr.prototype['get_VertAlign']  = CTextPr.prototype.get_VertAlign  = CTextPr.prototype['Get_VertAlign']  = CTextPr.prototype.GetVertAlign;
