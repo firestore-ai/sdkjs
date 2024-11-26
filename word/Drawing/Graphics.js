@@ -2078,7 +2078,7 @@
 			ctx.stroke();
 			break;			
 		case Asc.UnderlineType.Dotted:
-			ctx.setLineDash([5, 5]);
+			ctx.setLineDash([8, 8]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2086,7 +2086,7 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.Dash:
-			ctx.setLineDash([15, 5]);
+			ctx.setLineDash([18, 8]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2094,7 +2094,7 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.DotDash:
-			ctx.setLineDash([15, 5, 5, 5]);
+			ctx.setLineDash([18, 8, 8, 8]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2102,7 +2102,7 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.DotDotDash:
-			ctx.setLineDash([15, 5, 5, 5, 5, 5]);
+			ctx.setLineDash([18, 8, 8, 8, 8, 8]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2111,7 +2111,9 @@
 			break;		
 		case Asc.UnderlineType.Wave:			
 			{
-				let amplitude = 3;
+				if(penW>=2)
+					ctx.lineWidth = penW/2;    
+				let amplitude = 5;
 				let frequency = 0.4;
 			
 				// Draw first wave
@@ -2131,9 +2133,11 @@
 			break;
 		case Asc.UnderlineType.WavyDouble:
 			{
+				if(penW>=2)
+					ctx.lineWidth = penW/2;    
 				let amplitude = 2;
 				let frequency = 0.4;
-				let offset = 4;
+				let offset = 6;
 				
 				// Draw first wave
 				ctx.beginPath();
