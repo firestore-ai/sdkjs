@@ -2061,6 +2061,8 @@
 
 	CGraphics.prototype.private_drawSpecHorLine = function(ctx, y, x, r, penW, lineType)
 	{
+		var dotPixel = this.ConvertMMtoPixel(2*penW);
+		var dashPixel = this.ConvertMMtoPixel(5*penW);
 		switch(lineType)
 		{
 		case Asc.UnderlineType.None:			
@@ -2075,7 +2077,7 @@
 			ctx.beginPath();
 			ctx.moveTo(x, y);
 			ctx.lineTo(r, y);
-			var y1 = y + penW*2
+			var y1 = y + ctx.lineWidth*2
 			ctx.moveTo(x, y1);
 			ctx.lineTo(r, y1);
 			ctx.stroke();
@@ -2088,7 +2090,6 @@
 			ctx.stroke();
 			break;			
 		case Asc.UnderlineType.Dotted:
-			var dotPixel = this.ConvertMMtoPixel(5*penW);
 			ctx.setLineDash([dotPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
@@ -2096,9 +2097,7 @@
         	ctx.stroke();
         	ctx.setLineDash([]);
 			break;
-		case Asc.UnderlineType.Dash:
-			var dotPixel = this.ConvertMMtoPixel(5*penW);
-			var dashPixel = this.ConvertMMtoPixel(15*penW);
+		case Asc.UnderlineType.Dash:			
 			ctx.setLineDash([dashPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
@@ -2107,8 +2106,6 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.DotDash:
-			var dotPixel = this.ConvertMMtoPixel(5*penW);
-			var dashPixel = this.ConvertMMtoPixel(15*penW);
 			ctx.setLineDash([dashPixel, dotPixel, dotPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
@@ -2116,9 +2113,7 @@
         	ctx.stroke();
         	ctx.setLineDash([]);
 			break;
-		case Asc.UnderlineType.DotDotDash:
-			var dotPixel = this.ConvertMMtoPixel(5*penW);
-			var dashPixel = this.ConvertMMtoPixel(15*penW);
+		case Asc.UnderlineType.DotDotDash:			
 			ctx.setLineDash([dashPixel, dotPixel, dotPixel, dotPixel, dotPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
@@ -2128,13 +2123,15 @@
 			break;		
 		case Asc.UnderlineType.Wave:			
 			{
-				let amplitude = this.ConvertMMtoPixel(5*penW);
-				let frequency = 0.4;
+				if (ctx.lineWidth > 1 )
+					ctx.lineWidth = ctx.lineWidth >> 1;
+				let amplitude = this.ConvertMMtoPixel(1.4*penW);
+				let frequency = 0.27;
 			
 				// Draw first wave
 				ctx.beginPath();
 				var x0 = x;		
-				var y0 = y;
+				var y0 = y+1;
 				for(let x = x0; x <= r; x++) {
 					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
 					if(x === x0) {
@@ -2148,14 +2145,16 @@
 			break;
 		case Asc.UnderlineType.WavyDouble:
 			{
-				let amplitude = this.ConvertMMtoPixel(3*penW);
-				let frequency = 0.4;
-				let offset = this.ConvertMMtoPixel(6*penW);
+				if (ctx.lineWidth > 1 )
+					ctx.lineWidth = ctx.lineWidth >> 1;
+				let amplitude = this.ConvertMMtoPixel(0.7*penW);
+				let frequency = 0.27;
+				let offset = this.ConvertMMtoPixel(2*penW);
 				
 				// Draw first wave
 				ctx.beginPath();
 				var x0 = x;		
-				var y0 = y;	
+				var y0 = y+1;	
 				for(let x = x0; x <= r; x++) {
 					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
 					if(x === x0) {
