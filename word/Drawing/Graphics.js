@@ -2049,6 +2049,16 @@
 			this.drawHorLine(0, y0, x0, x1, w );
 	};
 
+	CGraphics.prototype.ConvertMMtoPixel = function(widthMM)
+	{
+		var widthPixel = ((this.m_dDpiX * widthMM / g_dKoef_in_to_mm) + 0.5) >> 0;
+		if (0 == widthPixel)
+		{ 
+			widthPixel = 1;
+		}
+		return widthPixel;
+	}
+
 	CGraphics.prototype.private_drawSpecHorLine = function(ctx, y, x, r, penW, lineType)
 	{
 		switch(lineType)
@@ -2071,14 +2081,15 @@
 			ctx.stroke();
 			break;
 		case Asc.UnderlineType.Thick:
-			ctx.lineWidth = penW*2;    
+			ctx.lineWidth = ctx.lineWidth*2;
 			ctx.beginPath();
 			ctx.moveTo(x, y);
 			ctx.lineTo(r, y);
 			ctx.stroke();
 			break;			
 		case Asc.UnderlineType.Dotted:
-			ctx.setLineDash([8, 8]);
+			var dotPixel = this.ConvertMMtoPixel(5*penW);
+			ctx.setLineDash([dotPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2086,7 +2097,9 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.Dash:
-			ctx.setLineDash([18, 8]);
+			var dotPixel = this.ConvertMMtoPixel(5*penW);
+			var dashPixel = this.ConvertMMtoPixel(15*penW);
+			ctx.setLineDash([dashPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2094,7 +2107,9 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.DotDash:
-			ctx.setLineDash([18, 8, 8, 8]);
+			var dotPixel = this.ConvertMMtoPixel(5*penW);
+			var dashPixel = this.ConvertMMtoPixel(15*penW);
+			ctx.setLineDash([dashPixel, dotPixel, dotPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2102,7 +2117,9 @@
         	ctx.setLineDash([]);
 			break;
 		case Asc.UnderlineType.DotDotDash:
-			ctx.setLineDash([18, 8, 8, 8, 8, 8]);
+			var dotPixel = this.ConvertMMtoPixel(5*penW);
+			var dashPixel = this.ConvertMMtoPixel(15*penW);
+			ctx.setLineDash([dashPixel, dotPixel, dotPixel, dotPixel, dotPixel, dotPixel]);
         	ctx.beginPath();
         	ctx.moveTo(x, y);
         	ctx.lineTo(r, y);
@@ -2111,9 +2128,7 @@
 			break;		
 		case Asc.UnderlineType.Wave:			
 			{
-				if(penW>=2)
-					ctx.lineWidth = penW/2;    
-				let amplitude = 5;
+				let amplitude = this.ConvertMMtoPixel(5*penW);
 				let frequency = 0.4;
 			
 				// Draw first wave
@@ -2133,11 +2148,9 @@
 			break;
 		case Asc.UnderlineType.WavyDouble:
 			{
-				if(penW>=2)
-					ctx.lineWidth = penW/2;    
-				let amplitude = 2;
+				let amplitude = this.ConvertMMtoPixel(3*penW);
 				let frequency = 0.4;
-				let offset = 6;
+				let offset = this.ConvertMMtoPixel(6*penW);
 				
 				// Draw first wave
 				ctx.beginPath();
@@ -2173,6 +2186,8 @@
 			ctx.stroke();
 		}
 	}
+
+	
 
 	CGraphics.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
@@ -2216,7 +2231,7 @@
 				// top
 				var _top = (this.m_oFullTransform.TransformPointY(x,y) >> 0) + 0.5;
 				
-				this.private_drawSpecHorLine(ctx, _top + pen_w / 2 - 0.5, _x, _r, pen_w, lineType);
+				this.private_drawSpecHorLine(ctx, _top + pen_w / 2 - 0.5, _x, _r, penW, lineType);
 
 				break;
 			}
@@ -2227,11 +2242,11 @@
 
 				if (0 == (pen_w % 2))
 				{
-					this.private_drawSpecHorLine(ctx, _center - 0.5, _x, _r, pen_w, lineType);
+					this.private_drawSpecHorLine(ctx, _center - 0.5, _x, _r, penW, lineType);
 				}
 				else
 				{
-					this.private_drawSpecHorLine(ctx, _center, _x, _r, pen_w, lineType);
+					this.private_drawSpecHorLine(ctx, _center, _x, _r, penW, lineType);
 				}
 				break;
 			}
