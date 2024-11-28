@@ -492,14 +492,15 @@
 
 	CGraphicsBase.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
-		var dotW = 2*penW;
-		var dashW = 5*penW;
+		var dotW =  20 * penW;
+		var dashW = 80 * penW;
 		switch(lineType)
 		{
 		case Asc.UnderlineType.None:
 			break;
 		case Asc.UnderlineType.Single:
 			this.drawHorLine(align, y, x, r, penW);
+			break;
 		case Asc.UnderlineType.Double:
 			this.drawHorLine2(align, y, x, r, penW);
 			break;
@@ -508,7 +509,7 @@
 			break;
 		case Asc.UnderlineType.Dotted:
 			this.p_dash([dotW, dotW]);
-			this.drawHorLine(align, y, x, r, penW);
+			this.drawHorLine(align, y, x, r, penW);			
 			break;
 		case Asc.UnderlineType.Dash:
 			this.p_dash([dashW, dotW]);
@@ -525,17 +526,15 @@
 		case Asc.UnderlineType.Wave:
 			{
 				this.p_width(500 * penW);
-				if (ctx.lineWidth > 1 )
-					ctx.lineWidth = ctx.lineWidth >> 1;
 				let amplitude = 1.4*penW;
-				let frequency = 0.27;
+				let frequency = 0.27*15;
 				let step = penW;
 			
 				// Draw first wave
 				this._s();
 				var x0 = x;		
-				var y0 = y+1;
-				for(let x = x0; x <= r; x+=step) {
+				var y0 = y+amplitude;
+				for(let x = x0; x <= r; x+=step/2) {
 					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
 					if(x === x0) {
 						this._m(x, y); 
@@ -546,20 +545,33 @@
 				this.ds();
 				this._e();
 			}
-			break;
-		case Asc.UnderlineType.WaryDouble:
+			break;		
+		case Asc.UnderlineType.WavyDouble:
 			{
 				this.p_width(500 * penW);
-				let amplitude = 1.4*penW;
-				let frequency = 0.27;
+				let amplitude = 0.7*penW;
+				let frequency = 0.27*15;
 				let step = penW;
-			
+				let offset = 2 * penW;
+							
 				// Draw first wave
 				this._s();
 				var x0 = x;		
-				var y0 = y+1;
-				for(let x = x0; x <= r; x+=step) {
+				var y0 = y+amplitude;
+				for(let x = x0; x <= r; x+=step/2) {
 					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
+					if(x === x0) {
+						this._m(x, y); 
+					} else {
+						this._l(x, y);
+					}
+				}
+				this.ds();
+				this._e();
+
+				this._s();				
+				for(let x = x0; x <= r; x+=step/2) {
+					let y = y0 + offset + amplitude * Math.sin(frequency * (x - x0));
 					if(x === x0) {
 						this._m(x, y); 
 					} else {
@@ -573,6 +585,7 @@
 		default:
 			this.drawHorLine(align, y, x, r, penW);
 		}
+		this.p_dash([]);
 	};
 
 	CGraphicsBase.prototype.drawHorLine = function(align, y, x, r, penW)

@@ -2188,7 +2188,7 @@
 
 	
 
-	CGraphics.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
+	CGraphics.prototype.drawSpecHorLine2 = function(align, y, x, r, penW, lineType)
 	{
 		var _check_transform = global_MatrixTransformer.IsIdentity2(this.m_oTransform);
 		if (!this.m_bIntegerGrid || !_check_transform)
