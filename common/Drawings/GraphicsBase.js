@@ -490,10 +490,9 @@
 		this.df();
 	};
 
-	CGraphicsBase.prototype.drawHorLineStyle = function(align, y, x, r, penW, lineType)
+	CGraphicsBase.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
-
-
+		this.drawHorLine(align, y, x, r, penW);
 	};
 
 	CGraphicsBase.prototype.drawHorLine = function(align, y, x, r, penW)
