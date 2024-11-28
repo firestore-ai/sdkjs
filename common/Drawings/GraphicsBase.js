@@ -492,7 +492,87 @@
 
 	CGraphicsBase.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
-		this.drawHorLine(align, y, x, r, penW);
+		var dotW = 2*penW;
+		var dashW = 5*penW;
+		switch(lineType)
+		{
+		case Asc.UnderlineType.None:
+			break;
+		case Asc.UnderlineType.Single:
+			this.drawHorLine(align, y, x, r, penW);
+		case Asc.UnderlineType.Double:
+			this.drawHorLine2(align, y, x, r, penW);
+			break;
+		case Asc.UnderlineType.Thick:
+			this.drawHorLine(align, y, x, r, penW*2);
+			break;
+		case Asc.UnderlineType.Dotted:
+			this.p_dash([dotW, dotW]);
+			this.drawHorLine(align, y, x, r, penW);
+			break;
+		case Asc.UnderlineType.Dash:
+			this.p_dash([dashW, dotW]);
+			this.drawHorLine(align, y, x, r, penW);
+			break;
+		case Asc.UnderlineType.DotDash:
+			this.p_dash([dashW, dotW, dotW, dotW, dotW]);
+			this.drawHorLine(align, y, x, r, penW);
+			break;
+		case Asc.UnderlineType.DotDotDash:
+			this.p_dash([dashW, dotW, dotW, dotW, dotW, dotW]);
+			this.drawHorLine(align, y, x, r, penW);
+			break;
+		case Asc.UnderlineType.Wave:
+			{
+				this.p_width(500 * penW);
+				if (ctx.lineWidth > 1 )
+					ctx.lineWidth = ctx.lineWidth >> 1;
+				let amplitude = 1.4*penW;
+				let frequency = 0.27;
+				let step = penW;
+			
+				// Draw first wave
+				this._s();
+				var x0 = x;		
+				var y0 = y+1;
+				for(let x = x0; x <= r; x+=step) {
+					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
+					if(x === x0) {
+						this._m(x, y); 
+					} else {
+						this._l(x, y);
+					}
+				}
+				this.ds();
+				this._e();
+			}
+			break;
+		case Asc.UnderlineType.WaryDouble:
+			{
+				this.p_width(500 * penW);
+				let amplitude = 1.4*penW;
+				let frequency = 0.27;
+				let step = penW;
+			
+				// Draw first wave
+				this._s();
+				var x0 = x;		
+				var y0 = y+1;
+				for(let x = x0; x <= r; x+=step) {
+					let y = y0 + amplitude * Math.sin(frequency * (x - x0));
+					if(x === x0) {
+						this._m(x, y); 
+					} else {
+						this._l(x, y);
+					}
+				}
+				this.ds();
+				this._e();
+			}
+			break;
+		default:
+			this.drawHorLine(align, y, x, r, penW);
+		}
 	};
 
 	CGraphicsBase.prototype.drawHorLine = function(align, y, x, r, penW)
