@@ -19272,6 +19272,9 @@ CParaDrawingRangeLines.prototype =
 			if (undefined === PrevEl.Additional && undefined === Element.Additional)
 				return true;
 
+			if (typeof(Element.Additional) === "number" && PrevEl.Additional === Element.Additional)
+				return true;
+
 			if (undefined === PrevEl.Additional || undefined === Element.Additional)
 				return false;
 
