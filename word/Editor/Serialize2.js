@@ -2833,8 +2833,8 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 	{
 		const oThis = this;
 		this.bs.WriteItem(c_oSerProp_secPrDocGridType.Type, function(){oThis.memory.WriteByte(sectPr.GetDocGridType());});
-		this.bs.WriteItem(c_oSerProp_secPrDocGridType.CharSpace, function(){oThis.memory.WriteByte(sectPr.GetDocGridCharSpace());});
-		this.bs.WriteItem(c_oSerProp_secPrDocGridType.Type, function(){oThis.memory.WriteByte(sectPr.GetDocGridLinePitch());});		
+		this.bs.WriteItem(c_oSerProp_secPrDocGridType.CharSpace, function(){oThis.memory.WriteLong(sectPr.GetDocGridCharSpace());});
+		this.bs.WriteItem(c_oSerProp_secPrDocGridType.LinePitch, function(){oThis.memory.WriteLong(sectPr.GetDocGridLinePitch());});		
 	};
 	this.WritePageSetting = function(sectPr, oDocument)
     {
