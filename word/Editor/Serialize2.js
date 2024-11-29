@@ -432,8 +432,8 @@ var c_oSerProp_secPrLineNumType = {
 };
 var c_oSerProp_secPrDocGridType = {
 	Type: 0,
-	LinePitch: 1,
-	CharSpace: 2	
+	CharSpace: 1,	
+	LinePitch: 2	
 };
 var c_oSerProp_Columns = {
 	EqualWidth: 0,
@@ -9629,7 +9629,7 @@ function Binary_pPrReader(doc, oReadResult, stream)
 		else if (c_oSerProp_secPrType.docGrid === type )
 		{
 			var oDocGrid = {Type: null, LinePitch: null, CharSpace: null};
-			res = this.bcr.Read2(length, function(t, l) {
+			res = this.bcr.Read1(length, function(t, l) {
 				return oThis.Read_docGrid(t, l, oDocGrid);
 			});
 			if (null != oDocGrid.Type)
