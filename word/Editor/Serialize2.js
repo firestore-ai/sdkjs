@@ -2831,20 +2831,10 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
     };
 	this.WriteDocGrid = function(sectPr, oDocument)
 	{
-		// type
-		this.memory.WriteByte(c_oSerProp_secPrDocGridType.Type);
-        this.memory.WriteByte(c_oSerPropLenType.Byte);
-        this.memory.WriteByte(sectPr.GetDocGridType());
-		// TODO 是否应该统一使用mm作为默认单位呢？ 先doc文件中的值
-		// line pitch 
-		this.memory.WriteByte(c_oSerProp_secPrDocGridType.LinePitch);
-        this.memory.WriteByte(c_oSerPropLenType.Long);
-        this.memory.WriteLong(sectPr.GetDocGridLinePitch());
-		// char space
-		this.memory.WriteByte(c_oSerProp_secPrDocGridType.CharSpace);
-        this.memory.WriteByte(c_oSerPropLenType.Long);
-        this.memory.WriteLong(sectPr.GetDocGridCharSpace());
-
+		const oThis = this;
+		this.bs.WriteItem(c_oSerProp_secPrDocGridType.Type, function(){oThis.memory.WriteByte(sectPr.GetDocGridType());});
+		this.bs.WriteItem(c_oSerProp_secPrDocGridType.CharSpace, function(){oThis.memory.WriteByte(sectPr.GetDocGridCharSpace());});
+		this.bs.WriteItem(c_oSerProp_secPrDocGridType.Type, function(){oThis.memory.WriteByte(sectPr.GetDocGridLinePitch());});		
 	};
 	this.WritePageSetting = function(sectPr, oDocument)
     {
