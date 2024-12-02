@@ -490,10 +490,16 @@
 		this.df();
 	};
 
+	CGraphicsBase.prototype.CalcDashWidth = function(penW)
+	{
+		var dotW =  2 * penW;
+		var dashW = 8 * penW;
+		return [dotW, dashW];
+	};
+
 	CGraphicsBase.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
-		var dotW =  20 * penW;
-		var dashW = 80 * penW;
+		const [dotW, dashW] = this.CalcDashWidth(penW);	
 		switch(lineType)
 		{
 		case Asc.UnderlineType.None:

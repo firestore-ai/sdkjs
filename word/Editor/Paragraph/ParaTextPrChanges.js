@@ -69,6 +69,7 @@ AscDFH.changesFactory[AscDFH.historyitem_TextPr_RFonts_EastAsia_Theme] = CChange
 AscDFH.changesFactory[AscDFH.historyitem_TextPr_BoldCS]                = CChangesParaTextPrBoldCS;
 AscDFH.changesFactory[AscDFH.historyitem_TextPr_ItalicCS]              = CChangesParaTextPrItalicCS;
 AscDFH.changesFactory[AscDFH.historyitem_TextPr_Ligatures]             = CChangesParaTextPrLigatures;
+AscDFH.changesFactory[AscDFH.historyitem_TextPr_Em]                    = CChangesParaTextPrEm;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Карта зависимости изменений
@@ -129,6 +130,10 @@ AscDFH.changesRelationMap[AscDFH.historyitem_TextPr_Position]        = [
 	AscDFH.historyitem_TextPr_Position,
 	AscDFH.historyitem_TextPr_Value
 ];
+AscDFH.changesRelationMap[AscDFH.historyitem_TextPr_Em]       = [
+	AscDFH.historyitem_TextPr_Em,
+	AscDFH.historyitem_TextPr_Value
+];
 AscDFH.changesRelationMap[AscDFH.historyitem_TextPr_Value]           = [
 	AscDFH.historyitem_TextPr_Bold,
 	AscDFH.historyitem_TextPr_Italic,
@@ -166,7 +171,8 @@ AscDFH.changesRelationMap[AscDFH.historyitem_TextPr_Value]           = [
 	AscDFH.historyitem_TextPr_RFonts_EastAsia_Theme,
 	AscDFH.historyitem_TextPr_BoldCS,
 	AscDFH.historyitem_TextPr_ItalicCS,
-	AscDFH.historyitem_TextPr_Ligatures
+	AscDFH.historyitem_TextPr_Ligatures,
+	AscDFH.historyitem_TextPr_Em
 ];
 AscDFH.changesRelationMap[AscDFH.historyitem_TextPr_RFonts]          = [
 	AscDFH.historyitem_TextPr_RFonts,
@@ -384,9 +390,9 @@ CChangesParaTextPrStrikeout.prototype.Merge = private_ParaTextPrChangesOnMergeVa
  */
 function CChangesParaTextPrUnderline(Class, Old, New, Color)
 {
-	AscDFH.CChangesBaseBoolProperty.call(this, Class, Old, New, Color);
+	AscDFH.CChangesBaseByteProperty.call(this, Class, Old, New, Color);
 }
-CChangesParaTextPrUnderline.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
+CChangesParaTextPrUnderline.prototype = Object.create(AscDFH.CChangesBaseByteProperty.prototype);
 CChangesParaTextPrUnderline.prototype.constructor = CChangesParaTextPrUnderline;
 CChangesParaTextPrUnderline.prototype.Type = AscDFH.historyitem_TextPr_Underline;
 CChangesParaTextPrUnderline.prototype.private_SetValue = function(Value)
@@ -394,6 +400,22 @@ CChangesParaTextPrUnderline.prototype.private_SetValue = function(Value)
 	this.Class.Value.Underline = Value;
 };
 CChangesParaTextPrUnderline.prototype.Merge = private_ParaTextPrChangesOnMergeValue;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesBaseBoolProperty}
+ */
+function CChangesParaTextPrEm(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseBoolProperty.call(this, Class, Old, New, Color);
+}
+CChangesParaTextPrEm.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
+CChangesParaTextPrEm.prototype.constructor = CChangesParaTextPrEm;
+CChangesParaTextPrEm.prototype.Type = AscDFH.historyitem_TextPr_Em;
+CChangesParaTextPrEm.prototype.private_SetValue = function(Value)
+{
+	this.Class.Value.Em = Value;
+};
+CChangesParaTextPrEm.prototype.Merge = private_ParaTextPrChangesOnMergeValue;
 /**
  * @constructor
  * @extends {AscDFH.CChangesBaseDoubleProperty}
@@ -907,6 +929,11 @@ CChangesParaTextPrValue.prototype.Merge = function(oChange)
 		case AscDFH.historyitem_TextPr_HighlightColor:
 		{
 			this.New.HighlightColor = oChange.New;
+			break;
+		}
+		case AscDFH.historyitem_TextPr_Em:
+		{
+			this.New.Em = oChange.New;
 			break;
 		}
 	}

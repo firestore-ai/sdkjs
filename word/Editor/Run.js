@@ -7675,6 +7675,7 @@ ParaRun.prototype.Clear_TextFormatting = function(DefHyper, bHighlight)
 	this.Set_Shd(undefined);
 	this.Set_TextFill(undefined);
 	this.Set_TextOutline(undefined);
+	this.Set_Em(undefined);
 
 	if(bHighlight)
 	{
@@ -8374,12 +8375,14 @@ ParaRun.prototype.Apply_Pr = function(TextPr)
 	if (undefined !== TextPr.Underline)
 		this.SetUnderline(null === TextPr.Underline ? undefined : TextPr.Underline);
 
+	if (undefined !== TextPr.Em)
+		this.SetEm(null === TextPr.Em ? undefined : TextPr.Em);
+
 	if (undefined !== TextPr.FontSize)
 	{
 		this.SetFontSize(null === TextPr.FontSize ? undefined : TextPr.FontSize);
 		this.SetFontSizeCS(null === TextPr.FontSize ? undefined : TextPr.FontSize);
 	}
-
 
 	var oCompiledPr;
 	if (undefined !== TextPr.AscUnifill && null !== TextPr.AscUnifill)
@@ -8705,6 +8708,23 @@ ParaRun.prototype.SetUnderline = function(Value)
 ParaRun.prototype.Get_Underline = function()
 {
     return this.Get_CompiledPr(false).Underline;
+};
+ParaRun.prototype.SetEm = function(Value)
+{
+	if ( Value !== this.Pr.Em )
+	{
+		var OldValue = this.Pr.Em;
+		this.Pr.Em = Value;
+
+		AscCommon.History.Add(new CChangesRunEm(this, OldValue, Value, this.private_IsCollPrChangeMine()));
+
+		this.Recalc_CompiledPr(false);
+		this.private_UpdateTrackRevisionOnChangeTextPr(true);
+	}
+}
+ParaRun.prototype.Get_Em = function()
+{
+	return this.Get_CompiledPr(false).Em;
 };
 ParaRun.prototype.SetFontSize = function(nFontSize)
 {

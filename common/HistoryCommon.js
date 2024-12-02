@@ -1964,6 +1964,7 @@
 	window['AscDFH'].historyitem_TextPr_BoldCS                = window['AscDFH'].historyitem_type_TextPr | 35;
 	window['AscDFH'].historyitem_TextPr_ItalicCS              = window['AscDFH'].historyitem_type_TextPr | 36;
 	window['AscDFH'].historyitem_TextPr_Ligatures             = window['AscDFH'].historyitem_type_TextPr | 37;
+	window['AscDFH'].historyitem_TextPr_Em		              = window['AscDFH'].historyitem_type_TextPr | 38;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaDrawing
 	//------------------------------------------------------------------------------------------------------------------
@@ -2252,7 +2253,7 @@
 	window['AscDFH'].historyitem_ParaRun_Ligatures             = window['AscDFH'].historyitem_type_ParaRun | 52;
 	window['AscDFH'].historyitem_ParaRun_CS                    = window['AscDFH'].historyitem_type_ParaRun | 53;
 	window['AscDFH'].historyitem_ParaRun_RTL                   = window['AscDFH'].historyitem_type_ParaRun | 54;
-
+	window['AscDFH'].historyitem_ParaRun_Em                    = window['AscDFH'].historyitem_type_ParaRun | 55;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе CSectionPr
 	//------------------------------------------------------------------------------------------------------------------

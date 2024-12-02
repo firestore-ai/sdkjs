@@ -136,6 +136,9 @@ ParaTextPr.prototype.Apply_TextPr = function(TextPr)
 	if (undefined !== TextPr.Underline)
 		this.SetUnderline(TextPr.Underline);
 
+	if (undefined !== TextPr.Em)
+		this.SetEm(TextPr.Em);
+
 	if (undefined !== TextPr.FontSize)
 	{
 		let fontSize = null === TextPr.FontSize ? undefined : TextPr.FontSize;
@@ -236,6 +239,7 @@ ParaTextPr.prototype.Clear_Style = function()
 	this.SetItalicCS(undefined);
 	this.SetStrikeout(undefined);
 	this.SetUnderline(undefined);
+	this.SetEm(undefined);
 	this.SetFontSize(undefined);
 	this.SetFontSizeCS(undefined);
 
@@ -327,6 +331,16 @@ ParaTextPr.prototype.SetUnderline = function(Value)
 
 	History.Add(new CChangesParaTextPrUnderline(this, this.Value.Underline, Value));
 	this.Value.Underline = Value;
+};
+ParaTextPr.prototype.SetEm = function(Value)
+{
+	if (null == Value)
+		Value = undefined;
+
+	if (this.Value.Em === Value)
+		return;
+	History.Add(new CChangesParaTextPrEm(this, this.Value.Em, Value));
+	this.Value.Em = Value;
 };
 ParaTextPr.prototype.SetFontSize = function(Value)
 {

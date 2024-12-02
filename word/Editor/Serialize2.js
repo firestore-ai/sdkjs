@@ -3062,21 +3062,19 @@ function Binary_rPrWriter(memory, saveParams)
             this.memory.WriteBool(italic);
         }
         //Underline
-        if(null != rPr.Underline || rPr.Underline == Asc.UnderlineType.None)
+        if(null != rPr.Underline && rPr.Underline !== Asc.UnderlineType.None)
         {
             this.memory.WriteByte(c_oSerProp_rPrType.Underline);
-            this.memory.WriteByte(c_oSerPropLenType.Byte);
-			
+            this.memory.WriteByte(c_oSerPropLenType.Byte);			
 			this.memory.WriteByte(rPr.Underline);
         }
 		// Em 
-		if(null != rPr.Em || rPr.Em == Asc.EmType.None)
-			{
-				this.memory.WriteByte(c_oSerProp_rPrType.Em);
-				this.memory.WriteByte(c_oSerPropLenType.Byte);
-				
-				this.memory.WriteByte(rPr.Em);
-			}
+		if(null != rPr.Em && rPr.Em !== Asc.EmType.None)
+		{
+			this.memory.WriteByte(c_oSerProp_rPrType.Em);
+			this.memory.WriteByte(c_oSerPropLenType.Byte);				
+			this.memory.WriteByte(rPr.Em);
+		}
         //Strikeout
         if(null != rPr.Strikeout)
         {

@@ -3456,6 +3456,17 @@ background-repeat: no-repeat;\
 			this.WordControl.m_oLogicDocument.FinalizeAction();
 		}
 	};
+	asc_docs_api.prototype.put_TextPrEm        = function(value)
+	{
+		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(AscCommon.changestype_Paragraph_TextProperties))
+		{
+			this.WordControl.m_oLogicDocument.StartAction(AscDFH.historydescription_Document_SetTextUnderline);
+			this.WordControl.m_oLogicDocument.AddToParagraph(new AscCommonWord.ParaTextPr({Em : value}));
+			this.WordControl.m_oLogicDocument.Recalculate();
+			this.WordControl.m_oLogicDocument.UpdateInterface();
+			this.WordControl.m_oLogicDocument.FinalizeAction();
+		}
+	};
 	asc_docs_api.prototype.put_TextPrStrikeout  = function(value)
 	{
 		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(AscCommon.changestype_Paragraph_TextProperties))
@@ -14368,6 +14379,7 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['put_TextPrBold']                            = asc_docs_api.prototype.put_TextPrBold;
 	asc_docs_api.prototype['put_TextPrItalic']                          = asc_docs_api.prototype.put_TextPrItalic;
 	asc_docs_api.prototype['put_TextPrUnderline']                       = asc_docs_api.prototype.put_TextPrUnderline;
+	asc_docs_api.prototype['put_TextEm'] 			                    = asc_docs_api.prototype.put_TextPrEm;
 	asc_docs_api.prototype['put_TextPrStrikeout']                       = asc_docs_api.prototype.put_TextPrStrikeout;
 	asc_docs_api.prototype['put_TextPrDStrikeout']                      = asc_docs_api.prototype.put_TextPrDStrikeout;
 	asc_docs_api.prototype['put_TextPrSpacing']                         = asc_docs_api.prototype.put_TextPrSpacing;

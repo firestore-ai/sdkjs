@@ -151,7 +151,7 @@ CNativeGraphics.prototype._l = function(x, y)
 CNativeGraphics.prototype._c = function(x1, y1, x2, y2, x3, y3)
 {
     x1 = isNaN(x1) ? 0 : x1;
-    y1 = isNaN(y1) ? 0 : y1;
+    y1 = isNaN(y1) ? 0 : y1;    
     x2 = isNaN(x2) ? 0 : x2;
     y2 = isNaN(y2) ? 0 : y2;
     x3 = isNaN(x3) ? 0 : x3;
@@ -178,6 +178,13 @@ CNativeGraphics.prototype._c2 = function(x1, y1, x2, y2)
         this.ArrayPoints[this.ArrayPoints.length] = {x: x1, y: y1};
         this.ArrayPoints[this.ArrayPoints.length] = {x: x2, y: y2};
     }
+};
+CNativeGraphics.prototype.DrawCircle = function(x, y, raidus) 
+{
+    this._s();
+    this.b_color1(0, 0, 0, 255);
+    AscFormat.ArcToCurvers(this, x, y, raidus, raidus, 0, 2 * Math.PI);
+    this.df();
 };
 CNativeGraphics.prototype.ds = function()
 {

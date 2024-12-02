@@ -15008,6 +15008,14 @@ CTextPr.prototype.GetTextMetrics = function(nFontFlags, oTheme)
 	if ((nFontFlags & AscWord.fontslot_EastAsia) && oTextPr.RFonts.EastAsia)
 		oMetrics.Update(oTextPr.GetFontInfo(AscWord.fontslot_EastAsia));
 
+    if (this.Em)
+    {
+        var emHeight = oMetrics.Descent;
+        oMetrics.Descent += emHeight;
+        oMetrics.Height += emHeight;
+        oMetrics.LineGap += emHeight;
+    }
+
 	return oMetrics;
 };
 CTextPr.prototype.GetFontInfo = function(nFontSlot)

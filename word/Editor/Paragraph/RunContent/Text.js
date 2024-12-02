@@ -200,7 +200,7 @@
 				this.Flags &= FLAGS_NON_CAPITALS;
 				this.Flags &= FLAGS_NON_FONTKOEF_SMALLCAPS;
 			}
-			
+		
 			let isCoeffScript = oTextPr.VertAlign !== AscCommon.vertalign_Baseline;
 
 			if (isCoeffScript && this.Flags & FLAGS_FONTKOEF_SMALLCAPS)
@@ -389,12 +389,42 @@
 		{
 			AscFonts.DrawGrapheme(this.Grapheme, Context, X, Y, nFontSize);
 		}
+
+		// draw em mark
+		if (oTextPr.Em == true)
+		{
+			this.DrawEmMark(Context, X, Y, nFontSize, oTextPr);
+		}
 		
 		if (this.Flags & FLAGS_TEMPORARY_HYPHEN_AFTER)
 			this.DrawHyphenAfter(Context, X, Y, nFontSize, oTextPr);
 
 		if (this.Flags & FLAGS_GAPS)
 			Context.RestoreGrState();
+	};
+	CRunText.prototype.DrawEmMark = function(Context, X, Y, fontSize, textPr)
+	{
+		// 获取字符宽度
+		let charWidth = this.GetWidth();
+    
+		// 设置着重点的大小 (fontSize 的 1/6)
+		let charHeight = fontSize * 25.4 / 72;
+
+		let dotSize = charHeight / 8;
+		
+		// 计算着重点的位置
+		// X: 字符中心
+		// Y: 基线下方一小段距离
+		let dotX = X + charWidth / 2;
+		let dotY = Y + 3 * dotSize ;
+		
+		// 保存当前绘图状态
+		Context.SaveGrState();
+		
+		Context.DrawCircle(dotX, dotY, dotSize);
+		
+		// 恢复绘图状态
+		Context.RestoreGrState();
 	};
 	CRunText.prototype.DrawNonBreakingSpace = function(Context, X, Y, nFontSize)
 	{
