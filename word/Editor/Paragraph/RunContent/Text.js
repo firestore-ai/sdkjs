@@ -390,7 +390,7 @@
 			AscFonts.DrawGrapheme(this.Grapheme, Context, X, Y, nFontSize);
 		}
 
-		// draw em mark
+		// draw em mark 着重记号
 		if (oTextPr.Em !== undefined && oTextPr.Em !== false && oTextPr.Em != Asc.EmType.None)
 		{
 			this.DrawEmMark(Context, X, Y, nFontSize, oTextPr);

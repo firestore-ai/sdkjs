@@ -179,13 +179,6 @@ CNativeGraphics.prototype._c2 = function(x1, y1, x2, y2)
         this.ArrayPoints[this.ArrayPoints.length] = {x: x2, y: y2};
     }
 };
-CNativeGraphics.prototype.DrawCircle = function(x, y, raidus) 
-{
-    this._s();
-    this.b_color1(0, 0, 0, 255);
-    AscFormat.ArcToCurvers(this, x, y, raidus, raidus, 0, 2 * Math.PI);
-    this.df();
-};
 CNativeGraphics.prototype.ds = function()
 {
     this.Native["ds"]();
