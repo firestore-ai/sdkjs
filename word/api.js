@@ -2242,6 +2242,7 @@ background-repeat: no-repeat;\
 		ParaPr.DStrikeout  = TextPr.DStrikeout;
 		ParaPr.AllCaps     = TextPr.Caps;
 		ParaPr.SmallCaps   = TextPr.SmallCaps;
+		ParaPr.Em          = TextPr.Em;
 		ParaPr.TextSpacing = TextPr.Spacing;
 		ParaPr.Position    = TextPr.Position;
 		ParaPr.Ligatures   = TextPr.Ligatures;
@@ -3988,6 +3989,7 @@ background-repeat: no-repeat;\
 			|| undefined !== Props.DStrikeout
 			|| undefined !== Props.SmallCaps
 			|| undefined !== Props.AllCaps
+			|| undefined !== Props.Em
 			|| undefined !== Props.TextSpacing
 			|| undefined !== Props.Position)
 		{
@@ -4144,6 +4146,11 @@ background-repeat: no-repeat;\
 				TextPr.Caps = Props.AllCaps;
 				if (true === TextPr.AllCaps)
 					TextPr.SmallCaps = false;
+			}
+
+			if (undefined != Props.Em)
+			{
+				TextPr.Em = Props.Em;				
 			}
 
 			if (undefined != Props.TextSpacing)

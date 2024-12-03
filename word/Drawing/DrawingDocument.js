@@ -2877,6 +2877,7 @@ function CDrawingDocument()
 			this.GuiLastTextProps.AllCaps = props.AllCaps;
 			this.GuiLastTextProps.Strikeout = props.Strikeout;
 			this.GuiLastTextProps.DStrikeout = props.DStrikeout;
+			this.GuiLastTextProps.Em = props.Em;
 
 			this.GuiLastTextProps.TextSpacing = props.TextSpacing;
 			this.GuiLastTextProps.Position = props.Position;
@@ -2911,6 +2912,11 @@ function CDrawingDocument()
 			if (this.GuiLastTextProps.DStrikeout != props.DStrikeout)
 			{
 				this.GuiLastTextProps.DStrikeout = props.DStrikeout;
+				bIsChange = true;
+			}
+			if (this.GuiLastTextProps.Em != props.Em)
+			{
+				this.GuiLastTextProps.Em = props.Em;
 				bIsChange = true;
 			}
 			if (this.GuiLastTextProps.TextSpacing != props.TextSpacing)
@@ -2960,6 +2966,7 @@ function CDrawingDocument()
 		_textPr.DStrikeout = this.GuiLastTextProps.DStrikeout;
 		_textPr.Caps = this.GuiLastTextProps.AllCaps;
 		_textPr.SmallCaps = this.GuiLastTextProps.SmallCaps;
+		_textPr.Em = this.GuiLastTextProps.Em;
 
 		_textPr.Spacing = this.GuiLastTextProps.TextSpacing;
 		_textPr.Position = this.GuiLastTextProps.Position;

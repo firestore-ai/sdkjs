@@ -13277,7 +13277,7 @@ CTextPr.prototype.InitDefault = function(nCompatibilityMode)
 	this.Bold       = false;
 	this.Italic     = false;
 	this.Underline  = Asc.UnderlineType.None;
-    this.Em         = Asc.EmType.None;
+    this.Em         = false;
 
 	this.Strikeout  = false;
 	this.FontFamily = {
@@ -13689,8 +13689,9 @@ CTextPr.prototype.CheckFontScale = function()
 CTextPr.prototype.Write_ToBinary = function(Writer)
 {
 	var StartPos = Writer.GetCurPosition();
-	Writer.Skip(4);
+	Writer.Skip(8);
 	var Flags = 0;
+    var Flags2 = 0;
 
 	if (undefined != this.Bold)
 	{
@@ -13895,17 +13896,19 @@ CTextPr.prototype.Write_ToBinary = function(Writer)
     if (undefined !== this.Em)
     {
         Writer.WriteByte(this.Em);
-        Flags |= (1 << 32);
+        Flags2 |= 1;
     }
 
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
+    Writer.WriteLong(Flags2)
 	Writer.Seek(EndPos);
 };
 CTextPr.prototype.Read_FromBinary = function(Reader)
 {
 	var Flags = Reader.GetLong();
+    var Flags2 = Reader.GetLong();
 
 	// Bold
 	if (Flags & 1)
@@ -14066,7 +14069,7 @@ CTextPr.prototype.Read_FromBinary = function(Reader)
 	if (Flags & (1 << 31))
 		this.Ligatures = Reader.GetByte();
 
-    if (Flags & (1 << 32))
+    if (Flags2 & 1)
         this.Em = Reader.GetByte();
 };
 CTextPr.prototype.Check_NeedRecalc = function()
@@ -15008,7 +15011,8 @@ CTextPr.prototype.GetTextMetrics = function(nFontFlags, oTheme)
 	if ((nFontFlags & AscWord.fontslot_EastAsia) && oTextPr.RFonts.EastAsia)
 		oMetrics.Update(oTextPr.GetFontInfo(AscWord.fontslot_EastAsia));
 
-    if (this.Em)
+    // 着重标记影响文字高度
+    if (this.Em !== undefined && this.Em !== false && this.Em !== Asc.EmType.None)
     {
         var emHeight = oMetrics.Descent;
         oMetrics.Descent += emHeight;

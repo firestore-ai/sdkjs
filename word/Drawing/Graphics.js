@@ -2058,24 +2058,7 @@
 		}
 		return widthPixel;
 	}
-
-	CGraphics.prototype.DrawCircle = function(x, y, raidus) 
-	{
-		// var ctx = this.m_oContext;
-		// ctx.beginPath();
-		// ctx.fillStyle = "black";		
-		// var xPx = this.ConvertMMtoPixel(x);
-		// var yPx = this.ConvertMMtoPixel(y);
-		// var widthPx = this.ConvertMMtoPixel(raidus);
-		// ctx.fill();
-		this._s();
-		this.b_color1(0, 0, 0, 255);
-		AscFormat.ArcToCurvers(this, x, y, raidus, raidus, 0, 2 * Math.PI);
-		this.df();
-		//ctx.arc(xPx, yPx, widthPx, 0, 2*Math.PI);		
-		
-	}
-
+	
 	CGraphics.prototype.private_drawSpecHorLine = function(ctx, y, x, r, penW, lineType)
 	{
 		var dotPixel = this.ConvertMMtoPixel(2*penW);

@@ -8270,6 +8270,7 @@
 					ParaPr.Superscript = (TextPr.VertAlign === AscCommon.vertalign_SuperScript ? true : false);
 					ParaPr.Strikeout = TextPr.Strikeout;
 					ParaPr.DStrikeout = TextPr.DStrikeout;
+					ParaPr.Em = TextPr.Em;
 					ParaPr.AllCaps = TextPr.Caps;
 					ParaPr.SmallCaps = TextPr.SmallCaps;
 					ParaPr.TextSpacing = TextPr.Spacing;
@@ -8715,6 +8716,10 @@
 						TextPr.Caps = Props.AllCaps;
 						if (true === TextPr.AllCaps)
 							TextPr.SmallCaps = false;
+					}
+
+					if (undefined != Props.Em)	{
+						TextPr.Em = Props.Em;						
 					}
 
 					if (undefined != Props.TextSpacing)

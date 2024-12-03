@@ -3073,6 +3073,7 @@ function Binary_rPrWriter(memory, saveParams)
 		{
 			this.memory.WriteByte(c_oSerProp_rPrType.Em);
 			this.memory.WriteByte(c_oSerPropLenType.Byte);				
+			if (r.Pr.Em === true ) r.Pr.Em == Asc.EmType.Dot;
 			this.memory.WriteByte(rPr.Em);
 		}
         //Strikeout

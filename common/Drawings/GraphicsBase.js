@@ -496,7 +496,13 @@
 		var dashW = 8 * penW;
 		return [dotW, dashW];
 	};
-
+	CGraphicsBase.prototype.DrawCircle = function(x, y, raidus) 
+	{
+		this._s();
+		this.b_color1(0, 0, 0, 255);
+		AscFormat.ArcToCurvers(this, x, y, raidus, raidus, 0, 2 * Math.PI);
+		this.df();
+	};
 	CGraphicsBase.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
 		const [dotW, dashW] = this.CalcDashWidth(penW);	

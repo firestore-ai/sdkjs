@@ -2727,6 +2727,7 @@ function (window, undefined) {
 				oBullet.FirstTextPr = obj.FirstTextPr;
 			}
 			this.Ligatures = undefined !== obj.Ligatures ? obj.Ligatures : undefined;
+			this.Em = (undefined !== obj.Em) ? obj.Em : undefined;
 
 			this.CanDeleteBlockCC = undefined !== obj.CanDeleteBlockCC ? obj.CanDeleteBlockCC : true;
 			this.CanEditBlockCC = undefined !== obj.CanEditBlockCC ? obj.CanEditBlockCC : true;
@@ -2781,6 +2782,7 @@ function (window, undefined) {
 			this.SuppressLineNumbers = false;
 			this.Bullet = undefined;
 			this.Ligatures = undefined;
+			this.Em = undefined;
 
 			this.CanDeleteBlockCC = true;
 			this.CanEditBlockCC = true;
@@ -2891,6 +2893,12 @@ function (window, undefined) {
 	asc_CParagraphProperty.prototype.asc_putDStrikeout = function (v) {
 		this.DStrikeout = v;
 	};
+	asc_CParagraphProperty.prototype.asc_getEm = function () {
+		return this.Em;
+	};
+	asc_CParagraphProperty.prototype.asc_putEm = function (v) {
+		this.Em = v;
+	};	
 	asc_CParagraphProperty.prototype.asc_getTextSpacing = function () {
 		return this.TextSpacing;
 	};
@@ -6373,6 +6381,8 @@ function (window, undefined) {
 	prot["put_Strikeout"] = prot["asc_putStrikeout"] = prot.asc_putStrikeout;
 	prot["get_DStrikeout"] = prot["asc_getDStrikeout"] = prot.asc_getDStrikeout;
 	prot["put_DStrikeout"] = prot["asc_putDStrikeout"] = prot.asc_putDStrikeout;
+	prot["get_Em"] = prot["asc_getEm"] = prot.asc_getEm;
+	prot["put_Em"] = prot["asc_putEm"] = prot.asc_putEm;	
 	prot["get_TextSpacing"] = prot["asc_getTextSpacing"] = prot.asc_getTextSpacing;
 	prot["put_TextSpacing"] = prot["asc_putTextSpacing"] = prot.asc_putTextSpacing;
 	prot["get_Position"] = prot["asc_getPosition"] = prot.asc_getPosition;

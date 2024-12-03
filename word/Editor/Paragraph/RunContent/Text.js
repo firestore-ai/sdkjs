@@ -391,7 +391,7 @@
 		}
 
 		// draw em mark
-		if (oTextPr.Em == true)
+		if (oTextPr.Em !== undefined && oTextPr.Em !== false && oTextPr.Em != Asc.EmType.None)
 		{
 			this.DrawEmMark(Context, X, Y, nFontSize, oTextPr);
 		}

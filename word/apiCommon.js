@@ -1157,6 +1157,7 @@
 			this.Caps = (undefined != obj.Caps) ? obj.Caps : null;
 			this.SmallCaps = (undefined != obj.SmallCaps) ? obj.SmallCaps : null;
 			this.Lang = (undefined != obj.Lang) ? obj.Lang.Val : null;
+			this.Em = (undefined != obj.Em) ? obj.Em : null;
 		}
 		else
 		{
@@ -1178,6 +1179,7 @@
 			//    },
 			//    VertAlign : vertalign_Baseline,
 			//    HighLight : highlight_None
+			//    Em : false
 			this.Bold = false;
 			this.Italic = false;
 			this.Underline = false;
@@ -1192,6 +1194,7 @@
 			this.Caps = false;
 			this.SmallCaps = false;
 			this.Lang = null;
+			this.Em = false;
 		}
 	}
 
@@ -1251,6 +1254,10 @@
 	{
 		return this.Lang;
 	};
+	CTextProp.prototype.get_Em = function()
+	{
+		return this.Em;
+	};
 
 	CParagraphPropEx.prototype['get_ContextualSpacing'] = CParagraphPropEx.prototype.get_ContextualSpacing;
 	CParagraphPropEx.prototype['get_Ind'] = CParagraphPropEx.prototype.get_Ind;
@@ -1277,6 +1284,7 @@
 	CTextProp.prototype['get_Caps'] = CTextProp.prototype.get_Caps;
 	CTextProp.prototype['get_SmallCaps'] = CTextProp.prototype.get_SmallCaps;
 	CTextProp.prototype['get_Lang'] = CTextProp.prototype.get_Lang;
+	CTextProp.prototype['get_Em'] = CTextProp.prototype.get_Em;
 
 	CTextProp.prototype['put_Bold'] = CTextProp.prototype.put_Bold = function(v){this.Bold = v;};
 	CTextProp.prototype['put_Italic'] = CTextProp.prototype.put_Italic = function(v){this.Italic = v;};
@@ -1292,7 +1300,7 @@
 	CTextProp.prototype['put_Caps'] = CTextProp.prototype.put_Caps = function(v){this.Caps = v;};
 	CTextProp.prototype['put_SmallCaps'] = CTextProp.prototype.put_SmallCaps = function(v){this.SmallCaps = v;};
 	CTextProp.prototype['put_Lang'] = CTextProp.prototype.put_Lang = function(v){this.Lang = v;};
-
+	CTextProp.prototype['put_Em'] = CTextProp.prototype.put_Em = function(v){this.Em = v;};
 
 	window['Asc']['CTextProp'] = window['Asc'].CTextProp = CTextProp;
 
