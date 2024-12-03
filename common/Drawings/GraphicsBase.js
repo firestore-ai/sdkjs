@@ -505,7 +505,9 @@
 	};
 	CGraphicsBase.prototype.drawSpecHorLine = function(align, y, x, r, penW, lineType)
 	{
-		const [dotW, dashW] = this.CalcDashWidth(penW);	
+		var widthArray = this.CalcDashWidth(penW);	
+		const dotW = widthArray[0];
+		const dashW = widthArray[1];
 		switch(lineType)
 		{
 		case Asc.UnderlineType.None:
