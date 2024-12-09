@@ -2008,5 +2008,8 @@
 		api.asc_registerCallback('asc_onUndoRedo', function() {
 			oThis.onPluginEvent("onUndoRedo");
 		});
+		api.asc_registerCallback('asc_onEndAddShape', function() {
+			oThis.onPluginEvent("onEndAddShape");
+		});
 	}
 })(window, undefined);
