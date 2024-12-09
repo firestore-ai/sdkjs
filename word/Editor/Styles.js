@@ -16237,7 +16237,8 @@ function CParaPr()
 	this.ReviewInfo        = undefined;
     this.SnapToGrid        = undefined;
 
-	this.SuppressLineNumbers = undefined;
+	this.SuppressLineNumbers = undefined; 
+    this.TextAlignment     = undefined;
     
 }
 
@@ -16349,6 +16350,9 @@ CParaPr.prototype.Copy = function(bCopyPrChange, oPr)
 
     if (undefined !== this.SnapToGrid)
         ParaPr.SnapToGrid = this.SnapToGrid;
+
+    if (undefined !== this.TextAlignment)
+        ParaPr.TextAlignment = this.TextAlignment;
 
 	return ParaPr;
 };
@@ -16528,6 +16532,9 @@ CParaPr.prototype.Merge = function(ParaPr)
     if (undefined !== ParaPr.SnapToGrid)    
         this.SnapToGrid = ParaPr.SnapToGrid;
 
+    if (undefined !== ParaPr.TextAlignment)
+        this.TextAlignment = ParaPr.TextAlignment;
+
 };
 CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 {
@@ -16564,6 +16571,7 @@ CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 	this.OutlineLvl                = undefined;
 	this.SuppressLineNumbers       = false;
     this.SnapToGrid                = true;
+    this.TextAlignment             = AscCommon.text_align_Auto;
 
 	this.DefaultRunPr   = undefined;
 	this.Bullet         = undefined;
@@ -16700,6 +16708,9 @@ CParaPr.prototype.Set_FromObject = function(ParaPr)
 
     if (undefined !== ParaPr.SnapToGrid)
         this.SnapToGrid = ParaPr.SnapToGrid;
+
+    if (undefined !== ParaPr.TextAlignment)
+        this.TextAlignment = ParaPr.TextAlignment;
 };
 CParaPr.prototype.SetFromObject = function(oPr)
 {
@@ -16837,6 +16848,9 @@ CParaPr.prototype.Compare = function(ParaPr)
 
     if (this.SnapToGrid === ParaPr.SnapToGrid)
         Result_ParaPr.SnapToGrid = this.SnapToGrid;
+
+    if (this.TextAlignment === Para.TextAlignment)
+        Result_ParaPr.TextAlignment = this.TextAlignment;
 
 	return Result_ParaPr;
 };
@@ -17009,6 +17023,12 @@ CParaPr.prototype.Write_ToBinary = function(Writer)
         Flags |= (1 << 26);        
     }
 
+    if (undefined !== this.TextAlignment)
+    {
+        Writer.WriteByte(this.TextAlignment);
+        Flags |= (1 << 27);
+    }
+
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
@@ -17147,6 +17167,9 @@ CParaPr.prototype.Read_FromBinary = function(Reader)
 	if (Flags & (1 << 26))
         this.SnapToGrid = Reader.GetBool();
 
+    if (Flags & (1 << 27))
+        this.TextAlignment = Reader.GetByte();
+
 };
 CParaPr.prototype.isEqual = function(ParaPrUOld,ParaPrNew)
 {
@@ -17196,6 +17219,7 @@ CParaPr.prototype.Is_Equal = function(ParaPr)
 		|| this.OutlineLvl !== ParaPr.OutlineLvl
 		|| this.SuppressLineNumbers !== ParaPr.SuppressLineNumbers
 		|| this.Bidi !== ParaPr.Bidi        
+        || this.TextAlignment !== ParaPr.TextAlignment;
 	);
 };
 CParaPr.prototype.IsEqual = function(paraPr)
@@ -17279,6 +17303,9 @@ CParaPr.prototype.GetDiff = function(oParaPr)
 	
 	if (this.Bidi !== oParaPr.Bidi)
 		oResultParaPr.Bidi = this.Bidi;
+
+    if (this.TextAlignment !== oParaPr.TextAlignment)
+        oResultParaPr.TextAlignment = this.TextAlignment;
 
 	return oResultParaPr;
 };
@@ -17413,6 +17440,7 @@ CParaPr.prototype.Is_Empty = function(oPr)
 		|| undefined !== this.SuppressLineNumbers
         || undefined !== this.SnapToGrid
 		|| undefined !== this.Bidi
+        || undefined !== this.TextAlignment
 	);
 };
 CParaPr.prototype.IsEmpty = function()
@@ -17475,6 +17503,9 @@ CParaPr.prototype.GetDiffPrChange = function()
 
 	if (this.PStyle !== PrChange.PStyle)
 		ParaPr.PStyle = this.PStyle;
+
+    if (this.TextAlignment !== PrChange.TextAlignment)
+        ParaPr.TextAlignment = this.TextAlignment;
 
 	return ParaPr;
 };
@@ -17678,6 +17709,14 @@ CParaPr.prototype.SetSnapToGrid = function(snapToGrid)
 {
     this.SnapToGrid = snapToGrid;
 };
+CParaPr.prototype.GetTextAlignment = function()
+{
+    return this.TextAlignment;
+}
+CParaPr.prototype.SetTextAlignment = function(Value)
+{
+    this.TextAlignment = Value;
+}
 CParaPr.prototype.WriteToBinary = function(oWriter)
 {
 	return this.Write_ToBinary(oWriter);
@@ -17712,6 +17751,7 @@ CParaPr.prototype.CheckBorderSpaces = function()
 	if (this.Brd.Between)
 		this.Brd.Between.Space = this.private_CorrectBorderSpace(this.Brd.Between.Space);
 };
+
 
 //----------------------------------------------------------------------------------------------------------------------
 // CParaPr Export
@@ -17751,7 +17791,10 @@ CParaPr.prototype['put_OutlineLvl']               = CParaPr.prototype.put_Outlin
 CParaPr.prototype['get_SuppressLineNumbers']      = CParaPr.prototype.get_SuppressLineNumbers      = CParaPr.prototype['Get_SuppressLineNumbers']      = CParaPr.prototype.GetSuppressLineNumbers;
 CParaPr.prototype['put_SuppressLineNumbers']      = CParaPr.prototype.put_SuppressLineNumbers      = CParaPr.prototype.SetSuppressLineNumbers;
 CParaPr.prototype['get_SnapToGrid']               = CParaPr.prototype.get_SnapToGrid               = CParaPr.prototype['Get_SnapToGrid']               = CParaPr.prototype.GetSnapToGrid;
-CParaPr.prototype['put_SnapToGrid']               = CParaPr.prototype.put_SnapToGrid               = CParaPr.prototype.SnapToGrid;
+CParaPr.prototype['put_SnapToGrid']               = CParaPr.prototype.put_SnapToGrid               = CParaPr.prototype.SetSnapToGrid;
+CParaPr.prototype['get_TextAlignment']            = CParaPr.prototype.get_TextAlignment            = CParaPr.prototype['Get_TextAlignment']               = CParaPr.prototype.GetTextAlignment;
+CParaPr.prototype['put_TextAlignment']            = CParaPr.prototype.put_TextAlignment            = CParaPr.prototype.SetTextAlignment;
+
 
 //----------------------------------------------------------------------------------------------------------------------
 

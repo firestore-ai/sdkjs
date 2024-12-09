@@ -713,6 +713,13 @@ window.AscCommon.g_cIsBeta = "false";
 	var align_Distributed = 4;
 	var align_CenterContinuous = 5;
 
+	var text_align_Auto 	= 0;
+	var text_align_Baseline = 1;
+	var text_align_Bottom 	= 2;
+	var text_align_Center 	= 3;
+	var text_align_Top 		= 4;
+	
+
 	var ruby_align_Center = 0;
 	var ruby_align_DistributeLetter = 1;
 	var ruby_align_DistributeSpace = 2;
@@ -5326,6 +5333,12 @@ window.AscCommon.g_cIsBeta = "false";
 	window['AscCommon']['align_Distributed'] = window['AscCommon'].align_Distributed = align_Distributed;
 	window['AscCommon']['align_CenterContinuous'] = window['AscCommon'].align_CenterContinuous = align_CenterContinuous;
 
+	window['AscCommon']['text_align_Auto'] = window['AscCommon'].text_align_Auto = text_align_Auto;
+	window['AscCommon']['text_align_Baseline'] = window['AscCommon'].text_align_Baseline = text_align_Baseline;
+	window['AscCommon']['text_align_Bottom'] = window['AscCommon'].text_align_Bottom = text_align_Bottom;
+	window['AscCommon']['text_align_Center'] = window['AscCommon'].text_align_Center = text_align_Center;
+	window['AscCommon']['text_align_Top'] = window['AscCommon'].text_align_Top = text_align_Top;
+	
 	window['AscCommon']['ruby_align_Center'] = window['AscCommon'].ruby_align_Center = ruby_align_Center;
 	window['AscCommon']['ruby_align_DistributeLetter'] = window['AscCommon'].ruby_align_DistributeLetter = ruby_align_DistributeLetter;
 	window['AscCommon']['ruby_align_DistributeSpace'] = window['AscCommon'].ruby_align_DistributeSpace = ruby_align_DistributeSpace;

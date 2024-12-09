@@ -282,7 +282,10 @@ var c_oSerProp_pPrType = {
 	SuppressLineNumbers: 44,
 	CnfStyle: 45,
 	SnapToGrid: 46,
-	Bidi: 47
+	Bidi: 47,
+	Spacing_AfterLines: 48,
+	Spacing_BeforeLiens: 49,
+	TextAlignment: 50
 };
 var c_oSerProp_rPrType = {
     Bold:0,
@@ -2490,6 +2493,12 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 			this.memory.WriteByte(c_oSerProp_pPrType.Bidi);
 			this.memory.WriteByte(c_oSerPropLenType.Byte);
 			this.memory.WriteBool(pPr.Bidi);
+		}
+		if (null != pPr.TextAlignment)
+		{
+			this.memory.WriteByte(c_oSerProp_pPrType.TextAlignment);
+			this.memory.WriteByte(c_oSerPropLenType.Byte);
+			this.memory.WriteByte(pPr.TextAlignment);
 		}
     };
     this.WriteInd = function(Ind)
@@ -9336,7 +9345,10 @@ function Binary_pPrReader(doc, oReadResult, stream)
 				break;
 			case c_oSerProp_pPrType.SnapToGrid:
 				pPr.SnapToGrid = this.stream.GetBool();
-				break;			
+				break;
+			case c_oSerProp_pPrType.TextAlignment:
+				pPr.TextAlignment = this.stream.GetByte();
+				break;
             default:
                 res = c_oSerConstants.ReadUnknown;
                 break;
