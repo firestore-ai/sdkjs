@@ -118,7 +118,7 @@
         g_oTextMeasurer.SetTextPr(oNumTextPr, oTheme);
         g_oTextMeasurer.SetFontSlot(AscWord.fontslot_ASCII, dKoef);
         
-        let NumPr = oPara.Pr.NumPr;
+        let NumPr = oPara.GetNumPr();
         var arrNumInfo = oPara.Parent.CalculateNumberingValues(oPara, NumPr, true) || [];
         var oNumInfo = arrNumInfo[0] || [];
 
