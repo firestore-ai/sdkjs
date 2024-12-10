@@ -17219,7 +17219,7 @@ CParaPr.prototype.Is_Equal = function(ParaPr)
 		|| this.OutlineLvl !== ParaPr.OutlineLvl
 		|| this.SuppressLineNumbers !== ParaPr.SuppressLineNumbers
 		|| this.Bidi !== ParaPr.Bidi        
-        || this.TextAlignment !== ParaPr.TextAlignment;
+        || this.TextAlignment !== ParaPr.TextAlignment
 	);
 };
 CParaPr.prototype.IsEqual = function(paraPr)

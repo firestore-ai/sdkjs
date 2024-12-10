@@ -396,6 +396,32 @@
 			y -= AscCommon.vaKSub * textPr.FontSize * g_dKoef_pt_to_mm;
 		else if (AscCommon.vertalign_SuperScript === textPr.VertAlign)
 			y -= AscCommon.vaKSuper * textPr.FontSize * g_dKoef_pt_to_mm;
+
+		let Pr = this.drawState.getParagraphCompiledPr();	
+		if (Pr.ParaPr.TextAlignment !== undefined)
+		{
+			let offset = textPr.FontSize * g_dKoef_pt_to_mm;
+			switch(Pr.ParaPr.TextAlignment)
+			{
+			case AscCommon.text_alignment_Top:
+				y = this.lineTop + offset;
+				break;
+			case AscCommon.text_alignment_Center:
+				y = (this.lineTop + this.lineBottom + offset) / 2 
+				break;
+			case AscCommon.text_alignment_Bottom:
+				y = this.lineBottom - offset;
+				break;
+			case AscCommon.text_alignment_Baseline:
+			case AscCommon.text_alignment_Auto:
+			default:
+				break;
+			}
+		}
+
+		
+
+
 		
 		return y;
 	};
