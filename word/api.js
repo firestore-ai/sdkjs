@@ -5071,6 +5071,9 @@ background-repeat: no-repeat;\
 		{
 			this.WordControl.m_oDrawingDocument.UnlockCursorType();
 		}
+		
+		if (window.g_asc_plugins)
+			window.g_asc_plugins.onPluginEvent("onEndAddShape");
 	};
 
 	asc_docs_api.prototype.SetDrawingFreeze = function(bIsFreeze)
