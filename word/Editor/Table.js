@@ -8046,6 +8046,28 @@ CTable.prototype.SetParagraphSnapToGrid = function(Value)
 		return this.CurCell.Content.SetParagraphSnapToGrid(Value);
 	}
 };
+CTable.prototype.SetParagraphTextAlignment = function(Value)
+{
+	if (this.IsCellSelection())
+	{
+		var Cells_array = this.GetSelectionArray();
+		for (var Index = 0; Index < Cells_array.length; Index++)
+		{
+			var Pos  = Cells_array[Index];
+			var Row  = this.Content[Pos.Row];
+			var Cell = Row.Get_Cell(Pos.Cell);
+
+			var Cell_Content = Cell.Content;
+			Cell_Content.SetApplyToAll(true);
+			Cell.Content.SetParagraphTextAlignment(Value);
+			Cell_Content.SetApplyToAll(false);
+		}
+	}
+	else
+	{
+		return this.CurCell.Content.SetParagraphTextAlignment(Value);
+	}
+};
 CTable.prototype.SetParagraphBorders = function(Borders)
 {
 	if (this.IsCellSelection())
