@@ -16849,7 +16849,7 @@ CParaPr.prototype.Compare = function(ParaPr)
     if (this.SnapToGrid === ParaPr.SnapToGrid)
         Result_ParaPr.SnapToGrid = this.SnapToGrid;
 
-    if (this.TextAlignment === Para.TextAlignment)
+    if (this.TextAlignment === ParaPr.TextAlignment)
         Result_ParaPr.TextAlignment = this.TextAlignment;
 
 	return Result_ParaPr;
