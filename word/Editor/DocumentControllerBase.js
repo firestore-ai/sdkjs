@@ -489,6 +489,11 @@ CDocumentControllerBase.prototype.SetParagraphWidowControl = function(Value){};
  */
 CDocumentControllerBase.prototype.SetParagraphSnapToGrid = function(Value){};
 /**
+ * TextAlignment
+ * @param {*} Value 
+ */
+CDocumentControllerBase.prototype.SetParagraphTextAlignment = function(Value){};
+/**
  * Устанавливаем границы параграфа
  * @param Borders
  */

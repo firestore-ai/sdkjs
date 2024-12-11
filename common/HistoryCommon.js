@@ -259,6 +259,9 @@
 			case AscDFH.historydescription_Document_SetParagraphSnapToGrid             :
 				sString = "Document_SetParagraphSnapToGrid";
 				break;			
+			case AscDFH.historydescription_Document_SetParagraphTextAlignment          :
+				sString = "Document_SetParagraphTextAlignment"
+				break;
 			case AscDFH.historydescription_Document_SetParagraphKeepLines              :
 				sString = "Document_SetParagraphKeepLines";
 				break;
@@ -1298,6 +1301,9 @@
 			case AscDFH.historydescription_Document_SetParagraphSnapToGrid:
 				sString = "Document_SetParagraphSnapToGrid";
 				break;
+			case AscDFH.historydescription_Document_SetParagraphTextAlignment:
+					sString = "Document_SetParagraphTextAlignment";
+					break;
 			case AscDFH.historydescription_Document_SetCustomXml:
 				sString = "Document_SetCustomXml";
 				break;
@@ -1924,6 +1930,7 @@
 	window['AscDFH'].historyitem_Paragraph_Shd_Fill                  = window['AscDFH'].historyitem_type_Paragraph | 40;
 	window['AscDFH'].historyitem_Paragraph_Shd_ThemeFill             = window['AscDFH'].historyitem_type_Paragraph | 41;
 	window['AscDFH'].historyitem_Paragraph_SnapToGrid                = window['AscDFH'].historyitem_type_Paragraph | 46;
+	window['AscDFH'].historyitem_Paragraph_TextAlignment             = window['AscDFH'].historyitem_type_Paragraph | 47;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaTextPr
 	//------------------------------------------------------------------------------------------------------------------
@@ -4856,8 +4863,9 @@
 	window['AscDFH'].historydescription_CustomProperties_Add                        = 0x01b8;
 	window['AscDFH'].historydescription_CustomProperties_Remove                     = 0x01b9;
 	window['AscDFH'].historydescription_CustomProperties_Modify                     = 0x01c0;
-        window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01c1;
-	window['AscDFH'].historydescription_Document_SetCustomXml			= 0x01c2;
+    window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01c1;
+	window['AscDFH'].historydescription_Document_SetCustomXml						= 0x01c2;
+	window['AscDFH'].historydescription_Document_SetParagraphTextAlignment          = 0x01c3;
 	
 	// pdf
 	window['AscDFH'].historydescription_Pdf_AddAnnot			= 0x29a;

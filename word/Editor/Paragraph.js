@@ -11749,6 +11749,18 @@ Paragraph.prototype.Set_SnapToGrid = function(Value)
 		this.private_UpdateTrackRevisionOnChangeParaPr(true);
 	}
 };
+Paragraph.prototype.Set_TextAlignment = function(Value)
+{
+	if (Value != this.Pr.TextAlignment)
+	{
+		this.private_AddPrChange();
+		AscCommon.History.Add(new CChangesParagraphTextAlignment(this, this.Pr.TextAlignment, Value));
+		this.Pr.TextAlignment = Value;
+
+		this.CompiledPr.NeedRecalc = true;
+		this.private_UpdateTrackRevisionOnChangeParaPr(true);
+	}
+};
 Paragraph.prototype.Set_Borders = function(Borders)
 {
 	if (undefined === Borders)
@@ -14017,6 +14029,7 @@ Paragraph.prototype.Refresh_RecalcData = function(Data)
 		case AscDFH.historyitem_Paragraph_Borders_Top:
 		case AscDFH.historyitem_Paragraph_FramePr:
 		case AscDFH.historyitem_Paragraph_SnapToGrid:
+		case AscDFH.historyitem_Paragraph_TextAlignment:
 		{
 			bNeedRecalc = true;
 			break;
@@ -16607,6 +16620,11 @@ Paragraph.prototype.SetParagraphSnapToGrid = function(Value)
 {
 	this.Set_SnapToGrid(Value);
 };
+Paragraph.prototype.SetParagraphTextAlignment = function(Value)
+{
+	this.Set_TextAlignment(Value);
+};
+
 Paragraph.prototype.SetParagraphBorders = function(Borders)
 {
 	this.Set_Borders(Borders);

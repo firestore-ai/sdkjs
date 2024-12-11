@@ -55,6 +55,7 @@ AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd_Unifill]               = 
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd]                       = CChangesParagraphShd;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_WidowControl]              = CChangesParagraphWidowControl;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_SnapToGrid]                = CChangesParagraphSnapToGrid;
+AscDFH.changesFactory[AscDFH.historyitem_Paragraph_TextAlignment]             = CChangesParagraphTextAlignment;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Tabs]                      = CChangesParagraphTabs;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_PStyle]                    = CChangesParagraphPStyle;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Borders_Between]           = CChangesParagraphBordersBetween;
@@ -195,6 +196,10 @@ AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_SnapToGrid]              
 	AscDFH.historyitem_Paragraph_SnapToGrid,
 	AscDFH.historyitem_Paragraph_Pr
 ];
+AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_TextAlignment]              = [
+	AscDFH.historyitem_Paragraph_TextAlignment,
+	AscDFH.historyitem_Paragraph_Pr
+];
 AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_Tabs]                      = [
 	AscDFH.historyitem_Paragraph_Tabs,
 	AscDFH.historyitem_Paragraph_Pr
@@ -233,6 +238,8 @@ AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_Pr]                      
 	AscDFH.historyitem_Paragraph_Ind_Left,
 	AscDFH.historyitem_Paragraph_ContextualSpacing,
 	AscDFH.historyitem_Paragraph_KeepLines,
+	AscDFH.historyitem_Paragraph_SnapToGrid,
+	AscDFH.historyitem_Paragraph_TextAlignment,
 	AscDFH.historyitem_Paragraph_KeepNext,
 	AscDFH.historyitem_Paragraph_PageBreakBefore,
 	AscDFH.historyitem_Paragraph_Spacing_Line,
@@ -1164,6 +1171,28 @@ CChangesParagraphSnapToGrid.prototype.private_SetValue = function(Value)
 CChangesParagraphSnapToGrid.prototype.Merge = private_ParagraphChangesOnMergePr;
 CChangesParagraphSnapToGrid.prototype.Load = private_ParagraphChangesOnLoadPr;
 CChangesParagraphSnapToGrid.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesParagraphTextAlignment}
+ */
+function CChangesParagraphTextAlignment(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseByteProperty.call(this, Class, Old, New, Color);
+}
+CChangesParagraphTextAlignment.prototype = Object.create(AscDFH.CChangesBaseByteProperty.prototype);
+CChangesParagraphTextAlignment.prototype.constructor = CChangesParagraphTextAlignment;
+CChangesParagraphTextAlignment.prototype.Type = AscDFH.historyitem_Paragraph_TextAlignment;
+CChangesParagraphTextAlignment.prototype.private_SetValue = function(Value)
+{
+	var oParagraph = this.Class;
+	oParagraph.Pr.TextAlignment = Value;
+
+	oParagraph.CompiledPr.NeedRecalc = true;
+	oParagraph.private_UpdateTrackRevisionOnChangeParaPr(false);
+};
+CChangesParagraphTextAlignment.prototype.Merge = private_ParagraphChangesOnMergePr;
+CChangesParagraphTextAlignment.prototype.Load = private_ParagraphChangesOnLoadPr;
+CChangesParagraphTextAlignment.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
 function CChangesParagraphTabs(Class, Old, New, Color)
 {
 	AscDFH.CChangesBaseObjectProperty.call(this, Class, Old, New, Color);
@@ -1443,6 +1472,11 @@ CChangesParagraphPr.prototype.Merge = function(oChange)
 		case AscDFH.historyitem_Paragraph_KeepNext:
 		{
 			this.New.KeepNext = oChange.New;
+			break;
+		}
+		case AscDFH.historyitem_Paragraph_TextAlignment:
+		{
+			this.New.TextAlignment = oChange.New;
 			break;
 		}
 		case AscDFH.historyitem_Paragraph_PageBreakBefore:

@@ -2416,6 +2416,14 @@ CFootnotesController.prototype.SetParagraphSnapToGrid = function(Value)
 		oFootnote.SetParagraphSnapToGrid(Value);
 	}
 };
+CFootnotesController.prototype.SetParagraphSnapToGrid = function(Value)
+{
+	for (var sId in this.Selection.Footnotes)
+	{
+		var oFootnote = this.Selection.Footnotes[sId];
+		oFootnote.SetParagraphSnapToGrid(Value);
+	}
+};
 CFootnotesController.prototype.SetParagraphBorders = function(Borders)
 {
 	for (var sId in this.Selection.Footnotes)

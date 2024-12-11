@@ -4024,6 +4024,9 @@ background-repeat: no-repeat;\
 			if (undefined != Props.SnapToGrid && null != Props.SnapToGrid)
 				this.WordControl.m_oLogicDocument.SetParagraphSnapToGrid(Props.SnapToGrid);
 
+			if (undefined != Props.TextAlignment && null != Props.TextAlignment)
+				this.WordControl.m_oLogicDocument.SetParagraphTextAlignment(Props.TextAlignment);
+
 			if ("undefined" != typeof(Props.PageBreakBefore) && null != Props.PageBreakBefore)
 				this.WordControl.m_oLogicDocument.SetParagraphPageBreakBefore(Props.PageBreakBefore);
 
@@ -4673,6 +4676,18 @@ background-repeat: no-repeat;\
 		}
 	};
 
+	asc_docs_api.prototype.put_TextAlignment = function(bValue)
+	{
+		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
+		{
+			// TODO coauthoring
+			this.WordControl.m_oLogicDocument.StartAction(AscDFH.historydescription_Document_SetParagraphTextAlignment);
+			this.WordControl.m_oLogicDocument.SetParagraphTextAlignment(bValue);
+			this.sync_TextAlignmentCallback(bValue);
+			this.WordControl.m_oLogicDocument.FinalizeAction();
+		}
+	};
+
 	asc_docs_api.prototype.put_KeepLines = function(isKeepLines)
 	{
 		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
@@ -5025,6 +5040,11 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype.sync_SnapToGridCallback = function(bValue)
 	{
 		this.sendEvent("asc_onSnapToGrid", bValue);
+	};
+
+	asc_docs_api.prototype.sync_TextAlignmentCallback = function(bValue)
+	{
+		this.sendEvent("asc_onTextAlignment", bValue);
 	};
 
 	asc_docs_api.prototype.sync_KeepNextCallback = function(bValue)
@@ -14448,6 +14468,7 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['put_WidowControl']                          = asc_docs_api.prototype.put_WidowControl;
 	asc_docs_api.prototype['put_KeepLines']                             = asc_docs_api.prototype.put_KeepLines;
 	asc_docs_api.prototype['put_SnapToGrid']						    = asc_docs_api.prototype.put_SnapToGrid;	
+	asc_docs_api.prototype['put_TextAlignment']						    = asc_docs_api.prototype.put_TextAlignment;	
 	asc_docs_api.prototype['put_KeepNext']                              = asc_docs_api.prototype.put_KeepNext;
 	asc_docs_api.prototype['put_AddSpaceBetweenPrg']                    = asc_docs_api.prototype.put_AddSpaceBetweenPrg;
 	asc_docs_api.prototype['put_LineHighLight']                         = asc_docs_api.prototype.put_LineHighLight;
@@ -14476,6 +14497,7 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['sync_PageBreakCallback']                    = asc_docs_api.prototype.sync_PageBreakCallback;
 	asc_docs_api.prototype['sync_WidowControlCallback']                 = asc_docs_api.prototype.sync_WidowControlCallback;
 	asc_docs_api.prototype['sync_SnapToGridCallback']                   = asc_docs_api.prototype.sync_SnapToGridCallback;
+	asc_docs_api.prototype['sync_TextAlignmentCallback']                = asc_docs_api.prototype.sync_TextAlignmentCallback;
 	asc_docs_api.prototype['sync_KeepNextCallback']                     = asc_docs_api.prototype.sync_KeepNextCallback;
 	asc_docs_api.prototype['sync_KeepLinesCallback']                    = asc_docs_api.prototype.sync_KeepLinesCallback;
 	asc_docs_api.prototype['sync_ShowParaMarksCallback']                = asc_docs_api.prototype.sync_ShowParaMarksCallback;

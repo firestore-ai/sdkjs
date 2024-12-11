@@ -225,6 +225,10 @@ CHdrFtrController.prototype.SetParagraphSnapToGrid = function(Value)
 {
 	this.HdrFtr.SetParagraphSnapToGrid(Value);
 };
+CHdrFtrController.prototype.SetParagraphTextAlignment = function(Value)
+{
+	this.HdrFtr.SetParagraphTextAlignment(Value);
+};
 CHdrFtrController.prototype.SetParagraphBorders = function(Borders)
 {
 	this.HdrFtr.SetParagraphBorders(Borders);

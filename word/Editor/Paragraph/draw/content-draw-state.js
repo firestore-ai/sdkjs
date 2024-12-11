@@ -390,38 +390,34 @@
 	};
 	ParagraphContentDrawState.prototype.calculateY = function(textPr)
 	{
-		let y = this.Y;
+		let y = this.Y;		
 		
-		if (AscCommon.vertalign_SubScript === textPr.VertAlign)
-			y -= AscCommon.vaKSub * textPr.FontSize * g_dKoef_pt_to_mm;
-		else if (AscCommon.vertalign_SuperScript === textPr.VertAlign)
-			y -= AscCommon.vaKSuper * textPr.FontSize * g_dKoef_pt_to_mm;
-
 		let Pr = this.drawState.getParagraphCompiledPr();	
 		if (Pr.ParaPr.TextAlignment !== undefined)
 		{
 			let offset = textPr.FontSize * g_dKoef_pt_to_mm;
 			switch(Pr.ParaPr.TextAlignment)
 			{
-			case AscCommon.text_alignment_Top:
-				y = this.lineTop + offset;
+			case AscCommon.text_align_Top:
+				y = this.LineTop + offset;
 				break;
-			case AscCommon.text_alignment_Center:
-				y = (this.lineTop + this.lineBottom + offset) / 2 
+			case AscCommon.text_align_Center:
+				y = (this.LineTop + this.LineBottom + offset) / 2 
 				break;
-			case AscCommon.text_alignment_Bottom:
-				y = this.lineBottom - offset;
+			case AscCommon.text_align_Bottom:
+				y = this.LineBottom;
 				break;
-			case AscCommon.text_alignment_Baseline:
-			case AscCommon.text_alignment_Auto:
+			case AscCommon.text_align_Baseline:
+			case AscCommon.text_align_Auto:
 			default:
 				break;
 			}
 		}
 
-		
-
-
+		if (AscCommon.vertalign_SubScript === textPr.VertAlign)
+			y -= AscCommon.vaKSub * textPr.FontSize * g_dKoef_pt_to_mm;
+		else if (AscCommon.vertalign_SuperScript === textPr.VertAlign)
+			y -= AscCommon.vaKSuper * textPr.FontSize * g_dKoef_pt_to_mm;
 		
 		return y;
 	};

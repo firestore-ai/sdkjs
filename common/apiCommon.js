@@ -2717,6 +2717,7 @@ function (window, undefined) {
 			this.TextSpacing = (undefined != obj.TextSpacing) ? obj.TextSpacing : undefined;
 			this.Position = (undefined != obj.Position) ? obj.Position : undefined;
 			this.Jc = (undefined != obj.Jc) ? obj.Jc : undefined;
+			this.TextAlignment = (undefined != obj.TextAlignment) ? obj.TextAlignment : undefined;
 			this.ListType = (undefined != obj.ListType) ? obj.ListType : undefined;
 			this.OutlineLvl = (undefined != obj.OutlineLvl) ? obj.OutlineLvl : undefined;
 			this.OutlineLvlStyle = (undefined != obj.OutlineLvlStyle) ? obj.OutlineLvlStyle : false;
@@ -2776,6 +2777,7 @@ function (window, undefined) {
 			this.TextSpacing = undefined;
 			this.Position = undefined;
 			this.Jc = undefined;
+			this.TextAlignment = undefined;
 			this.ListType = undefined;
 			this.OutlineLvl = undefined;
 			this.OutlineLvlStyle = false;
@@ -2808,6 +2810,12 @@ function (window, undefined) {
 	};
 	asc_CParagraphProperty.prototype.asc_putJc = function (v) {
 		this.Jc = v;
+	};
+	asc_CParagraphProperty.prototype.asc_getTextAlignment = function () {
+		return this.TextAlignment;
+	};
+	asc_CParagraphProperty.prototype.asc_putTextAlignment = function (v) {
+		this.TextAlignment= v;
 	};
 	asc_CParagraphProperty.prototype.asc_getKeepLines = function () {
 		return this.KeepLines;
@@ -6353,6 +6361,8 @@ function (window, undefined) {
 	prot["put_Ind"] = prot["asc_putInd"] = prot.asc_putInd;
 	prot["get_Jc"] = prot["asc_getJc"] = prot.asc_getJc;
 	prot["put_Jc"] = prot["asc_putJc"] = prot.asc_putJc;
+	prot["get_TextAlignment"] = prot["asc_getTextAlignment"] = prot.asc_getTextAlignment;
+	prot["put_textAlignment"] = prot["asc_putTextAlignment"] = prot.asc_putTextAlignment;
 	prot["get_KeepLines"] = prot["asc_getKeepLines"] = prot.asc_getKeepLines;
 	prot["put_KeepLines"] = prot["asc_putKeepLines"] = prot.asc_putKeepLines;
 	prot["get_KeepNext"] = prot["asc_getKeepNext"] = prot.asc_getKeepNext;

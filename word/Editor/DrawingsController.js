@@ -318,6 +318,10 @@ CDrawingsController.prototype.SetParagraphSnapToGrid = function(Value)
 {
 	this.DrawingObjects.setParagraphSnapToGrid(Value);
 };
+CDrawingsController.prototype.SetParagraphTextAlignment = function(Value)
+{
+	this.DrawingObjects.setParagraphTextAlignment(Value);
+};
 CDrawingsController.prototype.SetParagraphBorders = function(Borders)
 {
 	this.DrawingObjects.setParagraphBorders(Borders);
