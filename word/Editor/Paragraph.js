@@ -3324,7 +3324,7 @@ Paragraph.prototype.drawRunContentLines = function(CurPage, pGraphics, drawState
 		var Baseline        = Page.Y + Line.Y;
 		var UnderlineOffset = LineM.TextDescent * 0.4;
 
-		PDSL.resetLine(CurLine, Baseline, UnderlineOffset);
+		PDSL.resetLine(CurLine, Baseline, UnderlineOffset, Baseline - Line.Metrics.Ascent, Baseline + Line.Metrics.Descent);
 
 		// Сначала проанализируем данную строку: в массивы aStrikeout, aDStrikeout, aUnderline
 		// aSpelling сохраним позиции начала и конца продолжительных одинаковых настроек зачеркивания,
@@ -16624,7 +16624,6 @@ Paragraph.prototype.SetParagraphTextAlignment = function(Value)
 {
 	this.Set_TextAlignment(Value);
 };
-
 Paragraph.prototype.SetParagraphBorders = function(Borders)
 {
 	this.Set_Borders(Borders);

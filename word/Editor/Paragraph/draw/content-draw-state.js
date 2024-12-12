@@ -402,11 +402,9 @@
 				y = this.LineTop + offset;
 				break;
 			case AscCommon.text_align_Center:
-				y = (this.LineTop + this.LineBottom + offset) / 2 
+				y = (this.LineTop + this.LineBottom + offset) / 2;
 				break;
 			case AscCommon.text_align_Bottom:
-				y = this.LineBottom;
-				break;
 			case AscCommon.text_align_Baseline:
 			case AscCommon.text_align_Auto:
 			default:

@@ -295,11 +295,35 @@
 		
 		let textHeight = AscCommon.g_oTextMeasurer.GetHeight();
 		let descent    = Math.abs(AscCommon.g_oTextMeasurer.GetDescender());
-		let ascent     = textHeight - descent;
+		let ascent     = textHeight - descent;		
 		
-		let y = this.posInfo.y - ascent - run.getYOffset();
+		let y = this.posInfo.y;
 		if (!isNearFootnoteRef)
 		{
+			// 有段落水平对齐情况下重新计算Y
+			let Pr = this.paragraph.getCompiledPr();
+			let TextAlignment = Pr ? Pr.ParaPr.TextAlignment : undefined;
+
+			let Line = this.paragraph.Lines[this.line];
+			let LineTop = y - Line.Metrics.Ascent;
+			let LineBottom = y + Line.Metrics.Descent;
+			switch(TextAlignment)
+			{
+			case AscCommon.text_align_Top:
+				y = LineTop + textHeight;
+				break;
+			case AscCommon.text_align_Center:
+				y = (LineTop + LineBottom + textHeight) / 2;
+				break;
+			case AscCommon.text_align_Bottom:
+			case AscCommon.text_align_Baseline:
+			case AscCommon.text_align_Auto:
+			default:
+				// do nothing
+				break;	
+			}
+			y = y - ascent - run.getYOffset();
+
 			if (AscCommon.vertalign_SubScript === textPr.VertAlign)
 				y -= textPr.FontSize * g_dKoef_pt_to_mm * AscCommon.vaKSub;
 			else if (AscCommon.vertalign_SuperScript === textPr.VertAlign)

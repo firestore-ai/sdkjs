@@ -73,6 +73,8 @@
 		this.BaseLine        = 0;
 		this.UnderlineOffset = 0;
 		this.Spaces          = 0;
+		this.LineTop		 = 0;
+		this.LineBottom      = 0;
 		
 		this.complexFields = new AscWord.ParagraphComplexFieldStack();
 		
@@ -127,12 +129,14 @@
 		
 		this.complexFields.resetPage(this.Paragraph, page);
 	};
-	ParagraphLineDrawState.prototype.resetLine = function(Line, Baseline, UnderlineOffset)
+	ParagraphLineDrawState.prototype.resetLine = function(Line, Baseline, UnderlineOffset, LineTop, LineBottom)
 	{
 		this.Line = Line;
 		
 		this.Baseline        = Baseline;
 		this.UnderlineOffset = UnderlineOffset;
+		this.LineTop = LineTop;
+		this.LineBottom = LineBottom;
 		
 		this.Strikeout.Clear();
 		this.DStrikeout.Clear();
@@ -416,6 +420,28 @@
 		let fontSizeMM = fontSize * g_dKoef_pt_to_mm;
 		if (run.IsMathRun())
 			fontSizeMM *= MatGetKoeffArgSize(fontSize, run.Parent.Compiled_ArgSz.value);
+
+		let Pr = this.Paragraph.getCompiledPr();
+		let y = this.Baseline;
+		let TextAlignment = Pr ? Pr.ParaPr.TextAlignment : undefined;
+		if (TextAlignment != undefined)
+		{
+			switch(TextAlignment)
+			{
+			case AscCommon.text_align_Top:
+				y = this.LineTop + fontSizeMM;
+				break;
+			case AscCommon.text_align_Center:
+				y = (this.LineTop + this.LineBottom + fontSizeMM) / 2;
+				break;
+			case AscCommon.text_align_Bottom:
+			case AscCommon.text_align_Baseline:
+			case AscCommon.text_align_Auto:
+			default:
+				// do nothing
+				break;
+			}
+		}
 		
 		let strikeoutShift = 0.27;
 		if (AscCommon.vertalign_SubScript === vertAlign)
@@ -423,8 +449,8 @@
 		else if (AscCommon.vertalign_SuperScript === vertAlign)
 			strikeoutShift = AscCommon.vaKSize * 0.27 + AscCommon.vaKSuper;
 		
-		let strikeoutY = this.Baseline - this.yOffset - fontSizeMM * strikeoutShift;
-		let underlineY = this.Baseline - this.yOffset + this.UnderlineOffset;
+		let strikeoutY = y - this.yOffset - fontSizeMM * strikeoutShift;
+		let underlineY = y - this.yOffset + this.UnderlineOffset;
 		
 		if (AscCommon.vertalign_SubScript === vertAlign)
 			underlineY -= AscCommon.vaKSub * fontSizeMM;
