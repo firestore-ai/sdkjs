@@ -14546,8 +14546,10 @@ CTextPr.prototype.SetUnderline = function(isUnderling)
     else if (isUnderling === false || isUnderling === undefined || isUnderling === null)
     {
         this.Underline = Asc.UnderlineType.None;
+
+    } else {
+	    this.Underline = isUnderling;
     }
-	this.Underline = isUnderling;
 };
 CTextPr.prototype.HasUnderline = function()
 {
