@@ -638,6 +638,11 @@
 	{
 		this.sendEvent("asc_onSetTab", name);
 	};
+
+    asc_docs_api.prototype.asc_OpenPlugin = function(guid)
+	{
+		this.sendEvent("asc_onOpenPlugin", guid);
+	};
 	
 
     asc_docs_api.prototype["asc_GetParagraphBoundingRect"] = asc_docs_api.prototype.asc_GetParagraphBoundingRect;
@@ -654,6 +659,7 @@
     asc_docs_api.prototype["asc_GenSelectionAsXml"] = asc_docs_api.prototype.asc_GenSelectionAsXml;
 
     asc_docs_api.prototype["asc_SetTab"] = asc_docs_api.prototype.asc_SetTab;
+    asc_docs_api.prototype["asc_OpenPlugin"] = asc_docs_api.prototype.asc_OpenPlugin;
     
 
 }(window, null));
