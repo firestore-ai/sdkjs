@@ -3138,6 +3138,27 @@ Paragraph.prototype.drawRunContentElements = function(CurPage, pGraphics, drawSt
 						}
 
 						var TempY = Y;
+
+						// 有文字属性调整
+						if (Pr.ParaPr.TextAlignment !== undefined)
+						{
+							let offset = oNumTextPr.FontSize * g_dKoef_pt_to_mm;
+							switch(Pr.ParaPr.TextAlignment)
+							{
+								case AscCommon.text_align_Top:
+									Y = PDSE.LineTop + offset;
+									break;
+								case AscCommon.text_align_Center:
+									Y = (PDSE.LineTop + PDSE.LineBottom + offset) / 2;
+									break;
+								case AscCommon.text_align_Bottom:
+								case AscCommon.text_align_Baseline:
+								case AscCommon.text_align_Auto:
+								default:
+									break;
+							}
+						}
+
 						switch (oNumTextPr.VertAlign)
 						{
 							case AscCommon.vertalign_SubScript:
