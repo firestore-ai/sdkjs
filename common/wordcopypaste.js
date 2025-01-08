@@ -1285,6 +1285,14 @@ CopyProcessor.prototype =
                 tblStyle += this._MarginToStyle(Pr.TableCellMar, "mso-padding-alt");
             if(null != Pr.TableBorders)
                 tblStyle += this._BordersToStyle(Pr.TableBorders, true, false);
+			if(null != Pr.TableW)
+			{
+				if (Pr.TableW.Type == tblwidth_Pct)
+				{
+					DomTable.oAttributes["width"] = Math.round(Pr.TableW.W) + "%";
+				}
+			}
+
         }
 		//ищем cellSpacing
         var bAddSpacing = false;
