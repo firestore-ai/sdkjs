@@ -1456,10 +1456,37 @@ ParaDrawing.prototype.Update_Position = function(Paragraph, ParaLayout, PageLimi
 
 	let floatObjectsOnPage = this.graphicObjects ? this.graphicObjects.getAllFloatObjectsOnPage(PageNum, this.Parent.Parent) : [];
 	var bInline            = this.Is_Inline();
+	// inline也需要处理对齐
+	let calcVertAlign = function(drawing) {
+		if (!bInline)
+			return drawing.PositionV.Value;
+		
+		var Pr = Paragraph.GetCompiledParaPr();
+		if (Pr.TextAlignment !== undefined)
+		{
+			switch(Pr.TextAlignment)
+			{
+			case AscCommon.text_align_Top:
+				return c_oAscAlignV.Top;
+				break;
+			case AscCommon.text_align_Center:
+				return c_oAscAlignV.Center
+				break;
+			case AscCommon.text_align_Bottom:				
+			case AscCommon.text_align_Baseline:
+			case AscCommon.text_align_Auto:
+			default:
+				return c_oAscAlignV.Bottom;
+				break;
+			}	
+		}		
+		return c_oAscAlignV.Bottom;
+	}	
+	
 	this.Internal_Position.SetScaleFactor(this.GetScaleCoefficient());
 	this.Internal_Position.Set(this.GraphicObj.extX, this.GraphicObj.extY, this.getXfrmRot(), this.EffectExtent, this.YOffset, ParaLayout, PageLimits);
 	this.Internal_Position.Calculate_X(bInline, this.PositionH.RelativeFrom, this.PositionH.Align, this.PositionH.Value, this.PositionH.Percent);
-	this.Internal_Position.Calculate_Y(bInline, this.PositionV.RelativeFrom, this.PositionV.Align, this.PositionV.Value, this.PositionV.Percent);
+	this.Internal_Position.Calculate_Y(bInline, this.PositionV.RelativeFrom, this.PositionV.Align, calcVertAlign(this), this.PositionV.Percent);
 
 
 	let bCorrect = false;
@@ -3811,7 +3838,17 @@ CAnchorPosition.prototype.Calculate_Y = function(bInline, RelativeFrom, bAlign, 
 	var Shift = this.EffectExtentT + _H / 2.0 - this.H / 2.0;
 	if (true === bInline)
 	{
-		this.CalcY = this.Y - this.YOffset - Height + Shift;
+		switch(Value)
+		{
+			case c_oAscAlignV.Top:
+				this.CalcY = this.LineTop + Shift;
+				break;
+			case c_oAscAlignV.Center:
+				this.CalcY = (this.Y + this.LineTop)/2 - Height / 2 + Shift;
+				break;
+			default:
+				this.CalcY = this.Y - this.YOffset - Height + Shift;				
+		}		
 	}
 	else
 	{
