@@ -388,6 +388,14 @@
 		
 		this.handleRegularElement(fieldChar);
 	};
+	ParagraphContentDrawState.prototype.setBaseLineDelta = function(delta)
+	{
+		var Line = this.Paragraph.Lines[this.Line];
+		if (Line)
+		{
+			Line.BaseLineDelta = delta;
+		}
+	}
 	ParagraphContentDrawState.prototype.calculateY = function(textPr)
 	{
 		let y = this.Y;		
@@ -400,6 +408,7 @@
 			{
 			case AscCommon.text_align_Top:
 				y = this.LineTop + offset;
+				
 				break;
 			case AscCommon.text_align_Center:
 				y = (this.LineTop + this.LineBottom + offset) / 2;
@@ -411,6 +420,7 @@
 				break;
 			}
 		}
+		this.setBaseLineDelta(y - this.Y);
 
 		if (AscCommon.vertalign_SubScript === textPr.VertAlign)
 			y -= AscCommon.vaKSub * textPr.FontSize * g_dKoef_pt_to_mm;

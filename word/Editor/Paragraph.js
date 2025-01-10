@@ -709,8 +709,8 @@ Paragraph.prototype.GetMulLineBounds = function(CurPage, LineCount)
 		var Bottom = oLine.Bottom + oPage.Y;
 		if (CurLine === 0) 
 		{
-			Top = oLine.Y + oPage.Y - oLine.Metrics.TextAscent2;
-			Bottom = oLine.Y + oPage.Y  + oLine.Metrics.Descent;
+			Top    = oLine.Y + oLine.BaseLineDelta + oPage.Y - oLine.Metrics.TextAscent2;
+			Bottom = oLine.Y + oLine.BaseLineDelta + oPage.Y  + oLine.Metrics.Descent;
 		}
 
 		var Left = null, Right = null;
@@ -3159,7 +3159,7 @@ Paragraph.prototype.drawRunContentElements = function(CurPage, pGraphics, drawSt
 							}
 						}
 
-						switch (oNumTextPr.VertAlign)
+						switch (oNumTextPr.VertAlign)	
 						{
 							case AscCommon.vertalign_SubScript:
 							{

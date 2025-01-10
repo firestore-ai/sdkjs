@@ -2785,6 +2785,7 @@ function CParaLine()
                        // 3 бит : последняя ли это строка (т.е. строка с ParaEnd)
                        // 4 бит : строка переносится по Y по обтекаемому объекту
 	this.CF      = [];
+	this.BaseLineDelta = 0;
 }
 
 CParaLine.prototype =
@@ -2862,6 +2863,7 @@ CParaLine.prototype =
         this.Metrics  = new CParaLineMetrics();
         this.Ranges   = [];
         this.Info     = 0;
+		this.BaseLineDelta = 0;
     }
 };
 
