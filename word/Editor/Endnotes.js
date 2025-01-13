@@ -2433,6 +2433,14 @@ CEndnotesController.prototype.SetParagraphSnapToGrid = function(Value)
 		oEndnote.SetParagraphSnapToGrid(Value);
 	}
 };
+CEndnotesController.prototype.SetParagraphWordWrap = function(Value)
+{
+	for (var sId in this.Selection.Endnotes)
+	{
+		var oEndnote = this.Selection.Endnotes[sId];
+		oEndnote.SetParagraphWordWrap(Value);
+	}
+};
 CEndnotesController.prototype.SetParagraphTextAlignment = function(Value)
 {
 	for (var sId in this.Selection.Endnotes)

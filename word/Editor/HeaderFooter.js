@@ -948,6 +948,11 @@ CHeaderFooter.prototype =
 		return this.Content.SetParagraphSnapToGrid(Value);
 	},
 
+    SetParagraphWordWrap : function(Value)
+	{
+		return this.Content.SetParagraphWordWrap(Value);
+	},
+
     SetParagraphTextAlignment : function(Value)
 	{
 		return this.Content.SetParagraphTextAlignment(Value);

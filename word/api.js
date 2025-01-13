@@ -4024,6 +4024,9 @@ background-repeat: no-repeat;\
 			if (undefined != Props.SnapToGrid && null != Props.SnapToGrid)
 				this.WordControl.m_oLogicDocument.SetParagraphSnapToGrid(Props.SnapToGrid);
 
+			if (undefined != Props.WordWrap && null != Props.WordWrap)
+				this.WordControl.m_oLogicDocument.SetParagraphWordWrap(Props.WordWrap);
+
 			if (undefined != Props.TextAlignment && null != Props.TextAlignment)
 				this.WordControl.m_oLogicDocument.SetParagraphTextAlignment(Props.TextAlignment);
 
@@ -4688,6 +4691,18 @@ background-repeat: no-repeat;\
 		}
 	};
 
+	asc_docs_api.prototype.put_WordWrap = function(bValue)
+	{
+		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
+		{
+			// TODO coauthoring
+			this.WordControl.m_oLogicDocument.StartAction(AscDFH.historydescription_Document_SetParagraphWordWrap);
+			this.WordControl.m_oLogicDocument.SetParagraphWordWrap(bValue);
+			this.sync_WordWrapCallback(bValue);
+			this.WordControl.m_oLogicDocument.FinalizeAction();
+		}
+	};
+
 	asc_docs_api.prototype.put_KeepLines = function(isKeepLines)
 	{
 		if (false === this.WordControl.m_oLogicDocument.Document_Is_SelectionLocked(changestype_Paragraph_Properties))
@@ -5050,6 +5065,10 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype.sync_KeepNextCallback = function(bValue)
 	{
 		this.sendEvent("asc_onKeepNext", bValue);
+	};
+	asc_docs_api.prototype.sync_WordWrapCallback = function(bValue)
+	{
+		this.sendEvent("asc_onWordWrap", bValue);
 	};
 
 	asc_docs_api.prototype.sync_KeepLinesCallback       = function(isKeepLines)
@@ -14469,6 +14488,7 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype['put_KeepLines']                             = asc_docs_api.prototype.put_KeepLines;
 	asc_docs_api.prototype['put_SnapToGrid']						    = asc_docs_api.prototype.put_SnapToGrid;	
 	asc_docs_api.prototype['put_TextAlignment']						    = asc_docs_api.prototype.put_TextAlignment;	
+	asc_docs_api.prototype['put_WordWrap']							    = asc_docs_api.prototype.put_WordWrap;	
 	asc_docs_api.prototype['put_KeepNext']                              = asc_docs_api.prototype.put_KeepNext;
 	asc_docs_api.prototype['put_AddSpaceBetweenPrg']                    = asc_docs_api.prototype.put_AddSpaceBetweenPrg;
 	asc_docs_api.prototype['put_LineHighLight']                         = asc_docs_api.prototype.put_LineHighLight;

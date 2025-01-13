@@ -2414,11 +2414,21 @@ ParaDrawing.prototype.setParagraphWidowControl = function(Value)
 	if (AscCommon.isRealObject(this.GraphicObj) && typeof this.GraphicObj.setParagraphWidowControl === "function")
 		return this.GraphicObj.setParagraphWidowControl(Value);
 };
+ParaDrawing.prototype.setParagraphWordWrap = function(Value)
+{
+	if (AscCommon.isRealObject(this.GraphicObj) && typeof this.GraphicObj.setParagraphWordWrap === "function")
+		return this.GraphicObj.setParagraphWordWrap(Value);
+};
 ParaDrawing.prototype.setParagraphSnapToGrid = function(Value)
 {
 	if (AscCommon.isRealObject(this.GraphicObj) && typeof this.GraphicObj.setParagraphSnapToGrid === "function")
 		return this.GraphicObj.setParagraphSnapToGrid(Value);
 };
+ParaDrawing.prototype.setParagraphTextAlignment = function(Value)
+{
+	if (AscCommon.isRealObject(this.GraphicObj) && typeof this.GraphicObj.setParagraphTextAlignment === "function")
+		return this.GraphicObj.setParagraphTextAlignment(Value);
+}
 ParaDrawing.prototype.setParagraphPageBreakBefore = function(Value)
 {
 	if (AscCommon.isRealObject(this.GraphicObj) && typeof this.GraphicObj.setParagraphPageBreakBefore === "function")
