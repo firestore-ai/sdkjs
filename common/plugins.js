@@ -96,7 +96,8 @@
 
 	var CommandTaskType = {
 		Command : 0,
-		Method  : 1
+		Method  : 1,
+		ReliableCommand : 2,
 	};
 
 	function CCommandTask(type, guid)
@@ -1324,7 +1325,7 @@
 		},
 
 		// commands
-		shiftCommand : function(returnValue)
+		shiftCommand : function(returnValue, error)
 		{
 			if (0 === this.queueCommands.length)
 			{
@@ -1345,6 +1346,13 @@
 				{
 					pluginDataTmp.setAttribute("type", "onCommandCallback");
 					pluginDataTmp.setAttribute("commandReturnData", returnValue);
+				}
+				else if (currentCommand.type === CommandTaskType.ReliableCommand)
+				{
+					pluginDataTmp.setAttribute("type", "onReliableCommandCallback");					
+					pluginDataTmp.setAttribute("commandReturnData", returnValue);
+					pluginDataTmp.setAttribute("token", currentCommand.token);
+					pluginDataTmp.setAttribute("error", error);
 				}
 				else
 				{
@@ -1370,13 +1378,14 @@
 			}
 		},
 
-		callCommand : function(guid, value, isClose, isInterface, isRecalculate, isResize)
+		callCommand : function(guid, value, isClose, isInterface, isRecalculate, isResize, token)
 		{
-			let task = new CCommandTask(CommandTaskType.Command, guid);
+			let task = new CCommandTask(!token ? CommandTaskType.Command : CommandTaskType.ReliableCommand, guid);
 			task.closed = isClose;
 			task.interface = isInterface;
 			task.recalculate = isRecalculate;
 			task.resize = isResize;
+			task.token = token;
 
 			if (0 === this.queueCommands.length)
 			{
@@ -1415,12 +1424,13 @@
 		callCommandInternal : function(value, task)
 		{
 			let commandReturnValue = undefined;
+			let error = undefined;
 			try
 			{
 				if ( !AscCommon.isValidJs(value) )
 				{
 					console.error('Invalid JS.');
-					this.shiftCommand(commandReturnValue);
+					this.shiftCommand(commandReturnValue, 'Invalid JS.');
 					return;
 				}
 
@@ -1432,6 +1442,7 @@
 					}
 					catch (err)
 					{
+						error = err;
 						console.error(err);
 					}
 				}
@@ -1446,6 +1457,7 @@
 					catch (err)
 					{
 						commandReturnValue = undefined;
+						error = err;
 						console.error(err);
 					}
 
@@ -1462,7 +1474,7 @@
 							if (!result)
 								commandReturnValue = undefined;
 							
-							_t.shiftCommand(commandReturnValue);
+							_t.shiftCommand(commandReturnValue, error);
 						});
 					}
 					
@@ -1476,9 +1488,10 @@
 			}
 			catch (err)
 			{
+				error = err;
 			}
 
-			this.shiftCommand(commandReturnValue);
+			this.shiftCommand(commandReturnValue, error);
 		},
 
 		setPluginMethodReturnAsync : function()
@@ -1686,6 +1699,25 @@
 				if ("close" === name)
 					window.g_asc_plugins.close(guid);
 
+				break;
+			}
+			case "reliableCommand":
+			{
+				if (runObject.closeAttackTimer !== -1)
+				{
+					clearTimeout(runObject.closeAttackTimer);
+					runObject.closeAttackTimer = -1;
+				}
+	
+				if (value && value !== "")
+				{
+					window.g_asc_plugins.callCommand(guid, value, "close" === name,
+						pluginData.getAttribute("interface"),
+						pluginData.getAttribute("recalculate"),
+						pluginData.getAttribute("resize"),
+						pluginData.getAttribute("token"),
+					);
+				}
 				break;
 			}
 			case "resize":

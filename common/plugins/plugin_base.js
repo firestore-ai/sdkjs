@@ -836,6 +836,22 @@
 						window.Asc.plugin.onCommandCallback(pluginData.commandReturnData);
 					break;
 				}
+				case "onReliableCommandCallback":
+				{
+					var token = pluginData.token;
+					var error = pluginData.error;
+					var callback = window.Asc.plugin.reliableCommandCallbackMap[token];
+					if (callback)
+					{
+						commandCallback(token, error, pluginData.commandReturnData);
+						delete window.Asc.plugin.reliableCommandCallbackMap[token];
+					}
+					else 
+					{
+						console.log("no callback found", token);
+					}
+					break;
+				}
 				case "onExternalPluginMessage":
 				{
 					if (window.Asc.plugin.onExternalPluginMessage && pluginData.data && pluginData.data.type)

@@ -546,12 +546,13 @@ window.startPluginApi = function() {
 	 * The command must be compatible with {@link /docbuilder/basic ONLYOFFICE Document Builder} syntax.
      * @param {Function} callback - The result that the method returns.
 	 */
-	Plugin.executeCommand = function(type, data, callback)
+	Plugin.executeCommand = function(type, data, callback, token)
     {
 		if (this._checkPluginOnWindow() && 0 !== type.indexOf("onmouse")) return;
 
         window.Asc.plugin.info.type = type;
         window.Asc.plugin.info.data = data;
+		window.Asc.plugin.info.token = token;
 
         var _message = "";
         try
@@ -563,7 +564,10 @@ window.startPluginApi = function() {
             _message = JSON.stringify({ type : data });
         }
 
-        window.Asc.plugin.onCallCommandCallback = callback;
+		if (!token)
+        	window.Asc.plugin.onCallCommandCallback = callback;
+		else 
+			window.Asc.plugin.reliableCommandCallbackMap[token] = callback;
         window.plugin_sendMessage(_message);
     };
 
@@ -694,6 +698,21 @@ window.startPluginApi = function() {
 		}
 
         var _type = (isClose === true) ? "close" : "command";
+        window.Asc.plugin.info.recalculate = (false === isCalc) ? false : true;
+        window.Asc.plugin.executeCommand(_type, _txtFunc, callback);
+    };
+
+	Plugin.callReliableCommand = function(token, func, isClose, isCalc, callback)
+    {
+		var _txtFunc = "var Asc = {}; Asc.scope = " + JSON.stringify(window.Asc.scope) + "var scope = Asc.scope; (function() { return { token:\"" + token + "\", ret: (" + l.toString() + ")()}})();";
+		if (this.windowID)
+		{
+			this._pushWindowMethodCommandCallback(callback);
+			this.sendToPlugin("private_window_command", { code : _txtFunc, isCalc : isCalc });
+			return;
+		}
+
+        var _type = (isClose === true) ? "close" : "reliableCommand";
         window.Asc.plugin.info.recalculate = (false === isCalc) ? false : true;
         window.Asc.plugin.executeCommand(_type, _txtFunc, callback);
     };
