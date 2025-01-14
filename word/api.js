@@ -3127,10 +3127,14 @@ background-repeat: no-repeat;\
 	asc_docs_api.prototype.sync_UndoCallBack       = function()
 	{
 		this.sendEvent("asc_onUndo");
+		if (window.g_asc_plugins)
+			window.g_asc_plugins.onPluginEvent("onUndo");
 	};
 	asc_docs_api.prototype.sync_RedoCallBack       = function()
 	{
 		this.sendEvent("asc_onRedo");
+		if (window.g_asc_plugins)
+			window.g_asc_plugins.onPluginEvent("onRedo");
 	};
 	asc_docs_api.prototype.sync_CopyCallBack       = function()
 	{
