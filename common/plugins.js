@@ -1442,7 +1442,7 @@
 					}
 					catch (err)
 					{
-						error = err;
+						error = err.message;
 						console.error(err);
 					}
 				}
@@ -1457,7 +1457,7 @@
 					catch (err)
 					{
 						commandReturnValue = undefined;
-						error = err;
+						error = err.message;
 						console.error(err);
 					}
 
@@ -1488,7 +1488,7 @@
 			}
 			catch (err)
 			{
-				error = err;
+				error = err.message;
 			}
 
 			this.shiftCommand(commandReturnValue, error);
