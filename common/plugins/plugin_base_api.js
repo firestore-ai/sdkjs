@@ -567,7 +567,10 @@ window.startPluginApi = function() {
 		if (!token)
         	window.Asc.plugin.onCallCommandCallback = callback;
 		else 
+		{
+			window.Asc.plugin.reliableCommandCallbackMap = window.Asc.plugin.reliableCommandCallbackMap || {}; 
 			window.Asc.plugin.reliableCommandCallbackMap[token] = callback;
+		}
         window.plugin_sendMessage(_message);
     };
 
