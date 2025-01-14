@@ -704,7 +704,7 @@ window.startPluginApi = function() {
 
 	Plugin.callReliableCommand = function(token, func, isClose, isCalc, callback)
     {
-		var _txtFunc = "var Asc = {}; Asc.scope = " + JSON.stringify(window.Asc.scope) + "var scope = Asc.scope; (function() { return { token:\"" + token + "\", ret: (" + l.toString() + ")()}})();";
+		var _txtFunc = "var Asc = {}; Asc.scope = " + JSON.stringify(window.Asc.scope) + "; var scope = Asc.scope; (" + func.toString() + ")();";
 		if (this.windowID)
 		{
 			this._pushWindowMethodCommandCallback(callback);
@@ -714,7 +714,7 @@ window.startPluginApi = function() {
 
         var _type = (isClose === true) ? "close" : "reliableCommand";
         window.Asc.plugin.info.recalculate = (false === isCalc) ? false : true;
-        window.Asc.plugin.executeCommand(_type, _txtFunc, callback);
+        window.Asc.plugin.executeCommand(_type, _txtFunc, callback, token);
     };
 
 	/**
