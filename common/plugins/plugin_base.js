@@ -843,7 +843,7 @@
 					var callback = window.Asc.plugin.reliableCommandCallbackMap[token];
 					if (callback)
 					{
-						commandCallback(token, error, pluginData.commandReturnData);
+						callback(token, error, pluginData.commandReturnData);
 						delete window.Asc.plugin.reliableCommandCallbackMap[token];
 					}
 					else 
