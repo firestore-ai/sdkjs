@@ -3301,7 +3301,6 @@ function CParagraphRecalculateStateWrap()
 	
 	this.LineY = [];
 
-	this.WordWrap        = true;
     this.FirstItemOnLine = true;
 	this.PrevItemFirst   = false;
     this.EmptyLine       = true;

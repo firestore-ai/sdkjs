@@ -3717,13 +3717,11 @@ ParaRun.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
     var NewPage             = PRS.NewPage;
     var End                 = PRS.End;
 
-	
     var Word                = PRS.Word;
     var StartWord           = PRS.StartWord;
     var FirstItemOnLine     = PRS.FirstItemOnLine;
 	var EmptyLine           = PRS.EmptyLine;
     var TextOnLine          = PRS.TextOnLine;
-	var WordWrap            = (ParaPr.WordWrap != undefined) ? ParaPr.WordWrap : true;
 
     var RangesCount         = PRS.RangesCount;
 
@@ -3867,7 +3865,7 @@ ParaRun.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
 					let isLigature  = Item.IsLigature();
 					let GraphemeLen = isLigature ? Item.GetLigatureWidth() : LetterLen;
 
-					if ( (FirstItemOnLine || WordWrap == 0)
+					if (FirstItemOnLine
 						&& (X + SpaceLen + WordLen + GraphemeLen > XEnd
 							|| (PRS.IsNeedShapeFirstWord(PRS.Line) && PRS.IsLastElementInWord(this, Pos))))
 					{
@@ -4017,7 +4015,7 @@ ParaRun.prototype.Recalculate_Range = function(PRS, ParaPr, Depth)
 						let autoHyphenWidth = PRS.getAutoHyphenWidth(Item, this);
 	
 						let fitOnLine = PRS.isFitOnLine(X, SpaceLen + WordLen + GraphemeLen + autoHyphenWidth);
-						if (!fitOnLine && !FirstItemOnLine && WordWrap==true)
+						if (!fitOnLine && !FirstItemOnLine)
 						{
 							MoveToLBP = true;
 							NewRange  = true;

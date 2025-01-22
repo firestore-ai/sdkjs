@@ -285,8 +285,7 @@ var c_oSerProp_pPrType = {
 	Bidi: 47,
 	Spacing_AfterLines: 48,
 	Spacing_BeforeLiens: 49,
-	TextAlignment: 50,
-	WordWrap: 51
+	TextAlignment: 50
 };
 var c_oSerProp_rPrType = {
     Bold:0,
@@ -2495,19 +2494,11 @@ function Binary_pPrWriter(memory, oNumIdMap, oBinaryHeaderFooterTableWriter, sav
 			this.memory.WriteByte(c_oSerPropLenType.Byte);
 			this.memory.WriteBool(pPr.Bidi);
 		}
-		//TextAlignment
 		if (null != pPr.TextAlignment)
 		{
 			this.memory.WriteByte(c_oSerProp_pPrType.TextAlignment);
 			this.memory.WriteByte(c_oSerPropLenType.Byte);
 			this.memory.WriteByte(pPr.TextAlignment);
-		}
-		//WordWrap
-		if(null != pPr.WordWrap)
-		{
-			this.memory.WriteByte(c_oSerProp_pPrType.WordWrap);
-			this.memory.WriteByte(c_oSerPropLenType.Byte);
-			this.memory.WriteBool(pPr.WordWrap);
 		}
     };
     this.WriteInd = function(Ind)
@@ -9357,9 +9348,6 @@ function Binary_pPrReader(doc, oReadResult, stream)
 				break;
 			case c_oSerProp_pPrType.TextAlignment:
 				pPr.TextAlignment = this.stream.GetByte();
-				break;
-			case c_oSerProp_pPrType.WordWrap:
-				pPr.WordWrap = this.stream.GetBool();
 				break;
             default:
                 res = c_oSerConstants.ReadUnknown;

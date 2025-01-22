@@ -11770,18 +11770,6 @@ Paragraph.prototype.Set_SnapToGrid = function(Value)
 		this.private_UpdateTrackRevisionOnChangeParaPr(true);
 	}
 };
-Paragraph.prototype.Set_WordWrap = function(Value)
-{
-	if (Value != this.Pr.WordWrap)
-	{
-		this.private_AddPrChange();
-		AscCommon.History.Add(new CChangesParagraphWordWrap(this, this.Pr.WordWrap, Value));
-		this.Pr.WordWrap = Value;
-
-		this.CompiledPr.NeedRecalc = true;
-		this.private_UpdateTrackRevisionOnChangeParaPr(true);
-	}
-};
 Paragraph.prototype.Set_TextAlignment = function(Value)
 {
 	if (Value != this.Pr.TextAlignment)
@@ -14063,7 +14051,6 @@ Paragraph.prototype.Refresh_RecalcData = function(Data)
 		case AscDFH.historyitem_Paragraph_FramePr:
 		case AscDFH.historyitem_Paragraph_SnapToGrid:
 		case AscDFH.historyitem_Paragraph_TextAlignment:
-		case AscDFH.historyitem_Paragraph_WordWrap:
 		{
 			bNeedRecalc = true;
 			break;
@@ -16653,10 +16640,6 @@ Paragraph.prototype.SetParagraphWidowControl = function(Value)
 Paragraph.prototype.SetParagraphSnapToGrid = function(Value)
 {
 	this.Set_SnapToGrid(Value);
-};
-Paragraph.prototype.SetParagraphWordWrap = function(Value)
-{
-	this.Set_WordWrap(Value);
 };
 Paragraph.prototype.SetParagraphTextAlignment = function(Value)
 {

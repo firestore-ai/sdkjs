@@ -262,9 +262,6 @@
 			case AscDFH.historydescription_Document_SetParagraphTextAlignment          :
 				sString = "Document_SetParagraphTextAlignment"
 				break;
-			case AscDFH.historydescription_Document_SetParagraphWordWrap               :
-				sString = "Document_SetParagraphWordWrap"
-				break;
 			case AscDFH.historydescription_Document_SetParagraphKeepLines              :
 				sString = "Document_SetParagraphKeepLines";
 				break;
@@ -1934,7 +1931,6 @@
 	window['AscDFH'].historyitem_Paragraph_Shd_ThemeFill             = window['AscDFH'].historyitem_type_Paragraph | 41;
 	window['AscDFH'].historyitem_Paragraph_SnapToGrid                = window['AscDFH'].historyitem_type_Paragraph | 46;
 	window['AscDFH'].historyitem_Paragraph_TextAlignment             = window['AscDFH'].historyitem_type_Paragraph | 47;
-	window['AscDFH'].historyitem_Paragraph_WordWrap                  = window['AscDFH'].historyitem_type_Paragraph | 48;
 	//------------------------------------------------------------------------------------------------------------------
 	// Типы изменений в классе ParaTextPr
 	//------------------------------------------------------------------------------------------------------------------
@@ -4870,7 +4866,6 @@
     window['AscDFH'].historydescription_Document_SetParagraphSnapToGrid             = 0x01c1;
 	window['AscDFH'].historydescription_Document_SetCustomXml						= 0x01c2;
 	window['AscDFH'].historydescription_Document_SetParagraphTextAlignment          = 0x01c3;
-	window['AscDFH'].historydescription_Document_SetParagraphWordWrap	            = 0x01c4;
 	
 	// pdf
 	window['AscDFH'].historydescription_Pdf_AddAnnot			= 0x29a;

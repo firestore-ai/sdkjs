@@ -2801,10 +2801,6 @@
 					this.applyTextFunction(CDocumentContent.prototype.SetParagraphSnapToGrid, CTable.prototype.SetParagraphSnapToGrid, [Value]);
 				},
 
-				setParagraphTextWrap: function (Value) {
-					this.applyTextFunction(CDocumentContent.prototype.SetParagraphTextWrap, CTable.prototype.SetParagraphTextWrap, [Value]);
-				},
-
 				setParagraphTextAlignment: function(Value) {
 					this.applyTextFunction(CDocumentContent.prototype.SetParagraphTextAlignment, CTable.prototype.SetParagraphTextAlignment, [Value]);
 				},

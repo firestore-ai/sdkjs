@@ -597,9 +597,6 @@ CDocumentContentElementBase.prototype.SetParagraphWidowControl = function(Value)
 CDocumentContentElementBase.prototype.SetParagraphSnapToGrid = function(Value)
 {
 };
-CDocumentContentElementBase.prototype.SetParagraphWordWrap = function(Value)
-{
-};
 CDocumentContentElementBase.prototype.SetParagraphTextAlignment = function(Value)
 {
 };
