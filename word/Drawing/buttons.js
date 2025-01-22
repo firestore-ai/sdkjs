@@ -1120,7 +1120,7 @@
 		this.rects = undefined;
 		this.paths = undefined;
 
-		if (undefined === geom[0].Points)
+		if (geom[0] === undefined || undefined === geom[0].Points)
 			this.rects = geom;
 		else
 			this.paths = geom;
