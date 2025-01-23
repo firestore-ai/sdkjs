@@ -489,6 +489,11 @@ CDocumentControllerBase.prototype.SetParagraphWidowControl = function(Value){};
  */
 CDocumentControllerBase.prototype.SetParagraphSnapToGrid = function(Value){};
 /**
+ * WordWrap
+ * @param {*} Value 
+ */
+CDocumentControllerBase.prototype.SetParagraphWordWrap = function(Value){};
+/**
  * TextAlignment
  * @param {*} Value 
  */

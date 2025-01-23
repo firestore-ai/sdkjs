@@ -16241,7 +16241,7 @@ function CParaPr()
 
 	this.SuppressLineNumbers = undefined; 
     this.TextAlignment     = undefined;
-    
+    this.WordWrap          = undefined;
 }
 
 CParaPr.fromObject = function(obj)
@@ -16355,6 +16355,9 @@ CParaPr.prototype.Copy = function(bCopyPrChange, oPr)
 
     if (undefined !== this.TextAlignment)
         ParaPr.TextAlignment = this.TextAlignment;
+
+    if (undefined !== this.TextAlignment)
+        ParaPr.WordWrap = this.WordWrap;
 
 	return ParaPr;
 };
@@ -16537,6 +16540,9 @@ CParaPr.prototype.Merge = function(ParaPr)
     if (undefined !== ParaPr.TextAlignment)
         this.TextAlignment = ParaPr.TextAlignment;
 
+    if (undefined !== ParaPr.WordWrap)
+        this.WordWrap = ParaPr.WordWrap;
+
 };
 CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 {
@@ -16574,6 +16580,7 @@ CParaPr.prototype.InitDefault = function(nCompatibilityMode)
 	this.SuppressLineNumbers       = false;
     this.SnapToGrid                = true;
     this.TextAlignment             = AscCommon.text_align_Auto;
+    this.WordWrap                  = true;
 
 	this.DefaultRunPr   = undefined;
 	this.Bullet         = undefined;
@@ -16713,6 +16720,9 @@ CParaPr.prototype.Set_FromObject = function(ParaPr)
 
     if (undefined !== ParaPr.TextAlignment)
         this.TextAlignment = ParaPr.TextAlignment;
+
+    if (undefined !== ParaPr.WordWrap)
+        this.WordWrap = ParaPr.WordWrap;
 };
 CParaPr.prototype.SetFromObject = function(oPr)
 {
@@ -16853,6 +16863,9 @@ CParaPr.prototype.Compare = function(ParaPr)
 
     if (this.TextAlignment === ParaPr.TextAlignment)
         Result_ParaPr.TextAlignment = this.TextAlignment;
+
+    if (this.WordWrap === ParaPr.WordWrap)
+        Result_ParaPr.WordWrap = this.WordWrap;
 
 	return Result_ParaPr;
 };
@@ -17031,6 +17044,12 @@ CParaPr.prototype.Write_ToBinary = function(Writer)
         Flags |= (1 << 27);
     }
 
+    if (undefined !== this.WordWrap)
+    {
+        Writer.WriteBool(this.WordWrap);
+        Flags != (1 << 28);
+    }
+
 	var EndPos = Writer.GetCurPosition();
 	Writer.Seek(StartPos);
 	Writer.WriteLong(Flags);
@@ -17172,6 +17191,8 @@ CParaPr.prototype.Read_FromBinary = function(Reader)
     if (Flags & (1 << 27))
         this.TextAlignment = Reader.GetByte();
 
+    if (Flags & (1 << 28))
+        this.WordWrap = Reader.GetBool();
 };
 CParaPr.prototype.isEqual = function(ParaPrUOld,ParaPrNew)
 {
@@ -17222,6 +17243,7 @@ CParaPr.prototype.Is_Equal = function(ParaPr)
 		|| this.SuppressLineNumbers !== ParaPr.SuppressLineNumbers
 		|| this.Bidi !== ParaPr.Bidi        
         || this.TextAlignment !== ParaPr.TextAlignment
+        || this.WordWrap !== ParaPr.WordWrap    
 	);
 };
 CParaPr.prototype.IsEqual = function(paraPr)
@@ -17308,6 +17330,9 @@ CParaPr.prototype.GetDiff = function(oParaPr)
 
     if (this.TextAlignment !== oParaPr.TextAlignment)
         oResultParaPr.TextAlignment = this.TextAlignment;
+
+    if (this.WordWrap !== oParaPr.WordWrap)
+        oResultParaPr.WordWrap = this.WordWrap;
 
 	return oResultParaPr;
 };
@@ -17443,6 +17468,7 @@ CParaPr.prototype.Is_Empty = function(oPr)
         || undefined !== this.SnapToGrid
 		|| undefined !== this.Bidi
         || undefined !== this.TextAlignment
+        || undefined !== this.WordWrap
 	);
 };
 CParaPr.prototype.IsEmpty = function()
@@ -17508,6 +17534,9 @@ CParaPr.prototype.GetDiffPrChange = function()
 
     if (this.TextAlignment !== PrChange.TextAlignment)
         ParaPr.TextAlignment = this.TextAlignment;
+
+    if (this.WordWrap !== PrChange.WordWrap)
+        ParaPr.WordWrap = this.WordWrap;
 
 	return ParaPr;
 };
@@ -17719,6 +17748,14 @@ CParaPr.prototype.SetTextAlignment = function(Value)
 {
     this.TextAlignment = Value;
 }
+CParaPr.prototype.GetWordWrap = function()
+{
+    return this.WordWrap;
+}
+CParaPr.prototype.SetWordWrap = function(Value)
+{
+    this.WordWrap = Value;
+}
 CParaPr.prototype.WriteToBinary = function(oWriter)
 {
 	return this.Write_ToBinary(oWriter);
@@ -17794,8 +17831,10 @@ CParaPr.prototype['get_SuppressLineNumbers']      = CParaPr.prototype.get_Suppre
 CParaPr.prototype['put_SuppressLineNumbers']      = CParaPr.prototype.put_SuppressLineNumbers      = CParaPr.prototype.SetSuppressLineNumbers;
 CParaPr.prototype['get_SnapToGrid']               = CParaPr.prototype.get_SnapToGrid               = CParaPr.prototype['Get_SnapToGrid']               = CParaPr.prototype.GetSnapToGrid;
 CParaPr.prototype['put_SnapToGrid']               = CParaPr.prototype.put_SnapToGrid               = CParaPr.prototype.SetSnapToGrid;
-CParaPr.prototype['get_TextAlignment']            = CParaPr.prototype.get_TextAlignment            = CParaPr.prototype['Get_TextAlignment']               = CParaPr.prototype.GetTextAlignment;
+CParaPr.prototype['get_TextAlignment']            = CParaPr.prototype.get_TextAlignment            = CParaPr.prototype['Get_TextAlignment']            = CParaPr.prototype.GetTextAlignment;
 CParaPr.prototype['put_TextAlignment']            = CParaPr.prototype.put_TextAlignment            = CParaPr.prototype.SetTextAlignment;
+CParaPr.prototype['get_WordWrap']                 = CParaPr.prototype.get_WordWrap                 = CParaPr.prototype['Get_WordWrap']                 = CParaPr.prototype.GetWordWrap;
+CParaPr.prototype['put_WordWrap']                 = CParaPr.prototype.put_WordWrap                 = CParaPr.prototype.SetWordWrap;
 
 
 //----------------------------------------------------------------------------------------------------------------------

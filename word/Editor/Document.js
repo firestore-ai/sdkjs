@@ -7168,6 +7168,13 @@ CDocument.prototype.SetParagraphTextAlignment = function(Value)
 	this.Document_UpdateSelectionState();
 	this.Document_UpdateInterfaceState();
 };
+CDocument.prototype.SetParagraphWordWrap = function(Value)
+{
+	this.Controller.SetParagraphWordWrap(Value);
+	this.Recalculate();
+	this.Document_UpdateSelectionState();
+	this.Document_UpdateInterfaceState();
+};
 CDocument.prototype.SetParagraphBorders = function(Borders)
 {
 	this.Controller.SetParagraphBorders(Borders);
@@ -20670,6 +20677,34 @@ CDocument.prototype.controller_SetParagraphWidowControl = function(Value)
 	{
 		var Item = this.Content[this.CurPos.ContentPos];
 		Item.SetParagraphWidowControl(Value);
+	}
+};
+CDocument.prototype.controller_SetParagraphWordWrap = function(Value)
+{
+	if (this.CurPos.ContentPos < 0)
+		return false;
+
+	if (true === this.Selection.Use)
+	{
+		var StartPos = this.Selection.StartPos;
+		var EndPos   = this.Selection.EndPos;
+		if (EndPos < StartPos)
+		{
+			var Temp = StartPos;
+			StartPos = EndPos;
+			EndPos   = Temp;
+		}
+
+		for (var Index = StartPos; Index <= EndPos; Index++)
+		{
+			var Item = this.Content[Index];
+			Item.SetParagraphWordWrap(Value);
+		}
+	}
+	else
+	{
+		var Item = this.Content[this.CurPos.ContentPos];
+		Item.SetParagraphWordWrap(Value);
 	}
 };
 CDocument.prototype.controller_SetParagraphSnapToGrid = function(Value)

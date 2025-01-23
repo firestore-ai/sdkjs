@@ -16523,6 +16523,8 @@
 				oResult["suppressLineNumbers"] = this.SuppressLineNumbers;
 			if (this.SnapToGrid != null)
 				oResult["snapToGrid"] = this.SnapToGrid;
+			if (this.WordWrap != null)
+				oResult["WordWrap"] = this.WordWrap;
 
 			if (!this.IsEmptyBorders())
 			{
@@ -16724,6 +16726,8 @@
 				this.SuppressLineNumbers = oParsedJson["suppressLineNumbers"];
 			if (oParsedJson["snapToGrid"] != null)
 				this.SnapToGrid = oParsedJson["snapToGrid"];
+			if (oParsedJson["WordWrap"] != null)
+				this.WordWrap = oParsedJson["wordWrap"];
 			if (oParsedJson["shd"] != null)
 				this.Shd = ReaderFromJSON.prototype.ShadeFromJSON(oParsedJson["shd"]);
 			if (oParsedJson["tabs"] != null)

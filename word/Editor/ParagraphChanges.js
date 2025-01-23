@@ -56,6 +56,7 @@ AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Shd]                       = 
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_WidowControl]              = CChangesParagraphWidowControl;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_SnapToGrid]                = CChangesParagraphSnapToGrid;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_TextAlignment]             = CChangesParagraphTextAlignment;
+AscDFH.changesFactory[AscDFH.historyitem_Paragraph_WordWrap] 		          = CChangesParagraphWordWrap;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Tabs]                      = CChangesParagraphTabs;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_PStyle]                    = CChangesParagraphPStyle;
 AscDFH.changesFactory[AscDFH.historyitem_Paragraph_Borders_Between]           = CChangesParagraphBordersBetween;
@@ -200,6 +201,10 @@ AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_TextAlignment]           
 	AscDFH.historyitem_Paragraph_TextAlignment,
 	AscDFH.historyitem_Paragraph_Pr
 ];
+AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_WordWrap]              = [
+	AscDFH.historyitem_Paragraph_WordWrap,
+	AscDFH.historyitem_Paragraph_Pr
+];
 AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_Tabs]                      = [
 	AscDFH.historyitem_Paragraph_Tabs,
 	AscDFH.historyitem_Paragraph_Pr
@@ -240,6 +245,7 @@ AscDFH.changesRelationMap[AscDFH.historyitem_Paragraph_Pr]                      
 	AscDFH.historyitem_Paragraph_KeepLines,
 	AscDFH.historyitem_Paragraph_SnapToGrid,
 	AscDFH.historyitem_Paragraph_TextAlignment,
+	AscDFH.historyitem_Paragraph_WordWrap,
 	AscDFH.historyitem_Paragraph_KeepNext,
 	AscDFH.historyitem_Paragraph_PageBreakBefore,
 	AscDFH.historyitem_Paragraph_Spacing_Line,
@@ -1173,7 +1179,29 @@ CChangesParagraphSnapToGrid.prototype.Load = private_ParagraphChangesOnLoadPr;
 CChangesParagraphSnapToGrid.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
 /**
  * @constructor
- * @extends {AscDFH.CChangesParagraphTextAlignment}
+ * @extends {AscDFH.CChangesParagraphWordWrap}
+ */
+function CChangesParagraphWordWrap(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseByteProperty.call(this, Class, Old, New, Color);
+}
+CChangesParagraphWordWrap.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
+CChangesParagraphWordWrap.prototype.constructor = CChangesParagraphWordWrap;
+CChangesParagraphWordWrap.prototype.Type = AscDFH.historyitem_Paragraph_WordWrap;
+CChangesParagraphWordWrap.prototype.private_SetValue = function(Value)
+{
+	var oParagraph = this.Class;
+	oParagraph.Pr.WordWrap = Value;
+
+	oParagraph.CompiledPr.NeedRecalc = true;
+	oParagraph.private_UpdateTrackRevisionOnChangeParaPr(false);
+};
+CChangesParagraphWordWrap.prototype.Merge = private_ParagraphChangesOnMergePr;
+CChangesParagraphWordWrap.prototype.Load = private_ParagraphChangesOnLoadPr;
+CChangesParagraphWordWrap.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesParagraphWTextAlignment}
  */
 function CChangesParagraphTextAlignment(Class, Old, New, Color)
 {
@@ -1193,6 +1221,29 @@ CChangesParagraphTextAlignment.prototype.private_SetValue = function(Value)
 CChangesParagraphTextAlignment.prototype.Merge = private_ParagraphChangesOnMergePr;
 CChangesParagraphTextAlignment.prototype.Load = private_ParagraphChangesOnLoadPr;
 CChangesParagraphTextAlignment.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
+/**
+ * @constructor
+ * @extends {AscDFH.CChangesParagraphSnapToGrid}
+ */
+function CChangesParagraphSnapToGrid(Class, Old, New, Color)
+{
+	AscDFH.CChangesBaseBoolProperty.call(this, Class, Old, New, Color);
+}
+CChangesParagraphSnapToGrid.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
+CChangesParagraphSnapToGrid.prototype.constructor = CChangesParagraphSnapToGrid;
+CChangesParagraphSnapToGrid.prototype.Type = AscDFH.historyitem_Paragraph_SnapToGrid;
+CChangesParagraphSnapToGrid.prototype.private_SetValue = function(Value)
+{
+	var oParagraph = this.Class;
+	oParagraph.Pr.SnapToGrid = Value;
+
+	oParagraph.CompiledPr.NeedRecalc = true;
+	oParagraph.private_UpdateTrackRevisionOnChangeParaPr(false);
+};
+CChangesParagraphSnapToGrid.prototype.Merge = private_ParagraphChangesOnMergePr;
+CChangesParagraphSnapToGrid.prototype.Load = private_ParagraphChangesOnLoadPr;
+CChangesParagraphSnapToGrid.prototype.CheckLock = private_ParagraphContentChangesCheckLock;
+
 function CChangesParagraphTabs(Class, Old, New, Color)
 {
 	AscDFH.CChangesBaseObjectProperty.call(this, Class, Old, New, Color);
@@ -1477,6 +1528,11 @@ CChangesParagraphPr.prototype.Merge = function(oChange)
 		case AscDFH.historyitem_Paragraph_TextAlignment:
 		{
 			this.New.TextAlignment = oChange.New;
+			break;
+		}
+		case AscDFH.historyitem_Paragraph_WordWrap:
+		{
+			this.New.WordWrap = oChange.New;
 			break;
 		}
 		case AscDFH.historyitem_Paragraph_PageBreakBefore:

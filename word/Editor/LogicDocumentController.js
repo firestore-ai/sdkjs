@@ -195,6 +195,10 @@ CLogicDocumentController.prototype.SetParagraphSnapToGrid = function(Value)
 {
 	this.LogicDocument.controller_SetParagraphSnapToGrid(Value);
 };
+CLogicDocumentController.prototype.SetParagraphWordWrap = function(Value)
+{
+	this.LogicDocument.controller_SetParagraphWordWrap(Value);
+};
 CLogicDocumentController.prototype.SetParagraphTextAlignment = function(Value)
 {
 	this.LogicDocument.controller_SetParagraphTextAlignment(Value);

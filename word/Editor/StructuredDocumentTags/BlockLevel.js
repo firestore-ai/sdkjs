@@ -799,6 +799,10 @@ CBlockLevelSdt.prototype.SetParagraphTextAlignment = function(Value)
 {
 	return this.Content.SetParagraphTextAlignment(Value);
 };
+CBlockLevelSdt.prototype.SetParagraphWordWrap = function(Value)
+{
+	return this.Content.SetParagraphWordWrap(Value);
+};
 CBlockLevelSdt.prototype.SetParagraphBorders = function(Borders)
 {
 	return this.Content.SetParagraphBorders(Borders);

@@ -2416,12 +2416,20 @@ CFootnotesController.prototype.SetParagraphSnapToGrid = function(Value)
 		oFootnote.SetParagraphSnapToGrid(Value);
 	}
 };
-CFootnotesController.prototype.SetParagraphSnapToGrid = function(Value)
+CFootnotesController.prototype.SetParagraphTextAlignment = function(Value)
 {
 	for (var sId in this.Selection.Footnotes)
 	{
 		var oFootnote = this.Selection.Footnotes[sId];
-		oFootnote.SetParagraphSnapToGrid(Value);
+		oFootnote.SetParagraphTextAlignment(Value);
+	}
+};
+CFootnotesController.prototype.SetParagraphWordWrap = function(Value)
+{
+	for (var sId in this.Selection.Footnotes)
+	{
+		var oFootnote = this.Selection.Footnotes[sId];
+		oFootnote.SetParagraphWordWrap(Value);
 	}
 };
 CFootnotesController.prototype.SetParagraphBorders = function(Borders)
