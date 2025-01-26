@@ -1183,7 +1183,7 @@ CChangesParagraphSnapToGrid.prototype.CheckLock = private_ParagraphContentChange
  */
 function CChangesParagraphWordWrap(Class, Old, New, Color)
 {
-	AscDFH.CChangesBaseByteProperty.call(this, Class, Old, New, Color);
+	AscDFH.CChangesBaseBoolProperty.call(this, Class, Old, New, Color);
 }
 CChangesParagraphWordWrap.prototype = Object.create(AscDFH.CChangesBaseBoolProperty.prototype);
 CChangesParagraphWordWrap.prototype.constructor = CChangesParagraphWordWrap;
