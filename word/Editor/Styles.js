@@ -16356,7 +16356,7 @@ CParaPr.prototype.Copy = function(bCopyPrChange, oPr)
     if (undefined !== this.TextAlignment)
         ParaPr.TextAlignment = this.TextAlignment;
 
-    if (undefined !== this.TextAlignment)
+    if (undefined !== this.WordWrap)
         ParaPr.WordWrap = this.WordWrap;
 
 	return ParaPr;
@@ -17047,7 +17047,7 @@ CParaPr.prototype.Write_ToBinary = function(Writer)
     if (undefined !== this.WordWrap)
     {
         Writer.WriteBool(this.WordWrap);
-        Flags != (1 << 28);
+        Flags |= (1 << 28);
     }
 
 	var EndPos = Writer.GetCurPosition();
