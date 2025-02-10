@@ -5728,7 +5728,7 @@ ParaRun.prototype.Recalculate_Range_Spaces = function(PRSA, _CurLine, _CurRange,
 								if (0 === PRSA.CurPage && Item.wrappingPolygon.top > PRSA.PageY + 0.001 && Item.wrappingPolygon.left > PRSA.PageX + 0.001)
 									PRSA.RecalcResult = recalcresult_CurPagePara;
 								else
-									PRSA.RecalcResult = recalcresult_CurPage | recalcresultflags_Page;
+									PRSA.RecalcResult = recalcresult_CurPage | recalcresultflags_Page | recalcresult_NextElement;
 							}
 							
 							return;
