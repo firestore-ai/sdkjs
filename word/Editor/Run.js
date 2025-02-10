@@ -5153,7 +5153,7 @@ ParaRun.prototype.Recalculate_LineMetrics = function(PRS, ParaPr, _CurLine, _Cur
 				if (Asc.linerule_Exact === LineRule)
 				{
 					if (PRS.LineAscent < Item.getHeight())
-						PRS.LineAscent = item.getHeight();
+						PRS.LineAscent = Item.getHeight();
 				}
 				else 
 				{
